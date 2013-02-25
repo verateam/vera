@@ -1,0 +1,3 @@
+version=3
+http://www.inspirel.com/vera/ \
+files/vera\+\+-(.*)\.tar\.gz
