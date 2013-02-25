@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rule name="T015" last-updated="2007.11.06">
+
+<title>HTML links in comments and string literals should be correct</title>
+
+<description>
+<p>The links embedded in comments and string literals should have correct form and should reference existing files.</p>
+</description>
+
+<compliance>
+<standard name="Boost" />
+</compliance>
+
+<script><![CDATA[# HTML links in comments and string literals should be correct
+
+set urlRe {<[[:space:]]*[^>]*[[:space:]]+(?:HREF|SRC)[[:space:]]*=[[:space:]]*\"([^\"]*)\"}
+
+foreach file [getSourceFileNames] {
+    foreach token [getTokens $file 1 0 -1 -1 {ccomment cppcomment stringlit}] {
+        set tokenValue [lindex $token 0]
+        if {[regexp -nocase $urlRe $tokenValue dummy link] == 1} {
+
+            if {[string index $link 0] == "\#" ||
+                [string first "mailto:" $link] == 0 ||
+                [string first "http:" $link] == 0 ||
+                [string first "https:" $link] == 0 ||
+                [string first "ftp:" $link] == 0 ||
+                [string first "news:" $link] == 0 ||
+                [string first "javascript:" $link] == 0} {
+                continue
+            }
+
+            set lineNumber [lindex $token 1]
+
+            if {[string first "file:" $link] == 0} {
+                report $file $lineNumber "URL links to files are not allowed"
+                continue
+            }
+
+            if {[regexp {[ \<\>\'\{\}\|\\\^\[\]]} $link] == 1} {
+                report $file $lineNumber "URL link contains illegal character(s)"
+                continue
+            }
+
+            set plainLink $link
+            set pos [string first "\#" $link]
+            if {$pos != -1} {
+                set plainLink [string range $link 0 [expr $pos - 1]]
+            }
+
+            if {[string first "\#" $link [expr $pos + 1]] != -1} {
+                report $file $lineNumber "URL link contains invalid bookmark"
+            }
+
+            set completeLink [file join [file dirname $file] $plainLink]
+            if {[file isfile $completeLink] == 0} {
+                report $file $lineNumber "URL points to non-existing file"
+            }
+        }
+    }
+}
+]]></script>
+
+<test>
+
+<source><![CDATA[@ test.cpp
+// bla bla
+// <a href="mailto:abc@xyz.com">
+// <a href="file:abc.txt">
+// <img src="abc.jpg">
+// <a href = "abc{xyz">
+// <a href="abc.html#klm#xyz">
+// <a href="abc.html">
+// <a href="xyz.html">
+@ xyz.html
+<html></html>
+]]></source>
+
+<result><![CDATA[test.cpp:3: URL links to files are not allowed
+test.cpp:4: URL points to non-existing file
+test.cpp:5: URL link contains illegal character(s)
+test.cpp:6: URL link contains invalid bookmark
+test.cpp:6: URL points to non-existing file
+test.cpp:7: URL points to non-existing file
+]]></result>
+
+</test>
+</rule>

@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Calls to min/max should be protected against accidental macro substitution</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("rule_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("rule_source").style.display = "none";
+}
+
+</script></head><body><h1 class="rule_id">T016</h1><h1 class="rule_short">Calls to min/max should be protected against accidental macro substitution</h1><p class="description"><b>Description:</b></p><p>The calls to min and max functions should be protected against accidental macro substitution.</p><pre class="example">
+x = max(y, z); // wrong, vulnerable to accidental macro substitution
+
+x = (max)(y, z); // OK
+
+x = max BOOST_PREVENT_MACRO_SUBSTITUTION (y, z); // OK
+</pre><p class="compliance"><b>Compliance:</b> <abbr title="This rule is recommended by the Boost community.">Boost</abbr></p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this rule</a></p></div><div id="rule_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># Calls to min/max should be protected against accidental macro substitution
+
+foreach file [getSourceFileNames] {
+    foreach identifier [getTokens $file 1 0 -1 -1 {identifier}] {
+        set value [lindex $identifier 0]
+        if {$value == "min" || $value == "max"} {
+            set lineNumber [lindex $identifier 1]
+            set columnNumber [expr [lindex $identifier 2] + [string length $value]]
+            set restOfLine [string range [getLine $file $lineNumber] $columnNumber end]
+
+            if {[regexp {^[[:space:]]*\(} $restOfLine] == 1} {
+                report $file $lineNumber "min/max potential macro substitution problem"
+            }
+        }
+    }
+}
+</pre></div><p><a href="index.html">Rule index</a></p></body></html>

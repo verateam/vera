@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Reserved names should not be used for preprocessor macros</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("rule_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("rule_source").style.display = "none";
+}
+
+</script></head><body><h1 class="rule_id">T002</h1><h1 class="rule_short">Reserved names should not be used for preprocessor macros</h1><p class="description"><b>Description:</b></p><p>The C++ Standard reserves some forms of names for language implementations. One of the most frequent violations is a definition of preprocessor macro that begins with underscore followed by a capital letter or containing two consecutive underscores:</p><pre class="example">
+#define _MY_MACRO something
+#define MY__MACRO something
+</pre><p>Even though the majority of known compilers use more obscure names for internal purposes and the above code is not likely to cause any significant problems, all such names are <i>formally reserved</i> and therefore should not be used.</p><p>Apart from the use of underscore in macro names, preprocessor macros should not be used to redefine language keywords:</p><pre class="example">
+#define private public
+#define const
+</pre><p class="compliance"><b>Compliance:</b> <abbr title="This rule directly results from the ISO standard.">ISO</abbr></p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this rule</a></p></div><div id="rule_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># Reserved names should not be used for preprocessor macros
+
+set keywords {
+    asm
+    auto   
+    bool
+    break
+    case
+    catch
+    char
+    class
+    const
+    const_cast
+    continue
+    default
+    delete
+    goto
+    do
+    double
+    dynamic_cast
+    else
+    enum
+    explicit
+    export
+    extern
+    false
+    float
+    for
+    friend
+    if
+    inline
+    int
+    long
+    mutable
+    namespace
+    new
+    operator
+    private
+    protected
+    public
+    register
+    reinterpret_cast
+    return
+    short
+    signed
+    sizeof
+    static
+    static_cast
+    struct
+    switch
+    template
+    this
+    throw
+    true
+    try
+    typedef
+    typeid
+    typename
+    union
+    unsigned
+    using
+    virtual
+    void
+    volatile
+    wchar_t
+    while
+
+    and
+    and_eq
+    bitand
+    bitor
+    compl
+    not
+    not_eq
+    or
+    or_eq
+    xor
+    xor_eq
+}
+
+foreach f [getSourceFileNames] {
+    foreach t [getTokens $f 1 0 -1 -1 {pp_define}] {
+        set lineNumber [lindex $t 1]
+
+        set line [getLine $f $lineNumber]
+        set rest [string trimleft [string range $line \
+                                       [expr [lindex $t 2] + [string length [lindex $t 0]]] end]]
+        set macroName [string range $rest 0 [expr [string wordend $rest 0] - 1]]
+
+        if {([regexp {^_} $macroName] &amp;&amp; [string is upper -strict [string index $macroName 1]]) ||
+            [string first "__" $macroName] != -1} {
+            report $f $lineNumber "reserved name used for macro (incorrect use of underscore)"
+        }
+        if {[lsearch $keywords $macroName] != -1} {
+            report $f $lineNumber "reserved name used for macro (keyword or alternative token redefined)"
+        }
+    }
+}
+</pre></div><p><a href="index.html">Rule index</a></p></body></html>

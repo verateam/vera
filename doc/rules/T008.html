@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Keywords catch, for, if, switch and while should be followed by a single space</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("rule_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("rule_source").style.display = "none";
+}
+
+</script></head><body><h1 class="rule_id">T008</h1><h1 class="rule_short">Keywords catch, for, if, switch and while should be followed by a single space</h1><p class="description"><b>Description:</b></p><p>Keywords <code class="inline-code">catch</code>, <code class="inline-code">for</code>, <code class="inline-code">if</code>, <code class="inline-code">switch</code> and <code class="inline-code">while</code> should be followed by a single space and then an opening left parenthesis:</p><pre class="example">
+catch (...)
+{
+     for (int i = 0; i != 10; ++i)
+     {
+          if (foo(i))
+          {
+               while (getline(cin, line))
+               {
+                    switch (i % 3)
+                    {
+                    case 0:
+                         bar(line);
+                         break;
+                    // ...
+                    }
+               }
+          }
+     }
+}
+</pre><p class="compliance"><b>Compliance:</b> <abbr title="This rule is recommended by Inspirel.">Inspirel</abbr></p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this rule</a></p></div><div id="rule_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># Keywords catch, for, if and while should be followed by a single space
+
+foreach f [getSourceFileNames] {
+    foreach t [getTokens $f 1 0 -1 -1 {catch for if switch while}] {
+        set keyword [lindex $t 0]
+        set line [lindex $t 1]
+        set column [lindex $t 2]
+        set followingTokens [getTokens $f $line [expr $column + [string length $keyword]] [expr $line + 1] -1 {}]
+        if {[llength $followingTokens] &lt; 2} {
+            report $f $line "keyword '${keyword}' not followed by a single space"
+        } else {
+            if {[list [lindex [lindex $followingTokens 0] 0] [lindex [lindex $followingTokens 1] 0]] != [list " " "("]} {
+                report $f $line "keyword '${keyword}' not followed by a single space"
+            }
+        }
+    }
+}
+</pre></div><p><a href="index.html">Rule index</a></p></body></html>

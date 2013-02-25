@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rule name="L002" last-updated="2006.05.31">
+
+<title>Don't use tab characters</title>
+
+<description>
+<p><emph>Horizontal tabs</emph> are not consistently handled by editors and tools. Avoiding them ensures that the intended formatting of the code is preserved.</p>
+</description>
+
+<compliance>
+<standard name="HICPP" />
+<standard name="JSF" />
+</compliance>
+
+<script><![CDATA[# Don't use tab characters
+
+foreach f [getSourceFileNames] {
+    set lineNumber 1
+    foreach line [getAllLines $f] {
+
+        if [regexp {\t} $line] {
+            report $f $lineNumber "horizontal tab used"
+        }
+
+        incr lineNumber
+    }
+}
+]]></script>
+
+<test>
+
+<source><![CDATA[@ test.cpp
+void foo()
+{
+	int i = 0;
+}
+]]></source>
+
+<result><![CDATA[test.cpp:3: horizontal tab used
+]]></result>
+
+</test>
+</rule>

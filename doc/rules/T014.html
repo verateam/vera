@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Source files should refer the Boost Software License</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("rule_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("rule_source").style.display = "none";
+}
+
+</script></head><body><h1 class="rule_id">T014</h1><h1 class="rule_short">Source files should refer the Boost Software License</h1><p class="description"><b>Description:</b></p><p>The Boost Software License should be referenced in the source code.</p><p>This rule verifies that at least one comment in the source file contains the "Boost Software License" phrase.</p><p>Note that this rule is very specific to the Boost libraries and those project that choose to use the Boost license. It is therefore not part of the default profile.</p><p class="compliance"><b>Compliance:</b> <abbr title="This rule is recommended by the Boost community.">Boost</abbr></p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this rule</a></p></div><div id="rule_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># Source files should refer the Boost Software License
+
+foreach file [getSourceFileNames] {
+    set found false
+    foreach comment [getTokens $file 1 0 -1 -1 {ccomment cppcomment}] {
+        set value [lindex $comment 0]
+        if {[string first "Boost Software License" $value] != -1} {
+            set found true
+            break
+        }
+    }
+    if {$found == false} {
+        report $file 1 "no reference to the Boost Software License found"
+    }
+}
+</pre></div><p><a href="index.html">Rule index</a></p></body></html>

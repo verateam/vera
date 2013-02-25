@@ -1,0 +1,14 @@
+# This file defines the set of scripts (rules) that should be executed
+# to verify whether the code complies with the Boost conventions,
+# as defined in the original Boost inspect tool.
+
+set rules {
+    F001
+    F002
+    L002
+    T013
+    T014
+    T015
+    T016
+    T017
+}

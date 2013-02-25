@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+		<title>Vera++ - Tcl API</title>
+ 		<link rel="stylesheet" type="text/css" href="style.css" />
+	</head>
+<body>
+<h1>Vera++ - Tcl API</h1>
+
+<p>The scripts (rules and transformations) are written in Tcl and are executed by the embedded interpreter that has access to relevant state of the program. A set of commands is provided to enable easy read-only operation on the information that was gathered by parsing given source files.</p>
+
+<p>The following Tcl commands are provided:</p>
+
+<ul>
+<li><b><code>getSourceFileNames</code></b> - returns the list of file names that were provided to Vera++ as program parameters.</li>
+<li><b><code>getLineCount <i>fileName</i></code></b> - returns the number of lines in the given source file.</li>
+<li><b><code>getAllLines <i>fileName</i></code></b> - returns the list of lines, in their natural order, that form a give source file.</li>
+<li><b><code>getLine <i>fileName</i> <i>lineNumber</i></code></b> - returns the selected line; line numbers are counted from 1.</li>
+<li><b><code>getTokens <i>fileName</i> <i>fromLine</i> <i>fromColumn</i> <i>toLine</i> <i>toColumn</i> <i>filter</i></code></b> - returns the list of tokens, in their natural order, from the given source file and that match the given selection criteria.<br /><br />
+The meaning of arguments for selecting tokens is:
+<ul>
+<li><b><code><i>fromLine</i></code></b> - the lowest line number (counted from 1), inclusive</li>
+<li><b><code><i>fromColumn</i></code></b> - the lowest column number (counted from 0), inclusive</li>
+<li><b><code><i>toLine</i></code></b> - the highest line number, inclusive; -1 means that the selected range spans to the end of the file</li>
+<li><b><code><i>toColumn</i></code></b> - the highest column number, exclusive; -1 means that the selected range spans to the end of the line defined by <code><i>toLine</i></code>.</li>
+<li><b><code><i>filter</i></code></b> - the list of selected token types, the recognized token types are listed below; if this list is empty, then all token types are allowed.</li>
+</ul>
+<br />
+The <code>getTokens</code> command returns a list of lists - the nested lists have the following elements:
+<ul>
+<li><i>value</i> - the literal text of the token</li>
+<li><i>lineNumber</i> - the line number (from 1) where the token appears</li>
+<li><i>columnNumber</i> - the column number (from 0) where the token appears</li>
+<li><i>name</i> - the name or type of the token; see below for the list of recognized token types</li>
+</ul>
+<br />
+</li>
+<li><b><code>getParameter <i>name</i> <i>defaultValue</i></code></b> - returns the value of the given parameter or the provided default value if no such parameter is defined.</li>
+<li><b><code>report <i>fileName</i> <i>lineNumber</i> <i>message</i></code></b> - registers a report for the given file and line; this report is printed at the end of the program execution, sorted by file and line number. Use this command to generate output that is compatible with the warning/error output format of popular compilers.</li>
+</ul>
+
+<p><b>Examples:</b></p>
+
+<p>To process all lines from all source files, use the following code pattern:</p>
+<pre class="example">
+foreach fileName [getSourceFileNames] {
+    foreach line [getAllLines $fileName] {
+        # ...
+    }
+}
+</pre>
+
+<p>To process all tokens from all source files, use:</p>
+<pre class="example">
+foreach fileName [getSourceFileNames] {
+    foreach token [getTokens $fileName 1 0 -1 -1 {}] {
+        set tokenValue [lindex $token 0]
+        set lineNumber [lindex $token 1]
+        set columnNumber [lindex $token 2]
+        set tokenType [lindex $token 3]
+        # ...
+    }
+}
+</pre>
+
+<p>To process only curly braces from the given source file, use:</p>
+<pre class="example">
+foreach token [getTokens $fileName 1 0 -1 -1 {leftbrace rightbrace}] {
+    # ...
+}
+</pre>
+
+<p>The complete rule script for verifying that the lines are no longer than some limit (the limit can be provided as a parameter, but the default value is defined in by the script itself):</p>
+<pre class="example">
+# Line cannot be too long
+
+set maxLength [getParameter "max-line-length" 100]
+
+foreach f [getSourceFileNames] {
+    set lineNumber 1
+    foreach line [getAllLines $f] {
+        if {[string length $line] > $maxLength} {
+            report $f $lineNumber "line is longer than ${maxLength} characters"
+        }
+        incr lineNumber
+    }
+}
+</pre>
+<p>The above script is actually the implementation of rule <a href="rules/L004.html">L004</a>.</p>
+
+<p><b>Notes about line splicing</b></p>
+<p>As required by the C++ ISO standard, the line splicing (with the backslash at the end of the line) is performed before tokenizing. This means that the lists of tokens might not strictly fit the list of lines.</p>
+<p>Due to the internal mechanisms of the parser, the line splicing freezes the line counter and forces the column counter to continue until the last line in the spliced block. This means that there might be physical non-empty lines that apparently don't have any tokens, as well as tokens that have column numbers not matching the physical source line lengths.</p>
+
+<p><b>Recognized token types</b></p>
+<p>The following token types are recognized by the parser and can be used for filter selection in the <code>getTokens</code> command (some of these token types are related to compiler extensions):</p>
+
+<ul>
+<li>and</li>
+<li>andand</li>
+<li>assign</li>
+<li>andassign</li>
+<li>or</li>
+<li>orassign</li>
+<li>xor</li>
+<li>xorassign</li>
+<li>comma</li>
+<li>colon</li>
+<li>divide</li>
+<li>divideassign</li>
+<li>dot</li>
+<li>dotstar</li>
+<li>ellipsis</li>
+<li>equal</li>
+<li>greater</li>
+<li>greaterequal</li>
+<li>leftbrace</li>
+<li>less</li>
+<li>lessequal</li>
+<li>leftparen</li>
+<li>leftbracket</li>
+<li>minus</li>
+<li>minusassign</li>
+<li>minusminus</li>
+<li>percent</li>
+<li>percentassign</li>
+<li>not</li>
+<li>notequal</li>
+<li>oror</li>
+<li>plus</li>
+<li>plusassign</li>
+<li>plusplus</li>
+<li>arrow</li>
+<li>arrowstar</li>
+<li>question_mark</li>
+<li>rightbrace</li>
+<li>rightparen</li>
+<li>rightbracket</li>
+<li>colon_colon</li>
+<li>semicolon</li>
+<li>shiftleft</li>
+<li>shiftleftassign</li>
+<li>shiftright</li>
+<li>shiftrightassign</li>
+<li>star</li>
+<li>compl</li>
+<li>starassign</li>
+<li>asm</li>
+<li>auto</li>
+<li>bool</li>
+<li>false</li>
+<li>true</li>
+<li>break</li>
+<li>case</li>
+<li>catch</li>
+<li>char</li>
+<li>class</li>
+<li>const</li>
+<li>constcast</li>
+<li>continue</li>
+<li>default</li>
+<li>defined</li>
+<li>delete</li>
+<li>do</li>
+<li>double</li>
+<li>dynamiccast</li>
+<li>else</li>
+<li>enum</li>
+<li>explicit</li>
+<li>export</li>
+<li>extern</li>
+<li>float</li>
+<li>for</li>
+<li>friend</li>
+<li>goto</li>
+<li>if</li>
+<li>inline</li>
+<li>int</li>
+<li>long</li>
+<li>mutable</li>
+<li>namespace</li>
+<li>new</li>
+<li>operator</li>
+<li>private</li>
+<li>protected</li>
+<li>public</li>
+<li>register</li>
+<li>reinterpretcast</li>
+<li>return</li>
+<li>short</li>
+<li>signed</li>
+<li>sizeof</li>
+<li>static</li>
+<li>staticcast</li>
+<li>struct</li>
+<li>switch</li>
+<li>template</li>
+<li>this</li>
+<li>throw</li>
+<li>try</li>
+<li>typedef</li>
+<li>typeid</li>
+<li>typename</li>
+<li>union</li>
+<li>unsigned</li>
+<li>using</li>
+<li>virtual</li>
+<li>void</li>
+<li>volatile</li>
+<li>wchart</li>
+<li>while</li>
+<li>pp_define</li>
+<li>pp_if</li>
+<li>pp_ifdef</li>
+<li>pp_ifndef</li>
+<li>pp_else</li>
+<li>pp_elif</li>
+<li>pp_endif</li>
+<li>pp_error</li>
+<li>pp_line</li>
+<li>pp_pragma</li>
+<li>pp_undef</li>
+<li>pp_warning</li>
+<li>identifier</li>
+<li>octalint</li>
+<li>decimalint</li>
+<li>hexaint</li>
+<li>intlit</li>
+<li>longintlit</li>
+<li>floatlit</li>
+<li>ccomment</li>
+<li>cppcomment</li>
+<li>charlit</li>
+<li>stringlit</li>
+<li>contline</li>
+<li>space</li>
+<li>space2</li>
+<li>newline</li>
+<li>pound_pound</li>
+<li>pound</li>
+<li>any</li>
+<li>pp_include</li>
+<li>pp_qheader</li>
+<li>pp_hheader</li>
+<li>eof</li>
+<li>eoi</li>
+<li>pp_number</li>
+<li>msext_int8</li>
+<li>msext_int16</li>
+<li>msext_int32</li>
+<li>msext_int64</li>
+<li>msext_based</li>
+<li>msext_declspec</li>
+<li>msext_cdecl</li>
+<li>msext_fastcall</li>
+<li>msext_stdcall</li>
+<li>msext_try</li>
+<li>msext_except</li>
+<li>msext_finally</li>
+<li>msext_leave</li>
+<li>msext_inline</li>
+<li>msext_asm</li>
+<li>msext_region</li>
+<li>msext_endregion</li>
+</ul>
+
+<p><b>Note</b></p>
+<p>There is a predefined rule named <code>DUMP</code> that prints on the screen all tokens with their types and position. This rule can be helpful as a guideline for creating custom filtering criteria:</p>
+<p><code>$ vera++ -rule DUMP myfile.cpp</code></p>
+
+</body>
+</html>

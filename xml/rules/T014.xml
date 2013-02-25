@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rule name="T014" last-updated="2007.10.31">
+
+<title>Source files should refer the Boost Software License</title>
+
+<description>
+<p>The Boost Software License should be referenced in the source code.</p>
+<p>This rule verifies that at least one comment in the source file contains the "Boost Software License" phrase.</p>
+<p>Note that this rule is very specific to the Boost libraries and those project that choose to use the Boost license. It is therefore not part of the default profile.</p>
+</description>
+
+<compliance>
+<standard name="Boost" />
+</compliance>
+
+<script><![CDATA[# Source files should refer the Boost Software License
+
+foreach file [getSourceFileNames] {
+    set found false
+    foreach comment [getTokens $file 1 0 -1 -1 {ccomment cppcomment}] {
+        set value [lindex $comment 0]
+        if {[string first "Boost Software License" $value] != -1} {
+            set found true
+            break
+        }
+    }
+    if {$found == false} {
+        report $file 1 "no reference to the Boost Software License found"
+    }
+}
+]]></script>
+
+<test>
+
+<source><![CDATA[@ test1.cpp
+// Distributed under the Boost Software License, Version 1.0.
+void foo() {}
+@ test2.cpp
+// Distributed under some other license.
+void bar() {}
+]]></source>
+
+<result><![CDATA[test2.cpp:1: no reference to the Boost Software License found
+]]></result>
+
+</test>
+</rule>

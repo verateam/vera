@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<transformation name="trim_right" last-updated="2007.10.18">
+
+<title>Remove trailing white space</title>
+
+<description>
+<p>This transformation removes the trailing whitespace from each line of code.</p>
+<p>It can be treated as a quick remedy for problems reported by rule L001.</p>
+<p>Note: The transformation is performed in place, which means that the source files are modified.</p>
+</description>
+
+<script><![CDATA[# trim each line by removing trailing whitespace
+
+foreach fileName [getSourceFileNames] {
+    set lines [getAllLines $fileName]
+    set newFile [open $fileName "w"]
+    foreach line $lines {
+        set newLine [string trimright $line]
+        puts $newFile $newLine
+    }
+    close $newFile
+}
+]]></script>
+
+<test>
+<source><![CDATA[@ test.cpp
+int foo()
+{ 
+    int i; 
+    
+}
+@ test_transformed
+int foo()
+{
+    int i;
+
+}
+]]></source>
+<output-file name="test.cpp" />
+</test>
+</transformation>

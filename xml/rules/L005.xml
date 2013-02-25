@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rule name="L005" last-updated="2006.12.20">
+
+<title>There should not be too many consecutive empty lines</title>
+
+<description>
+<p>The empty lines (if any) help to introduce more "light" in the source code, but they should not be overdosed in the sense that too many consecutive empty lines make the code harder to follow.</p>
+<p>Lines containing only whitespace are considered to be empty in this context.</p>
+</description>
+
+<parameters>
+<param name="max-consecutive-empty-lines" default="2">Maximum number of consecutive empty lines.</param>
+</parameters>
+
+<compliance>
+<standard name="Inspirel" />
+</compliance>
+
+<script><![CDATA[# There should not be too many consecutive empty lines
+
+set maxEmptyLines [getParameter "max-consecutive-empty-lines" 2]
+
+foreach f [getSourceFileNames] {
+    set lineNumber 1
+    set emptyCount 0
+    set reported false
+    foreach line [getAllLines $f] {
+        if {[string trim $line] == ""} {
+            incr emptyCount
+            if {$emptyCount > $maxEmptyLines && $reported == "false"} {
+                report $f $lineNumber "too many consecutive empty lines"
+                set reported true
+            }
+        } else {
+            set emptyCount 0
+            set reported false
+        }
+        incr lineNumber
+    }
+}
+]]></script>
+
+<test>
+
+<source><![CDATA[@ test.cpp
+void foo()
+{
+
+
+
+
+
+}
+]]></source>
+
+<result><![CDATA[test.cpp:5: too many consecutive empty lines
+]]></result>
+
+</test>
+</rule>

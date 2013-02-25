@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rule name="T012" last-updated="2007.10.09">
+
+<title>Negation operator should not be used in its short form</title>
+
+<description>
+<p>The negation operator (exclamation mark) reduces readability of the code due to its terseness. Prefer explicit logical comparisons or alternative tokens for increased readability:</p>
+<example>
+if (!cond)         // error-prone
+if (cond == false) // better
+if (not cond)      // better (alternative keyword)
+</example>
+</description>
+
+<compliance>
+<standard name="Inspirel" />
+</compliance>
+
+<script><![CDATA[# Negation operator should not be used in its short form
+
+foreach file [getSourceFileNames] {
+    foreach negation [getTokens $file 1 0 -1 -1 {not}] {
+        set value [lindex $negation 0]
+        if {$value == "!"} {
+            set lineNumber [lindex $negation 1]
+            report $file $lineNumber "negation operator used in its short form"
+        }
+    }
+}
+]]></script>
+
+<test>
+
+<source><![CDATA[@ test.cpp
+void foo()
+{
+    if (!c) {}
+    if (not c) {}
+    if (c == false) {}
+}
+]]></source>
+
+<result><![CDATA[test.cpp:3: negation operator used in its short form
+]]></result>
+
+</test>
+</rule>

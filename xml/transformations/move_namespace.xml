@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<transformation name="move_namespace" last-updated="2007.10.18">
+
+<title>Change namespace name</title>
+
+<description>
+<p>This transformation allows to consistently change the namespace name.</p>
+<p>The motivation for this transformation is to help move whole libraries or source sets from one namespace to another, for example to allow the coexistence of two different version of the same library.</p>
+<p>Please use this transformation as a boilerplate for your own customized version.</p>
+<p>For example, the following file:</p>
+<example>
+namespace boost
+{
+void foo();
+}
+
+void boost::foo() {/* ... */}
+</example>
+<p>will be transformed into:</p>
+<example>
+namespace boom
+{
+void foo();
+}
+
+void boom::foo() {/* ... */}
+</example>
+<p>Note: This transformation actually does not check whether the given identifier is indeed a namespace name and the replacement is performed systematically on all identifiers that match. Do not use it on code that overloads namespace names for other purposes.</p>
+<p>Note: The transformation is performed in place, which means that the source files are modified.</p>
+</description>
+
+<script><![CDATA[# change the namespace of all source files
+
+set oldNamespace "boost"
+set newNamespace "boom"
+
+foreach fileName [getSourceFileNames] {
+    set tokens [getTokens $fileName 1 0 -1 -1 {}]
+    set newFile [open $fileName "w"]
+    foreach token $tokens {
+        set tokenValue [lindex $token 0]
+        set tokenType [lindex $token 3]
+        if {$tokenType == "identifier" && $tokenValue == $oldNamespace} {
+            set tokenValue $newNamespace
+        }
+        puts -nonewline $newFile $tokenValue
+    }
+    close $newFile
+}
+]]></script>
+
+<test>
+<source><![CDATA[@ test.cpp
+namespace boost
+{
+void foo();
+}
+
+void boost::foo() {/* ... */}
+@ test_transformed
+namespace boom
+{
+void foo();
+}
+
+void boom::foo() {/* ... */}
+]]></source>
+<output-file name="test.cpp" />
+</test>
+</transformation>

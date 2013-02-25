@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Keywords return and throw should be immediately followed by a semicolon or a single space</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("rule_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("rule_source").style.display = "none";
+}
+
+</script></head><body><h1 class="rule_id">T006</h1><h1 class="rule_short">Keywords return and throw should be immediately followed by a semicolon or a single space</h1><p class="description"><b>Description:</b></p><p>The <code class="inline-code">return</code> and <code class="inline-code">throw</code> keywords should be immediately followed by a semicolon or a single space:</p><pre class="example">
+void fun()
+{
+     if (...)
+     {
+          return;
+     }
+     // ...
+}
+
+int add(int a, int b)
+{
+     return a + b;
+}
+</pre><p>An exception to this rule is allowed for exeption specifications:</p><pre class="example">
+void fun() throw();
+</pre><p class="compliance"><b>Compliance:</b> <abbr title="This rule is recommended by Inspirel.">Inspirel</abbr></p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this rule</a></p></div><div id="rule_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># Keywords return and throw should be immediately followed by a semicolon or a single space
+
+foreach f [getSourceFileNames] {
+    foreach t [getTokens $f 1 0 -1 -1 {return throw}] {
+        set keyword [lindex $t 0]
+        set line [lindex $t 1]
+        set column [lindex $t 2]
+        set followingTokens [getTokens $f $line [expr $column + [string length $keyword]] [expr $line + 1] 0 {}]
+        if {$followingTokens == {}} {
+            report $f $line "keyword '${keyword}' not immediately followed by a semicolon or a single space"
+        } else {
+            set first [lindex [lindex $followingTokens 0] 0]
+            if {$first != ";" &amp;&amp; $first != " " &amp;&amp; !($keyword == "throw" &amp;&amp; $first == "(")} {
+                report $f $line "keyword '${keyword}' not immediately followed by a semicolon or a single space"
+            }
+        }
+    }
+}
+</pre></div><p><a href="index.html">Rule index</a></p></body></html>

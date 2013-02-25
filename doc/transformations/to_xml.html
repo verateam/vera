@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Transform C++ code into XML</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("transformation_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("transformation_source").style.display = "none";
+}
+
+</script></head><body><h1 class="transformation_id">to_xml</h1><h1 class="transformation_short">Transform C++ code into XML</h1><p class="description"><b>Description:</b></p><p>This transformation generates a XML tree where nodes relate to C++ source code tokens.</p><p>For example, the following file (file.cpp):</p><pre class="example">
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Hello World\n";
+}
+</pre><p>will be transformed into new file named file.cpp.xml:</p><pre class="example">
+&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
+&lt;cpp-source file-name="test.cpp"&gt;
+    &lt;token name="pp_hheader" line="1" column="0"&gt;#include &amp;lt;iostream&amp;gt;&lt;/token&gt;
+    &lt;token name="newline" line="1" column="19"&gt;![CDATA[
+]]&lt;/token&gt;
+    &lt;token name="newline" line="2" column="0"&gt;![CDATA[
+]]&lt;/token&gt;
+    &lt;token name="int" line="3" column="0"&gt;int&lt;/token&gt;
+    &lt;token name="space" line="3" column="3"&gt; &lt;/token&gt;
+    &lt;token name="identifier" line="3" column="4"&gt;main&lt;/token&gt;
+    &lt;token name="leftparen" line="3" column="8"&gt;(&lt;/token&gt;
+    &lt;token name="rightparen" line="3" column="9"&gt;)&lt;/token&gt;
+    &lt;token name="newline" line="3" column="10"&gt;![CDATA[
+]]&lt;/token&gt;
+    &lt;token name="leftbrace" line="4" column="0"&gt;{&lt;/token&gt;
+    &lt;token name="newline" line="4" column="1"&gt;![CDATA[
+]]&lt;/token&gt;
+    &lt;token name="space" line="5" column="0"&gt;    &lt;/token&gt;
+    &lt;token name="identifier" line="5" column="4"&gt;std&lt;/token&gt;
+    &lt;token name="colon_colon" line="5" column="7"&gt;::&lt;/token&gt;
+    &lt;token name="identifier" line="5" column="9"&gt;cout&lt;/token&gt;
+    &lt;token name="space" line="5" column="13"&gt; &lt;/token&gt;
+    &lt;token name="shiftleft" line="5" column="14"&gt;&amp;lt;&amp;lt;&lt;/token&gt;
+    &lt;token name="space" line="5" column="16"&gt; &lt;/token&gt;
+    &lt;token name="stringlit" line="5" column="17"&gt;"Hello World\n"&lt;/token&gt;
+    &lt;token name="semicolon" line="5" column="32"&gt;;&lt;/token&gt;
+    &lt;token name="newline" line="5" column="33"&gt;![CDATA[
+]]&lt;/token&gt;
+    &lt;token name="rightbrace" line="6" column="0"&gt;}&lt;/token&gt;
+    &lt;token name="newline" line="6" column="1"&gt;![CDATA[
+]]&lt;/token&gt;
+    &lt;token name="eof" line="7" column="0"&gt;&lt;/token&gt;
+&lt;/cpp-source&gt;
+</pre><p>Note: If the source code does not use line splicing, then concatenation of all XML node values is equivalent to the original C++ code.</p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this transformation</a></p></div><div id="transformation_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># transform the source file into XML file
+
+foreach f [getSourceFileNames] {
+    set outFileName "${f}.xml"
+    set outFile [open $outFileName "w"]
+    puts $outFile "&lt;?xml version=\"1.0\" encoding=\"ISO-8859-1\"?&gt;"
+    puts $outFile "&lt;cpp-source file-name=\"${f}\"&gt;"
+    foreach t [getTokens $f 1 0 -1 -1 {}] {
+        set value [lindex $t 0]
+        set line [lindex $t 1]
+        set column [lindex $t 2]
+        set name [lindex $t 3]
+
+        if {$value == "\n"} {
+            set value "!\[CDATA\[\n\]]"
+        } else {
+            set value [regsub -all "&amp;" $value {\&amp;amp;}]
+            set value [regsub -all "&lt;" $value {\&amp;lt;}]
+            set value [regsub -all "&gt;" $value {\&amp;gt;}]
+        }
+        puts $outFile "    &lt;token name=\"${name}\" line=\"${line}\" column=\"${column}\"&gt;${value}&lt;/token&gt;"
+    }
+    puts $outFile "&lt;/cpp-source&gt;"
+    close $outFile
+}
+</pre></div><p><a href="index.html">Transformation index</a></p></body></html>

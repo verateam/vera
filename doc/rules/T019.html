@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Control structures should have complete curly-braced block of code</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("rule_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("rule_source").style.display = "none";
+}
+
+</script></head><body><h1 class="rule_id">T019</h1><h1 class="rule_short">Control structures should have complete curly-braced block of code</h1><p class="description"><b>Description:</b></p><p>Control structures managed by for, if and while constructs can be associated with a single instruction or with a complex block of code. Standardizing on the curly-braced blocks in all cases allows to avoid common pitfalls and makes the code visually more uniform.</p><pre class="example">
+if (x) foo();     // bad style
+if (x) { foo(); } // OK
+
+if (x)
+    foo();        // again bad style
+
+if (x)
+{                 // OK
+    foo();
+}
+
+if (x)
+    while (y)     // bad style
+        foo();    // bad style
+
+if (x)
+{                 // OK
+    while (y)
+    {             // OK
+        foo();
+    }
+}
+
+for (int i = 0; i = 10; ++i);  // oops!
+    cout &lt;&lt; "Hello\n";
+
+for (int i = 0; i = 10; ++i)   // OK
+{
+    cout &lt;&lt; "Hello\n";
+}
+</pre><p class="compliance"><b>Compliance:</b> <abbr title="This rule is recommended by Inspirel.">Inspirel</abbr></p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this rule</a></p></div><div id="rule_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># control structures should have complete curly-braced block of code
+
+foreach fileName [getSourceFileNames] {
+
+    set state "start"
+    foreach token [getTokens $fileName 1 0 -1 -1 {for if while leftparen rightparen leftbrace semicolon}] {
+        set type [lindex $token 3]
+
+        if {$state == "control"} {
+            if {$type == "leftparen"} {
+                incr parenCount
+            } elseif {$type == "rightparen"} {
+                incr parenCount -1
+                if {$parenCount == 0} {
+                    set state "expectedblock"
+                }
+            }
+        } elseif {$state == "expectedblock"} {
+            if {$type != "leftbrace"} {
+                set line [lindex $token 1]
+                report $fileName $line "full block {} expected in the control structure"
+            }
+            set state "block"
+        }
+
+        if {$type == "for" || $type == "if" || $type == "while"} {
+            set parenCount 0
+            set state "control"
+        }
+    }
+}
+</pre></div><p><a href="index.html">Rule index</a></p></body></html>

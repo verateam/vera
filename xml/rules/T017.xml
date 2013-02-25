@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rule name="T017" last-updated="2007.11.07">
+
+<title>Unnamed namespaces are not allowed in header files</title>
+
+<description>
+<p>Unnamed namespaces are not allowed in header files.</p>
+<p>The typical use of unnamed namespace is to hide module-internal names from the outside world. Header files are physically concatenated in a single translation unit, which logically merges all namespaces with the same name. Unnamed namespaces are also merged in this process, which effectively undermines their initial purpose.</p>
+<p>Use named namespaces in header files. Unnamed namespaces are allowed in implementation files only.</p>
+</description>
+
+<compliance>
+<standard name="Boost" />
+</compliance>
+
+<script><![CDATA[# Unnamed namespaces are not allowed in header files
+
+foreach fileName [getSourceFileNames] {
+    set extension [file extension $fileName]
+    if {[lsearch {.h .hh .hpp .hxx .ipp} $extension] != -1} {
+
+        set state "start"
+        foreach token [getTokens $fileName 1 0 -1 -1 {namespace identifier leftbrace}] {
+            set type [lindex $token 3]
+
+            if {$state == "namespace" && $type == "leftbrace"} {
+                report $fileName $namespaceLine "unnamed namespace not allowed in header file"
+            }
+
+            if {$type == "namespace"} {
+                set namespaceLine [lindex $token 1]
+            }
+
+            set state $type
+        }
+    }
+}
+]]></script>
+
+<test>
+
+<source><![CDATA[@ test.h
+namespace {}
+namespace // unnamed
+{}
+namespace N1 {}
+namespace // some namespace
+N {}
+]]></source>
+
+<result><![CDATA[test.h:1: unnamed namespace not allowed in header file
+test.h:2: unnamed namespace not allowed in header file
+]]></result>
+
+</test>
+</rule>

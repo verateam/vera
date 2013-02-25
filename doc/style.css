@@ -1,0 +1,38 @@
+body
+{
+  background: white;
+  margin: 0px;
+  padding: 20px;
+  font-family: sans-serif;
+  font-size: smaller;
+}
+
+h1
+{
+  background-color: #f4fafa;
+  padding: 10px;
+}
+
+p
+{
+  padding-left: 10px;
+}
+
+p.section
+{ 
+  background-color: #f4fafa;
+  padding: 5px 10px 5px 10px;
+}
+
+pre.example
+{
+  margin: 10px;
+  background-color: #f4fafa;
+  border: 1px dotted blue;
+  padding: 10px;
+}
+
+li
+{
+  margin: 10px;
+}

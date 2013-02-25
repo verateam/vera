@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Identifiers should not be composed of 'l' and 'O' characters only</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("rule_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("rule_source").style.display = "none";
+}
+
+</script></head><body><h1 class="rule_id">T010</h1><h1 class="rule_short">Identifiers should not be composed of 'l' and 'O' characters only</h1><p class="description"><b>Description:</b></p><p>The characters 'l' (which is lowercase 'L') and 'O' (which is uppercase 'o') should not be the only characters used in the identifier, because this would make them visually similar to numeric literals.</p><p class="compliance"><b>Compliance:</b> <abbr title="This rule is recommended by Inspirel.">Inspirel</abbr></p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this rule</a></p></div><div id="rule_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># Identifiers should not be composed of 'l' and 'O' characters only
+
+foreach file [getSourceFileNames] {
+    foreach t [getTokens $file 1 0 -1 -1 {identifier}] {
+        set value [lindex $t 0]
+        if [regexp {^(l|O)+$} $value] {
+            report $file [lindex $t 1] "identifier should not be composed of only 'l' and 'O'"
+        }
+    }
+}
+</pre></div><p><a href="index.html">Rule index</a></p></body></html>

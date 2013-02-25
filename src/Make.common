@@ -1,0 +1,16 @@
+# Paths that can be different in each installation:
+
+# Location of Boost libraries:
+BOOST_DIR = /usr/local/include/boost_1_37_0
+
+# Location of headers and libraries for the Tcl interpreter:
+TCLINCLUDE_DIR = /usr/include
+TCLLIB_DIR = /usr/lib
+TCL_LIB = tcl
+
+
+# Common compilation options and choices:
+CXX = g++
+CXXFLAGS = -Wall -pedantic -W -Wshadow -O2
+CXXFLAGS_BOOST = -Wall -pedantic -Wno-long-long -O2
+CXXFLAGS_TCL = -Wall -pedantic -W -Wshadow -Wno-long-long -O2

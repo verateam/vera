@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rule name="T009" last-updated="2006.12.20">
+
+<title>Comma should not be preceded by whitespace, but should be followed by one</title>
+
+<description>
+<p>A comma, whether used as operator or in various lists, should not be preceded by whitespace on its left side, but should be followed by whitespace on its right side:</p>
+<example>
+void fun(int x, int y, int z);
+int a[] = {5, 6, 7};
+class A : public B,
+          public C
+{
+     // ...
+};
+</example>
+<p>An exception to this rule is allowed for <code>operator,</code>:</p>
+<example>
+struct A {};
+void operator,(const A &amp;left, const A &amp;right);
+</example>
+</description>
+
+<compliance>
+<standard name="Inspirel" />
+</compliance>
+
+<script><![CDATA[# Comma should not be preceded by whitespace, but should be followed by one
+
+foreach f [getSourceFileNames] {
+    foreach t [getTokens $f 1 0 -1 -1 {comma}] {
+        set line [lindex $t 1]
+        set column [lindex $t 2]
+        set preceding [getTokens $f $line 0 $line $column {}]
+        if {$preceding == {}} {
+            report $f $line "comma should not be preceded by whitespace"
+        } else {
+            set lastPreceding [lindex [lindex $preceding end] 3]
+            if {$lastPreceding == "space"} {
+                report $f $line "comma should not be preceded by whitespace"
+            }
+        }
+        set following [getTokens $f $line [expr $column + 1] [expr $line + 1] -1 {}]
+        if {$following != {}} {
+            set firstFollowing [lindex [lindex $following 0] 3]
+            if {$firstFollowing != "space" && $firstFollowing != "newline" &&
+                !($lastPreceding == "operator" && $firstFollowing == "leftparen")} {
+                report $f $line "comma should be followed by whitespace"
+            }
+        }
+    }
+}
+]]></script>
+
+<test>
+
+<source><![CDATA[@ test.cpp
+foo(1, 2, 3, 4);
+foo(1,2,3);
+int a[] = {1, 2, 3};
+int a[] = {1,2,3};
+foo(1 ,2);
+foo(1,
+    2);
+foo(1
+   ,2);
+struct A : B, C {}
+struct A : B ,C {}
+struct A : B,C {}
+struct A : B,
+     C {};
+struct A : B
+     ,C {};
+void operator,(const A &, const B &);
+]]></source>
+
+<result><![CDATA[test.cpp:2: comma should be followed by whitespace
+test.cpp:2: comma should be followed by whitespace
+test.cpp:4: comma should be followed by whitespace
+test.cpp:4: comma should be followed by whitespace
+test.cpp:5: comma should not be preceded by whitespace
+test.cpp:5: comma should be followed by whitespace
+test.cpp:9: comma should not be preceded by whitespace
+test.cpp:9: comma should be followed by whitespace
+test.cpp:11: comma should not be preceded by whitespace
+test.cpp:11: comma should be followed by whitespace
+test.cpp:12: comma should be followed by whitespace
+test.cpp:16: comma should not be preceded by whitespace
+test.cpp:16: comma should be followed by whitespace
+]]></result>
+
+</test>
+</rule>

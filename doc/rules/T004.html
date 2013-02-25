@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /><link rel="stylesheet" type="text/css" href="style.css" /><title>Some keywords should be immediately followed by a colon</title><script type="text/javascript">
+
+function showCode()
+{
+    document.getElementById("code_link").style.display = "none";
+    document.getElementById("rule_source").style.display = "block";
+}
+function hideCode()
+{
+    document.getElementById("code_link").style.display = "block";
+    document.getElementById("rule_source").style.display = "none";
+}
+
+</script></head><body><h1 class="rule_id">T004</h1><h1 class="rule_short">Some keywords should be immediately followed by a colon</h1><p class="description"><b>Description:</b></p><p>Keywords from the following list:</p><ul><li><code class="inline-code">default</code></li><li><code class="inline-code">private</code></li><li><code class="inline-code">protected</code></li><li><code class="inline-code">public</code></li></ul><p>should be immediately followed by a colon, unless used in the list of base classes:</p><pre class="example">
+class A : public B, private C
+{
+public:
+     A();
+     ~A();
+protected:
+     // ...
+private:
+     // ...
+};
+
+void fun(int a)
+{
+     switch (a)
+     {
+     // ...
+     default:
+          exit(0);
+     }
+}
+</pre><p class="compliance"><b>Compliance:</b> <abbr title="This rule is recommended by Inspirel.">Inspirel</abbr></p><div id="code_link" style="display:block;"><p class="virtual_link"><a onclick="showCode()">Show source code for this rule</a></p></div><div id="rule_source" style="display:none;"><p class="virtual_link"><a onclick="hideCode()">Hide source code</a></p><pre class="example"># Some keywords should be immediately followed by a colon
+
+set keywords {
+    default
+    private
+    protected
+    public
+}
+
+proc isKeyword {s} {
+    global keywords
+    return [expr [lsearch $keywords $s] != -1]
+}
+
+foreach f [getSourceFileNames] {
+    set lastKeywordLine 0
+    set lastKeywordColumn 0
+    set lastKeywordValue ""
+    set last ""
+    foreach t [getTokens $f 1 0 -1 -1 [concat $keywords colon]] {
+        set tokenValue [lindex $t 0]
+        set tokenName [lindex $t 3]
+        if {$tokenName == "colon"} {
+            if {$last == "keyword" &amp;&amp; $lastKeywordLine != 0} {
+                set line [lindex $t 1]
+                set column [lindex $t 2]
+                if {$line != $lastKeywordLine ||
+                    $column != [expr $lastKeywordColumn + [string length $lastKeywordValue]]} {
+                    set nonWhiteFound "false"
+                    foreach tb [getTokens $f $lastKeywordLine [expr $lastKeywordColumn + 1] $line $column {}] {
+                        set tbName [lindex $tb 3]
+                        if {[lsearch {space newline ccomment cppcomment} $tbName] == -1} {
+                            set nonWhiteFound "true"
+                            break
+                        }
+                    }
+                    if {$nonWhiteFound == "false"} {
+                        report $f $line "colon not immediately after the \'$lastKeywordValue\' keyword"
+                    }
+                }
+            }
+            set last "colon"
+        } else {
+            set lastKeywordLine [lindex $t 1]
+            set lastKeywordColumn [lindex $t 2]
+            set lastKeywordValue $tokenValue
+            set last "keyword"
+        }
+    }
+}
+</pre></div><p><a href="index.html">Rule index</a></p></body></html>

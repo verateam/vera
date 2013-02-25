@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<transformation name="move_includes" last-updated="2007.10.18">
+
+<title>Change prefix of #include paths</title>
+
+<description>
+<p>This transformation allows to modify the prefix of file paths in #include directives.</p>
+<p>The motivation for this transformation is to help move whole libraries from one file tree to another.</p>
+<p>Please use this transformation as a boilerplate for your own customized version.</p>
+<p>For example, the following file:</p>
+<example>
+#include "boost/shared_ptr.hpp"
+#include "boost/bind.hpp"
+</example>
+<p>will be transformed into:</p>
+<example>
+#include "boom/shared_ptr.hpp"
+#include "boom/bind.hpp"
+</example>
+<p>Note: The transformation is performed in place, which means that the source files are modified.</p>
+</description>
+
+<script><![CDATA[# change prefix of #include paths
+
+set oldPrefix "\"boost/"
+set newPrefix "\"boom/"
+
+set oldPrefixLength [string length $oldPrefix]
+
+foreach fileName [getSourceFileNames] {
+    set tokens [getTokens $fileName 1 0 -1 -1 {}]
+    set newFile [open $fileName "w"]
+    foreach token $tokens {
+        set tokenValue [lindex $token 0]
+        set tokenType [lindex $token 3]
+        if {$tokenType == "pp_qheader"} {
+            set index [string first $oldPrefix $tokenValue]
+            if {$index != -1} {
+                set tokenValue [string replace $tokenValue $index [expr $index + $oldPrefixLength - 1] $newPrefix]
+            }
+        }
+        puts -nonewline $newFile $tokenValue
+    }
+    close $newFile
+}
+]]></script>
+
+<test>
+<source><![CDATA[@ test.cpp
+#include "boost/shared_ptr.hpp"
+#include "boost/bind.hpp"
+@ test_transformed
+#include "boom/shared_ptr.hpp"
+#include "boom/bind.hpp"
+]]></source>
+<output-file name="test.cpp" />
+</test>
+</transformation>
