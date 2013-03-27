@@ -1,0 +1,17 @@
+# back-up files
+*~
+*.bak
+
+# Binary directory
+BUILD*
+build*
+
+# qtcreator
+CMakeLists.txt.user*
+
+# kdevelop
+*.kdev*
+.kdev*
+
+# back-up files when conflicts occur
+*.orig
