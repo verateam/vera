@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 foreach f [getSourceFileNames] {
     puts "Tokens in file ${f}:"
     foreach t [getTokens $f 1 0 -1 -1 {}] {

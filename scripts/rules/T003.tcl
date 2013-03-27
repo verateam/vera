@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Some keywords should be followed by a single space
 
 set keywords {
@@ -33,7 +34,7 @@ foreach f [getSourceFileNames] {
             }
         } elseif {$state == "space"} {
             if {$tokenName == "newline"} {
-                report $f $lineNumber "keyword \'${keywordValue}\' not followed by a single space"                
+                report $f $lineNumber "keyword \'${keywordValue}\' not followed by a single space"
             }
             set state "other"
         } else {

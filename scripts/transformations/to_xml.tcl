@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # transform the source file into XML file
 
 foreach f [getSourceFileNames] {

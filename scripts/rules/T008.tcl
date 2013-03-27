@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Keywords catch, for, if and while should be followed by a single space
 
 foreach f [getSourceFileNames] {

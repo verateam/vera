@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Negation operator should not be used in its short form
 
 foreach file [getSourceFileNames] {

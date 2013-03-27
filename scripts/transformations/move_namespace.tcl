@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # change the namespace of all source files
 
 set oldNamespace "boost"

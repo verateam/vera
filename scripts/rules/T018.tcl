@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # using namespace are not allowed in header files
 
 foreach fileName [getSourceFileNames] {

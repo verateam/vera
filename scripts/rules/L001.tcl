@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # No trailing whitespace
 
 set strictMode [getParameter "strict-trailing-space" 0]

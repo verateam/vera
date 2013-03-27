@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # One-line comments should not have forced continuation
 
 foreach f [getSourceFileNames] {

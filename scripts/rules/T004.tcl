@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Some keywords should be immediately followed by a colon
 
 set keywords {

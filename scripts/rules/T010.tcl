@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Identifiers should not be composed of 'l' and 'O' characters only
 
 foreach file [getSourceFileNames] {

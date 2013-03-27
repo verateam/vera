@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Line cannot be too long
 
 set maxLength [getParameter "max-line-length" 100]

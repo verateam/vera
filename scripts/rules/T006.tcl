@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Keywords return and throw should be immediately followed by a semicolon or a single space
 
 foreach f [getSourceFileNames] {

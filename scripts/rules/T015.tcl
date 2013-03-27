@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # HTML links in comments and string literals should be correct
 
 set urlRe {<[[:space:]]*[^>]*[[:space:]]+(?:HREF|SRC)[[:space:]]*=[[:space:]]*\"([^\"]*)\"}

@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # change the prefix in all macros
 
 set oldPrefix "BOOST"

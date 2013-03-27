@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # There should not be too many consecutive empty lines
 
 set maxEmptyLines [getParameter "max-consecutive-empty-lines" 2]

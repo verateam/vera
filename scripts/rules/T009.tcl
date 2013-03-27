@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Comma should not be preceded by whitespace, but should be followed by one
 
 foreach f [getSourceFileNames] {

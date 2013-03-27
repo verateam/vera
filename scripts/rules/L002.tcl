@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Don't use tab characters
 
 foreach f [getSourceFileNames] {

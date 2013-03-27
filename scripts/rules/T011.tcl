@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Curly brackets from the same pair should be either in the same line or in the same column
 
 proc acceptPairs {} {

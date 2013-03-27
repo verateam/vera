@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # control structures should have complete curly-braced block of code
 
 foreach fileName [getSourceFileNames] {

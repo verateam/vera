@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Source file should not be too long
 
 set maxLines [getParameter "max-file-length" 2000]

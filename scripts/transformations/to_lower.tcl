@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # transform indentifier names from CamelCase to standard_lower_case
 
 # this list contains exceptional mappings as pairs ?original new?

@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # trim each line by removing trailing whitespace
 
 foreach fileName [getSourceFileNames] {

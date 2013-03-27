@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Source files should not use the '\r' (CR) character
 
 foreach fileName [getSourceFileNames] {

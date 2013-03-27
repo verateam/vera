@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # No leading and no trailing empty lines
 
 foreach f [getSourceFileNames] {

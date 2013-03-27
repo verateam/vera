@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Semicolons should not be isolated by spaces or comments from the rest of the code
 
 foreach f [getSourceFileNames] {

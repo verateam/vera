@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Source files should refer the Boost Software License
 
 foreach file [getSourceFileNames] {

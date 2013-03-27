@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Keywords break and continue should be immediately followed by a semicolon
 
 foreach f [getSourceFileNames] {

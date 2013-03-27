@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Source files should contain the copyright notice
 
 foreach file [getSourceFileNames] {

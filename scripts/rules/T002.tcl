@@ -1,8 +1,9 @@
+#!/usr/bin/tclsh
 # Reserved names should not be used for preprocessor macros
 
 set keywords {
     asm
-    auto   
+    auto
     bool
     break
     case

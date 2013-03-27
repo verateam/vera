@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # change prefix of #include paths
 
 set oldPrefix "\"boost/"

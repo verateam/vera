@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # File names should be well-formed
 
 set maxDirectoryDepth [getParameter "max-directory-depth" 8]

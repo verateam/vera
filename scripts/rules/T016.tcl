@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # Calls to min/max should be protected against accidental macro substitution
 
 foreach file [getSourceFileNames] {
