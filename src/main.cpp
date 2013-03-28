@@ -5,6 +5,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include "config.h"
 #include "structures/SourceFiles.h"
 #include "plugins/Profiles.h"
 #include "plugins/Rules.h"
@@ -70,7 +71,7 @@ int main(int argc, char * argv[])
         // - current directory (if scripts and profile are present)
         // - /usr/lib/vera++/ default debian directory
 
-        RootDirectory::DirectoryName veraRoot("/usr/lib/vera++/");
+        RootDirectory::DirectoryName veraRoot(VERA_INSTALL_DIR "/lib/vera++/");
 
         struct stat St;
         bool isInCurrent = ( stat( "./scripts", &St ) == 0
