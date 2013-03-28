@@ -360,6 +360,8 @@ int boost_main(int argc, char * argv[])
         ("error,e", "reports are marked as error and generated on standard error output."
             " An non zero exit code is used when one or more reports are generated.")
         ("xml-report,x", "produce report in the XML format")
+        ("quiet,q", "don't display the reports")
+        ("summary,S", "display the number of reports and the number of processed files")
         ("parameters", po::value(&parameters), "read parameters from file")
         ("param,P", po::value(&params), "provide parameters to the scripts as name=value"
             " (note: can be used many times)")
@@ -505,13 +507,21 @@ int boost_main(int argc, char * argv[])
         {
             Profiles::executeProfile(profile);
         }
-        if (vm.count("warning") || vm.count("error"))
+        if (vm.count("quiet") == 0)
         {
-            Reports::dumpAll(cerr, vm.count("no-duplicate"));
+            if (vm.count("error") || vm.count("error"))
+            {
+                Reports::dumpAll(cerr, vm.count("no-duplicate"));
+            }
+            else
+            {
+              Reports::dumpAll(cout, vm.count("no-duplicate"));
+            }
         }
-        else
+        if (vm.count("summary"))
         {
-          Reports::dumpAll(cout, vm.count("no-duplicate"));
+            std::cerr << Reports::count() << " reports in "
+                << SourceFiles::count() << " files." << std::endl;
         }
     }
     catch (const exception & e)

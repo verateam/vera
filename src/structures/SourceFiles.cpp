@@ -20,6 +20,11 @@ SourceFiles::FileNameSet files_;
 } // unnamed namespace
 
 
+int SourceFiles::count()
+{
+    return files_.size();
+}
+
 void SourceFiles::addFileName(const FileName & name)
 {
     files_.insert(name);

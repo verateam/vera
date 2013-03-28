@@ -35,6 +35,7 @@ public:
     static void addFileName(const FileName & name);
 
     static bool empty();
+    static int count();
 
     static const FileNameSet & getAllFileNames();
 };
