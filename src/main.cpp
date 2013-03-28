@@ -15,6 +15,7 @@
 #include "plugins/Reports.h"
 #include "plugins/RootDirectory.h"
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <cstdlib>
@@ -342,7 +343,9 @@ int boost_main(int argc, char * argv[])
     std::string exclusions;
     std::vector<string> rules;
     std::vector<string> params;
+    std::vector<string> args;
     std::vector<string> inputs;
+    std::vector<string> outputs;
     /** Define and parse the program options
     */
     namespace po = boost::program_options;
@@ -366,15 +369,19 @@ int boost_main(int argc, char * argv[])
         ("param,P", po::value(&params), "provide parameters to the scripts as name=value"
             " (note: can be used many times)")
         ("exclusions", po::value(&exclusions), "read exclusions from file")
+        ("input,i", po::value(&inputs), "the inputs are read from that file (note: one file per"
+            " line. can be used many times.")
+        ("output,o", po::value(&outputs), "write the output to this file. Default is standard"
+            " or error output depending on the options. (note: may be used many times.)")
         ("help,h", "show this help message and exit")
         ("version", "show vera++'s version and exit");
 
     po::options_description allOptions;
     allOptions.add(visibleOptions).add_options()
-            ("input", po::value(&inputs), "input files");
+            ("args", po::value(&args), "input files from command line");
 
     po::positional_options_description positionalOptions;
-    positionalOptions.add("input", -1);
+    positionalOptions.add("args", -1);
 
     po::variables_map vm;
     try
@@ -438,15 +445,16 @@ int boost_main(int argc, char * argv[])
             Parameters::ParamAssoc assoc(*it);
             Parameters::set(assoc);
         }
-        if (vm.count("input"))
+        if (vm.count("args"))
         {
-            for (std::vector<std::string>::const_iterator it = inputs.begin();
-                it != inputs.end();
+            for (std::vector<std::string>::const_iterator it = args.begin();
+                it != args.end();
                 ++it)
             {
                 if (*it == "-")
                 {
-                    // list of source files is provided on stdin
+                    // this is not really the right place for this, but we
+                    // keep it for backward compatibility
                     SourceFiles::FileName name;
                     while (cin >> name)
                     {
@@ -459,14 +467,40 @@ int boost_main(int argc, char * argv[])
                 }
             }
         }
-        else
+        else if (vm.count("input") == 0)
         {
             // list of source files is provided on stdin
-            SourceFiles::FileName name;
-            while (cin >> name)
+            inputs.push_back("-");
+        }
+
+        for (std::vector<std::string>::const_iterator it = inputs.begin();
+            it != inputs.end();
+            ++it)
+        {
+            if (*it == "-")
             {
-                SourceFiles::addFileName(name);
+                SourceFiles::FileName name;
+                while (cin >> name)
+                {
+                    SourceFiles::addFileName(name);
+                }
             }
+            else
+            {
+                std::ifstream file;
+                std::string name;
+                file.open(it->c_str());
+                while (file >> name)
+                {
+                    SourceFiles::addFileName(name);
+                }
+                file.close();
+            }
+        }
+
+        if (vm.count("output") == 0 && vm.count("quiet") == 0)
+        {
+            outputs.push_back("-");
         }
 
         if (rules.empty() == false)
@@ -507,15 +541,28 @@ int boost_main(int argc, char * argv[])
         {
             Profiles::executeProfile(profile);
         }
-        if (vm.count("quiet") == 0)
+
+        for (std::vector<std::string>::const_iterator it = outputs.begin();
+            it != outputs.end();
+            ++it)
         {
-            if (vm.count("error") || vm.count("error"))
+            if (*it == "-")
             {
-                Reports::dumpAll(cerr, vm.count("no-duplicate"));
+                if (vm.count("warning") || vm.count("error"))
+                {
+                    Reports::dumpAll(cerr, vm.count("no-duplicate"));
+                }
+                else
+                {
+                  Reports::dumpAll(cout, vm.count("no-duplicate"));
+                }
             }
             else
             {
-              Reports::dumpAll(cout, vm.count("no-duplicate"));
+                std::ofstream file;
+                file.open(it->c_str());
+                Reports::dumpAll(file, vm.count("no-duplicate"));
+                file.close();
             }
         }
         if (vm.count("summary"))
