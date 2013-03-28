@@ -28,6 +28,9 @@ public:
     static void setShowRules(bool show);
     static void setVCFormat(bool vc);
     static void setXMLReport(bool xmlReport);
+    static void setPrefix(std::string prefix);
+
+    static int count();
 
     static void add(const FileName & name, int lineNumber, const Message & msg);
 

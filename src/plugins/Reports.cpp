@@ -32,6 +32,7 @@ MessagesCollection messages_;
 bool showRules_;
 bool vcFormat_;
 bool xmlReport_;
+std::string prefix_;
 
 } // unnamed namespace
 
@@ -49,6 +50,16 @@ void Reports::setXMLReport(bool xmlReport)
 void Reports::setVCFormat(bool vc)
 {
     vcFormat_ = vc;
+}
+
+void Reports::setPrefix(std::string prefix)
+{
+    prefix_ = prefix;
+}
+
+int Reports::count()
+{
+    return messages_.size();
 }
 
 void Reports::add(const FileName & name, int lineNumber, const Message & msg)
@@ -94,33 +105,29 @@ void Reports::dumpAllNormal(ostream & os, bool omitDuplicates)
 
             if (omitDuplicates == false ||
                 lineNumber != lastLineNumber || report != lastReport)
-            {                
-                if (showRules_)
+            {
+                os << name;
+                if (vcFormat_)
                 {
-                    if (vcFormat_)
-                    {
-                        os << name << '(' << lineNumber << ") : "
-                            << '(' << rule << ") " << msg << '\n';
-                    }
-                    else
-                    {
-                        os << name << ':' << lineNumber << ": "
-                            << '(' << rule << ") " << msg << '\n';
-                    }
+                    os << '(' << lineNumber << "):";
                 }
                 else
                 {
-                    if (vcFormat_)
-                    {
-                        os << name << '(' << lineNumber << ") : "
-                            << msg << '\n';
-                    }
-                    else
-                    {
-                        os << name << ':' << lineNumber << ": "
-                            << msg << '\n';
-                    }
+                    os << ':' << lineNumber << ":";
                 }
+                if (prefix_ != "")
+                {
+                    os << " " << prefix_;
+                }
+                if (showRules_)
+                {
+                    os << " " << rule;
+                }
+                if (showRules_ || prefix_ != "")
+                {
+                    os << ":";
+                }
+                os << " " << msg << std::endl;
 
                 lastLineNumber = lineNumber;
                 lastReport = report;

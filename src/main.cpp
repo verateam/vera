@@ -356,6 +356,9 @@ int boost_main(int argc, char * argv[])
         ("no-duplicate,d", "do not duplicate messages if a single rule is violated many times in a"
             " single line of code")
         ("vc-format,v", "report in Visual C++ format")
+        ("warning,w", "reports are marked as warning and generated on standard error output")
+        ("error,e", "reports are marked as error and generated on standard error output."
+            " An non zero exit code is used when one or more reports are generated.")
         ("xml-report,x", "produce report in the XML format")
         ("parameters", po::value(&parameters), "read parameters from file")
         ("param,P", po::value(&params), "provide parameters to the scripts as name=value"
@@ -403,6 +406,21 @@ int boost_main(int argc, char * argv[])
         Reports::setShowRules(vm.count("show-rule"));
         Reports::setXMLReport(vm.count("xml-report"));
         Reports::setVCFormat(vm.count("vc-format"));
+        if (vm.count("warning"))
+        {
+            if (vm.count("error"))
+            {
+                std::cerr
+                    << "ERROR: --warning and --error can't be used at the same time." << std::endl;
+                std::cerr << visibleOptions << std::endl;
+                return EXIT_FAILURE;
+            }
+            Reports::setPrefix("warning");
+        }
+        if (vm.count("error"))
+        {
+            Reports::setPrefix("error");
+        }
         if (vm.count("exclusions"))
         {
             Exclusions::setExclusions(exclusions);
@@ -487,7 +505,14 @@ int boost_main(int argc, char * argv[])
         {
             Profiles::executeProfile(profile);
         }
-        Reports::dumpAll(cerr, vm.count("no-duplicate"));
+        if (vm.count("warning") || vm.count("error"))
+        {
+            Reports::dumpAll(cerr, vm.count("no-duplicate"));
+        }
+        else
+        {
+          Reports::dumpAll(cout, vm.count("no-duplicate"));
+        }
     }
     catch (const exception & e)
     {
@@ -495,6 +520,10 @@ int boost_main(int argc, char * argv[])
         return EXIT_FAILURE;
     }
 
+    if (vm.count("error") && Reports::count() !=0)
+    {
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 }
 
