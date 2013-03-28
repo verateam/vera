@@ -19,6 +19,7 @@
 #include <vector>
 #include <cstdlib>
 #include <sys/stat.h>
+#include <boost/program_options.hpp>
 
 using namespace std;
 using namespace Vera;
@@ -56,7 +57,7 @@ bool isSourceFileName(const SourceFiles::FileName & name)
 } // unnamed namespace
 
 
-int main(int argc, char * argv[])
+int legacy_main(int argc, char * argv[])
 {
     int exitCodeOnFailure = EXIT_FAILURE;
 
@@ -120,30 +121,7 @@ int main(int argc, char * argv[])
         {
             const string arg(argv[i]);
 
-            if (arg == "-help")
-            {
-                cout << "vera++ [options] [list-of-files]\n\n"
-                    "Recognized options:\n\n"
-                    "-                  (a single minus sign) indicates that the list of\n"
-                    "                   source file names will be provided on the stdin.\n\n"
-                    "-exclusions file   read exclusions from file\n\n"
-                    "-help              print this message\n\n"
-                    "-nofail            do not fail even when finding rule violations\n\n"
-                    "-nodup             do not duplicate messages if a single rule is violated\n"
-                    "                   many times in a single line of code\n\n"
-                    "-profile name      execute all rules from the given profile\n\n"
-                    "-param name=value  provide parameters to scripts (can be used many times)\n\n"
-                    "-paramfile file    read parameters from file\n\n"
-                    "-rule name         execute the given rule\n"
-                    "                   (note: the .tcl extension is added automatically)\n\n"
-                    "-showrules         include rule name in each report\n\n"
-                    "-vcformat          report in Visual C++ format\n\n"
-                    "-xmlreport         produce report in the XML format\n\n"
-                    "-transform name    execute the given transformation\n\n"
-                    "-version           print version number\n\n";
-                exit(EXIT_SUCCESS);
-            }
-            else if (arg == "-version")
+            if (arg == "-version")
             {
                 cout << programVersion << '\n';
                 exit(EXIT_SUCCESS);
@@ -186,8 +164,8 @@ int main(int argc, char * argv[])
                 }
                 else
                 {
-                    cerr << "error: option -rule provided with no rule name\n";
-                    exit(exitCodeOnFailure);
+                    // cerr << "error: option -rule provided with no rule name\n";
+                    return exitCodeOnFailure;
                 }
             }
             else if (arg == "-profile")
@@ -199,8 +177,8 @@ int main(int argc, char * argv[])
                 }
                 else
                 {
-                    cerr << "error: option -profile provided with no profile name\n";
-                    exit(exitCodeOnFailure);
+                    // cerr << "error: option -profile provided with no profile name\n";
+                    return exitCodeOnFailure;
                 }
             }
             else if (arg == "-exclusions")
@@ -214,7 +192,7 @@ int main(int argc, char * argv[])
                 else
                 {
                     cerr << "error: option -exclusions provided without name of file\n";
-                    exit(exitCodeOnFailure);
+                    return exitCodeOnFailure;
                 }
             }
             else if (arg == "-param")
@@ -228,7 +206,7 @@ int main(int argc, char * argv[])
                 else
                 {
                     cerr << "error: option -param provided without name and value\n";
-                    exit(exitCodeOnFailure);
+                    return exitCodeOnFailure;
                 }
             }
             else if (arg == "-paramfile")
@@ -242,7 +220,7 @@ int main(int argc, char * argv[])
                 else
                 {
                     cerr << "error: option -paramfile provided without name of file\n";
-                    exit(exitCodeOnFailure);
+                    return exitCodeOnFailure;
                 }
             }
             else if (arg == "-transform")
@@ -255,7 +233,7 @@ int main(int argc, char * argv[])
                 else
                 {
                     cerr << "error: option -transform provided without name of transformation\n";
-                    exit(exitCodeOnFailure);
+                    return exitCodeOnFailure;
                 }
             }
             else if (isSourceFileName(arg))
@@ -267,7 +245,8 @@ int main(int argc, char * argv[])
                 // the option was not recognized as a name of the source file
                 // or a vera-specific option
 
-                cerr << "error: option " << arg << " not recognized\n";
+                // cerr << "error: option " << arg << " not recognized\n";
+                return EXIT_FAILURE;
             }
 
             ++i;
@@ -275,8 +254,8 @@ int main(int argc, char * argv[])
 
         if (SourceFiles::empty())
         {
-            cerr << "vera++: no input files\n";
-            exit(exitCodeOnFailure);
+            // cerr << "vera++: no input files\n";
+            return exitCodeOnFailure;
         }
 
         if (singleTransformation.empty() == false)
@@ -285,7 +264,7 @@ int main(int argc, char * argv[])
             {
                 cerr <<
                     "error: transformation cannot be specified together with rules or profiles\n";
-                exit(exitCodeOnFailure);
+                return exitCodeOnFailure;
             }
 
             Transformations::executeTransformation(singleTransformation);
@@ -307,4 +286,223 @@ int main(int argc, char * argv[])
         cerr << "error: " << e.what() << '\n';
         exit(exitCodeOnFailure);
     }
+    return 0;
+}
+
+int boost_main(int argc, char * argv[])
+{
+    // std::cout << "boost_main" << std::endl;
+
+    // the directory containing the profile and rule definitions
+    // by default it is (in this order, first has highest precedence):
+    // - VERA_ROOT (if VERA_ROOT is defined)
+    // - HOME/.vera++ (if HOME is defined)
+    // - current directory (if scripts and profile are present)
+    // - /usr/lib/vera++/ default debian directory
+
+    RootDirectory::DirectoryName veraRoot(VERA_INSTALL_DIR "/lib/vera++/");
+
+    struct stat St;
+    bool isInCurrent = ( stat( "./scripts", &St ) == 0
+                         && stat( "./profiles", &St ) == 0 );
+
+    // scripts and profiles folders are inside current directory
+    if (isInCurrent)
+    {
+        // we can override /usr/lib/vera++
+        veraRoot = ".";
+    }
+    char * veraRootEnv = getenv("HOME");
+    if (veraRootEnv != NULL)
+    {
+      RootDirectory::DirectoryName veraRootTmp(veraRootEnv);
+      veraRootTmp += "/.vera++";
+      bool isInHome = ( stat( veraRootTmp.c_str(), &St ) == 0 );
+        if (isInHome)
+        {
+            // We assume that if the user has a .vera++ folder in
+            // their home then we can override the current
+            // directory
+            // We don't want to override the current directory
+            // only because $HOME is defined.
+            veraRoot = veraRootEnv;
+            veraRoot += "/.vera++";
+        }
+    }
+    veraRootEnv = getenv("VERA_ROOT");
+    if (veraRootEnv != NULL)
+    {
+        veraRoot = veraRootEnv;
+    }
+    RootDirectory::setRootDirectory(veraRoot);
+
+    std::string profile = "default";
+    std::string transform;
+    std::string parameters;
+    std::string exclusions;
+    std::vector<string> rules;
+    std::vector<string> params;
+    std::vector<string> inputs;
+    /** Define and parse the program options
+    */
+    namespace po = boost::program_options;
+    po::options_description visibleOptions("Options");
+    visibleOptions.add_options()
+        ("profile,p", po::value(&profile), "execute all rules from the given profile")
+        ("rule,R", po::value(&rules), "execute the given rule (note: the .tcl extension is added"
+            " automatically. can be used many times.)")
+        ("transform", po::value(&transform), "execute the given transformation")
+        ("show-rule,s", "include rule name in each report")
+        ("no-duplicate,d", "do not duplicate messages if a single rule is violated many times in a"
+            " single line of code")
+        ("vc-format,v", "report in Visual C++ format")
+        ("xml-report,x", "produce report in the XML format")
+        ("parameters", po::value(&parameters), "read parameters from file")
+        ("param,P", po::value(&params), "provide parameters to the scripts as name=value"
+            " (note: can be used many times)")
+        ("exclusions", po::value(&exclusions), "read exclusions from file")
+        ("help,h", "show this help message and exit")
+        ("version", "show vera++'s version and exit");
+
+    po::options_description allOptions;
+    allOptions.add(visibleOptions).add_options()
+            ("input", po::value(&inputs), "input files");
+
+    po::positional_options_description positionalOptions;
+    positionalOptions.add("input", -1);
+
+    po::variables_map vm;
+    try
+    {
+        po::store(po::command_line_parser(argc, argv).options(allOptions)
+            .positional(positionalOptions).run(), vm);
+        if ( vm.count("help")  )
+        {
+          std::cout << "vera++ [options] [list-of-files]" << std::endl
+                    << visibleOptions << std::endl;
+          return EXIT_SUCCESS;
+        }
+        po::notify(vm); // throws on error, so do after help in case
+                        // there are any problems
+    }
+    catch (po::error& e)
+    {
+        std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+        std::cerr << visibleOptions << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    if (vm.count("version"))
+    {
+        cout << programVersion << '\n';
+        return EXIT_SUCCESS;
+    }
+
+    try
+    {
+        Reports::setShowRules(vm.count("show-rule"));
+        Reports::setXMLReport(vm.count("xml-report"));
+        Reports::setVCFormat(vm.count("vc-format"));
+        if (vm.count("exclusions"))
+        {
+            Exclusions::setExclusions(exclusions);
+        }
+        if (vm.count("parameters"))
+        {
+            Parameters::readFromFile(parameters);
+        }
+        for (std::vector<std::string>::const_iterator it = params.begin();
+            it != params.end();
+            ++it)
+        {
+            Parameters::ParamAssoc assoc(*it);
+            Parameters::set(assoc);
+        }
+        if (vm.count("input"))
+        {
+            for (std::vector<std::string>::const_iterator it = inputs.begin();
+                it != inputs.end();
+                ++it)
+            {
+                if (*it == "-")
+                {
+                    // list of source files is provided on stdin
+                    SourceFiles::FileName name;
+                    while (cin >> name)
+                    {
+                        SourceFiles::addFileName(name);
+                    }
+                }
+                else
+                {
+                    SourceFiles::addFileName(*it);
+                }
+            }
+        }
+        else
+        {
+            // list of source files is provided on stdin
+            SourceFiles::FileName name;
+            while (cin >> name)
+            {
+                SourceFiles::addFileName(name);
+            }
+        }
+
+        if (rules.empty() == false)
+        {
+            if (vm.count("profile"))
+            {
+                std::cerr
+                    << "ERROR: --profile and --rule can't be used at the same time." << std::endl;
+                std::cerr << visibleOptions << std::endl;
+                return EXIT_FAILURE;
+            }
+            if (vm.count("transform"))
+            {
+                std::cerr
+                    << "ERROR: --transform and --rule can't be used at the same time." << std::endl;
+                std::cerr << visibleOptions << std::endl;
+                return EXIT_FAILURE;
+            }
+            for (std::vector<std::string>::const_iterator it = rules.begin();
+                it != rules.end();
+                ++it)
+            {
+                Rules::executeRule(*it);
+            }
+        }
+        else if (vm.count("transform"))
+        {
+            if (vm.count("profile"))
+            {
+                std::cerr <<
+                    "ERROR: --profile and --transform can't be used at the same time." << std::endl;
+                std::cerr << visibleOptions << std::endl;
+                return EXIT_FAILURE;
+            }
+            Transformations::executeTransformation(transform);
+        }
+        else
+        {
+            Profiles::executeProfile(profile);
+        }
+        Reports::dumpAll(cerr, vm.count("no-duplicate"));
+    }
+    catch (const exception & e)
+    {
+        cerr << "error: " << e.what() << '\n';
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int main(int argc, char * argv[])
+{
+    if (legacy_main(argc, argv))
+    {
+      return boost_main(argc, argv);
+    }
+    return EXIT_SUCCESS;
 }

@@ -3,7 +3,7 @@ find_package(TCL REQUIRED)
 include_directories(SYSTEM ${TCL_INCLUDE_DIRS})
 link_directories(${TCL_LIBRARY_DIRS})
 
-find_package(Boost COMPONENTS system wave REQUIRED)
+find_package(Boost COMPONENTS program_options system wave REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
