@@ -335,7 +335,6 @@ int boost_main(int argc, char * argv[])
     {
         veraRoot = veraRootEnv;
     }
-    RootDirectory::setRootDirectory(veraRoot);
 
     std::string profile = "default";
     std::string transform;
@@ -373,6 +372,7 @@ int boost_main(int argc, char * argv[])
             " line. can be used many times.")
         ("output,o", po::value(&outputs), "write the output to this file. Default is standard"
             " or error output depending on the options. (note: may be used many times.)")
+        ("root,r", po::value(&veraRoot), "use the given directory as the vera root directory")
         ("help,h", "show this help message and exit")
         ("version", "show vera++'s version and exit");
 
@@ -412,6 +412,7 @@ int boost_main(int argc, char * argv[])
 
     try
     {
+        RootDirectory::setRootDirectory(veraRoot);
         Reports::setShowRules(vm.count("show-rule"));
         Reports::setXMLReport(vm.count("xml-report"));
         Reports::setVCFormat(vm.count("vc-format"));
