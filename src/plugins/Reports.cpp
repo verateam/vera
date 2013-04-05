@@ -138,6 +138,7 @@ void Reports::dumpAllNormal(ostream & os, bool omitDuplicates)
 
 void Reports::dumpAllXML(ostream & os, bool omitDuplicates)
 {
+    os<< "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
     os << "<vera>\n";
 
     for (MessagesCollection::iterator it = messages_.begin(), end = messages_.end();
