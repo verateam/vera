@@ -31,8 +31,6 @@ using namespace Plugins;
 namespace // unnamed
 {
 
-const char *programVersion = "Vera++ 1.1.2 (Community Edition)";
-
 // helper function that checks whether the given file name names the C or C++ source file
 bool isSourceFileName(const SourceFiles::FileName & name)
 {
@@ -124,7 +122,7 @@ int legacy_main(int argc, char * argv[])
 
             if (arg == "-version")
             {
-                cout << programVersion << '\n';
+                cout << VERA_VERSION << '\n';
                 exit(EXIT_SUCCESS);
             }
             else if (arg == "-nofail")
@@ -406,7 +404,7 @@ int boost_main(int argc, char * argv[])
 
     if (vm.count("version"))
     {
-        cout << programVersion << '\n';
+        cout << VERA_VERSION << '\n';
         return EXIT_SUCCESS;
     }
 
