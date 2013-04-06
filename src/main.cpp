@@ -280,7 +280,7 @@ int legacy_main(int argc, char * argv[])
             Profiles::executeProfile(profile);
         }
 
-        Reports::dumpAll(cerr, omitDuplicates);
+        Reports::dumpAll(cout, omitDuplicates);
     }
     catch (const exception & e)
     {
