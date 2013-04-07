@@ -36,6 +36,10 @@ public:
 
     static void dumpAll(std::ostream & os, bool omitDuplicates);
 
+    static void writeStd(std::ostream & os, bool omitDuplicates);
+    static void writeVc(std::ostream & os, bool omitDuplicates);
+    static void writeXml(std::ostream & os, bool omitDuplicates);
+
 private:
     static void dumpAllNormal(std::ostream & os, bool omitDuplicates);
     static void dumpAllXML(std::ostream & os, bool omitDuplicates);

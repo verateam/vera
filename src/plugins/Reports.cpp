@@ -73,15 +73,22 @@ void Reports::dumpAll(ostream & os, bool omitDuplicates)
 {
     if (xmlReport_)
     {
-        dumpAllXML(os, omitDuplicates);
+        writeXml(os, omitDuplicates);
     }
     else
     {
-        dumpAllNormal(os, omitDuplicates);
+        if(vcFormat_)
+        {
+            writeVc(os, omitDuplicates);
+        }
+        else
+        {
+            writeStd(os, omitDuplicates);
+        }
     }
 }
 
-void Reports::dumpAllNormal(ostream & os, bool omitDuplicates)
+void Reports::writeStd(ostream & os, bool omitDuplicates)
 {
 
     for (MessagesCollection::iterator it = messages_.begin(), end = messages_.end();
@@ -107,14 +114,7 @@ void Reports::dumpAllNormal(ostream & os, bool omitDuplicates)
                 lineNumber != lastLineNumber || report != lastReport)
             {
                 os << name;
-                if (vcFormat_)
-                {
-                    os << '(' << lineNumber << "):";
-                }
-                else
-                {
-                    os << ':' << lineNumber << ":";
-                }
+                os << ':' << lineNumber << ":";
                 if (prefix_ != "")
                 {
                     os << " " << prefix_;
@@ -136,7 +136,55 @@ void Reports::dumpAllNormal(ostream & os, bool omitDuplicates)
     }
 }
 
-void Reports::dumpAllXML(ostream & os, bool omitDuplicates)
+void Reports::writeVc(ostream & os, bool omitDuplicates)
+{
+
+    for (MessagesCollection::iterator it = messages_.begin(), end = messages_.end();
+         it != end; ++it)
+    {
+        const FileName & name = it->first;
+
+        FileMessagesCollection & fileMessages = it->second;
+
+        FileMessagesCollection::iterator fit = fileMessages.begin();
+        FileMessagesCollection::iterator fend = fileMessages.end();
+
+        int lastLineNumber = 0;
+        SingleReport lastReport;
+        for ( ; fit != fend; ++fit)
+        {
+            int lineNumber = fit->first;
+            const SingleReport & report = fit->second;
+            const Rules::RuleName & rule = report.first;
+            const Message & msg = report.second;
+
+            if (omitDuplicates == false ||
+                lineNumber != lastLineNumber || report != lastReport)
+            {
+                os << name;
+                os << '(' << lineNumber << "):";
+                if (prefix_ != "")
+                {
+                    os << " " << prefix_;
+                }
+                if (showRules_)
+                {
+                    os << " " << rule;
+                }
+                if (showRules_ || prefix_ != "")
+                {
+                    os << ":";
+                }
+                os << " " << msg << std::endl;
+
+                lastLineNumber = lineNumber;
+                lastReport = report;
+            }
+        }
+    }
+}
+
+void Reports::writeXml(ostream & os, bool omitDuplicates)
 {
     os<< "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
     os << "<vera>\n";

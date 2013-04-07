@@ -83,7 +83,10 @@ int boost_main(int argc, char * argv[])
     std::vector<string> params;
     std::vector<string> args;
     std::vector<string> inputs;
-    std::vector<string> outputs;
+    // outputs
+    std::vector<string> stdreports;
+    std::vector<string> vcreports;
+    std::vector<string> xmlreports;
     /** Define and parse the program options
     */
     namespace po = boost::program_options;
@@ -93,14 +96,19 @@ int boost_main(int argc, char * argv[])
         ("rule,R", po::value(&rules), "execute the given rule (note: the .tcl extension is added"
             " automatically. can be used many times.)")
         ("transform", po::value(&transform), "execute the given transformation")
+        ("std-report,o", po::value(&stdreports), "write the standard (gcc-like) report to this"
+            "file. Default is standard or error output depending on the options."
+            " (note: may be used many times.)")
+        ("vc-report,v", po::value(&vcreports), "write the Visual C report to this file."
+            " Not used by default. (note: may be used many times.)")
+        ("xml-report,x", po::value(&xmlreports), "write the XML report to this file."
+            " Not used by default. (note: may be used many times.)")
         ("show-rule,s", "include rule name in each report")
         ("no-duplicate,d", "do not duplicate messages if a single rule is violated many times in a"
             " single line of code")
-        ("vc-format,v", "report in Visual C++ format")
-        ("warning,w", "reports are marked as warning and generated on standard error output")
-        ("error,e", "reports are marked as error and generated on standard error output."
+        ("warning,w", "reports are marked as warning and generated on error output")
+        ("error,e", "reports are marked as error and generated on error output."
             " An non zero exit code is used when one or more reports are generated.")
-        ("xml-report,x", "produce report in the XML format")
         ("quiet,q", "don't display the reports")
         ("summary,S", "display the number of reports and the number of processed files")
         ("parameters", po::value(&parameters), "read parameters from file")
@@ -109,8 +117,6 @@ int boost_main(int argc, char * argv[])
         ("exclusions", po::value(&exclusions), "read exclusions from file")
         ("input,i", po::value(&inputs), "the inputs are read from that file (note: one file per"
             " line. can be used many times.")
-        ("output,o", po::value(&outputs), "write the output to this file. Default is standard"
-            " or error output depending on the options. (note: may be used many times.)")
         ("root,r", po::value(&veraRoot), "use the given directory as the vera root directory")
         ("help,h", "show this help message and exit")
         ("version", "show vera++'s version and exit");
@@ -153,8 +159,6 @@ int boost_main(int argc, char * argv[])
     {
         RootDirectory::setRootDirectory(veraRoot);
         Reports::setShowRules(vm.count("show-rule"));
-        Reports::setXMLReport(vm.count("xml-report"));
-        Reports::setVCFormat(vm.count("vc-format"));
         if (vm.count("warning"))
         {
             if (vm.count("error"))
@@ -238,9 +242,11 @@ int boost_main(int argc, char * argv[])
             }
         }
 
-        if (vm.count("output") == 0 && vm.count("quiet") == 0)
+        if (vm.count("std-report") == 0 && vm.count("vc-report") == 0
+            && vm.count("xml-report") == 0 && vm.count("quiet") == 0)
         {
-            outputs.push_back("-");
+            // no report set - use std report on std out/err
+            stdreports.push_back("-");
         }
 
         if (rules.empty() == false)
@@ -282,29 +288,76 @@ int boost_main(int argc, char * argv[])
             Profiles::executeProfile(profile);
         }
 
-        for (std::vector<std::string>::const_iterator it = outputs.begin();
-            it != outputs.end();
+        for (std::vector<std::string>::const_iterator it = stdreports.begin();
+            it != stdreports.end();
             ++it)
         {
             if (*it == "-")
             {
                 if (vm.count("warning") || vm.count("error"))
                 {
-                    Reports::dumpAll(cerr, vm.count("no-duplicate"));
+                    Reports::writeStd(cerr, vm.count("no-duplicate"));
                 }
                 else
                 {
-                  Reports::dumpAll(cout, vm.count("no-duplicate"));
+                  Reports::writeStd(cout, vm.count("no-duplicate"));
                 }
             }
             else
             {
                 std::ofstream file;
                 file.open(it->c_str());
-                Reports::dumpAll(file, vm.count("no-duplicate"));
+                Reports::writeStd(file, vm.count("no-duplicate"));
                 file.close();
             }
         }
+        for (std::vector<std::string>::const_iterator it = vcreports.begin();
+            it != vcreports.end();
+            ++it)
+        {
+            if (*it == "-")
+            {
+                if (vm.count("warning") || vm.count("error"))
+                {
+                    Reports::writeVc(cerr, vm.count("no-duplicate"));
+                }
+                else
+                {
+                  Reports::writeVc(cout, vm.count("no-duplicate"));
+                }
+            }
+            else
+            {
+                std::ofstream file;
+                file.open(it->c_str());
+                Reports::writeVc(file, vm.count("no-duplicate"));
+                file.close();
+            }
+        }
+        for (std::vector<std::string>::const_iterator it = xmlreports.begin();
+            it != xmlreports.end();
+            ++it)
+        {
+            if (*it == "-")
+            {
+                if (vm.count("warning") || vm.count("error"))
+                {
+                    Reports::writeXml(cerr, vm.count("no-duplicate"));
+                }
+                else
+                {
+                  Reports::writeXml(cout, vm.count("no-duplicate"));
+                }
+            }
+            else
+            {
+                std::ofstream file;
+                file.open(it->c_str());
+                Reports::writeXml(file, vm.count("no-duplicate"));
+                file.close();
+            }
+        }
+
         if (vm.count("summary"))
         {
             std::cerr << Reports::count() << " reports in "

@@ -18,7 +18,7 @@ add_test(NAME VeraRootOK
 add_test(NAME VeraVCFormat
   COMMAND vera++
   --root "${CMAKE_SOURCE_DIR}"
-  --vc-format
+  --vc-report=-
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp")
 set_tests_properties(VeraVCFormat PROPERTIES
   PASS_REGULAR_EXPRESSION "test.cpp\\(1\\): no copyright notice found")
@@ -26,7 +26,7 @@ set_tests_properties(VeraVCFormat PROPERTIES
 add_test(NAME VeraVCFormatOK
   COMMAND vera++
   --root "${CMAKE_SOURCE_DIR}"
-  --vc-format
+  --vc-report=-
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp")
 
 add_test(NAME VeraShowRule
