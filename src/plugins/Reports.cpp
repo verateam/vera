@@ -77,7 +77,7 @@ void Reports::dumpAll(ostream & os, bool omitDuplicates)
     }
     else
     {
-        if(vcFormat_)
+        if (vcFormat_)
         {
             writeVc(os, omitDuplicates);
         }

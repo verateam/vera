@@ -1,3 +1,10 @@
+file(GLOB_RECURSE srcs ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h)
+add_test(NAME VeraStyle
+  COMMAND vera++
+  --error
+  --root "${CMAKE_SOURCE_DIR}"
+  ${srcs})
+
 add_test(NAME VeraNoRootKO
   COMMAND vera++
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp")
