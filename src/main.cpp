@@ -234,9 +234,17 @@ int boost_main(int argc, char * argv[])
                 std::ifstream file;
                 std::string name;
                 file.open(it->c_str());
+                if (file.fail())
+                {
+                    throw std::ios::failure("Can't open " + *it);
+                }
                 while (file >> name)
                 {
                     SourceFiles::addFileName(name);
+                }
+                if (file.bad() || file.fail())
+                {
+                    throw std::ios::failure( "Can't read from " + *it);
                 }
                 file.close();
             }
@@ -307,7 +315,15 @@ int boost_main(int argc, char * argv[])
             {
                 std::ofstream file;
                 file.open(it->c_str());
+                if (file.fail())
+                {
+                    throw std::ios::failure("Can't open " + *it);
+                }
                 Reports::writeStd(file, vm.count("no-duplicate"));
+                if (file.bad() || file.fail())
+                {
+                    throw std::ios::failure( "Can't write to " + *it);
+                }
                 file.close();
             }
         }
@@ -330,7 +346,15 @@ int boost_main(int argc, char * argv[])
             {
                 std::ofstream file;
                 file.open(it->c_str());
+                if (file.fail())
+                {
+                    throw std::ios::failure("Can't open " + *it);
+                }
                 Reports::writeVc(file, vm.count("no-duplicate"));
+                if (file.bad() || file.fail())
+                {
+                    throw std::ios::failure( "Can't write to " + *it);
+                }
                 file.close();
             }
         }
@@ -353,7 +377,15 @@ int boost_main(int argc, char * argv[])
             {
                 std::ofstream file;
                 file.open(it->c_str());
+                if (file.fail())
+                {
+                    throw std::ios::failure("Can't open " + *it);
+                }
                 Reports::writeXml(file, vm.count("no-duplicate"));
+                if (file.bad() || file.fail())
+                {
+                    throw std::ios::failure( "Can't write to " + *it);
+                }
                 file.close();
             }
         }
