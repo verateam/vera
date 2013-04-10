@@ -3,9 +3,14 @@ find_package(TCL REQUIRED)
 include_directories(SYSTEM ${TCL_INCLUDE_PATH})
 link_directories(${TCL_LIBRARY_DIRS})
 
+# expose the Boost_USE_STATIC_LIBS option to ease the manual creation of
+# packages with cpack
+option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
 find_package(Boost COMPONENTS program_options system wave REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
+# hide Boost_DIR option that doesn't seem to be set by FindBoost
+mark_as_advanced(Boost_DIR)
 
 configure_file(config.h.in config.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -16,6 +21,7 @@ target_link_libraries(vera++
   ${TCL_LIBRARY}
   ${Boost_LIBRARIES})
 
+include(InstallRequiredSystemLibraries)
 install(TARGETS vera++ DESTINATION bin)
 
 ########## check the coding style with vera++ ##############
