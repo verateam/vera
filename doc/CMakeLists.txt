@@ -17,6 +17,7 @@ set(inputs
   # no need for the build page in the final doc
   # ${wiki}/Building.md
   ${wiki}/Running.md
+  ${wiki}/Rules.md
   ${wiki}/ScriptAPI.md
 )
 add_custom_command(OUTPUT vera++.1
