@@ -1,1 +1,0 @@
-- extraction of top-level declarations from .cpp file (for those who think that headers are duplicate and don't want to write the same stuff twice...)
