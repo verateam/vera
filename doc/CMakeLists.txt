@@ -18,6 +18,7 @@ set(inputs
   # ${wiki}/Building.md
   ${wiki}/Running.md
   ${wiki}/Rules.md
+  ${wiki}/Transformations.md
   ${wiki}/ScriptAPI.md
 )
 add_custom_command(OUTPUT vera++.1
