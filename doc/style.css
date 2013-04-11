@@ -1,3 +1,4 @@
+<style type="text/css">
 body
 {
   background: white;
@@ -10,7 +11,7 @@ body
 h1
 {
   background-color: #f4fafa;
-  padding: 10px;
+  padding: 5px 10px 5px 10px;
 }
 
 p
@@ -18,13 +19,7 @@ p
   padding-left: 10px;
 }
 
-p.section
-{ 
-  background-color: #f4fafa;
-  padding: 5px 10px 5px 10px;
-}
-
-pre.example
+pre
 {
   margin: 10px;
   background-color: #f4fafa;
@@ -36,3 +31,4 @@ li
 {
   margin: 10px;
 }
+</style>

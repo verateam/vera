@@ -30,9 +30,11 @@ add_custom_command(OUTPUT vera++.1
 )
 add_custom_command(OUTPUT vera++.html
   COMMAND ${PANDOC} -s
+    # --toc --toc-depth=1
+    -H ${CMAKE_CURRENT_SOURCE_DIR}/style.css
     ${inputs}
     -o vera++.html
-  DEPENDS ${PANDOC} ${inputs}
+  DEPENDS ${PANDOC} ${CMAKE_CURRENT_SOURCE_DIR}/style.css ${inputs}
 )
 add_custom_target(doc ALL DEPENDS vera++.1 vera++.html)
 
