@@ -1,6 +1,6 @@
 
 find_package(TCL REQUIRED)
-include_directories(SYSTEM ${TCL_INCLUDE_DIRS})
+include_directories(SYSTEM ${TCL_INCLUDE_PATH})
 link_directories(${TCL_LIBRARY_DIRS})
 
 find_package(Boost COMPONENTS program_options system wave REQUIRED)
