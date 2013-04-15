@@ -239,7 +239,7 @@ endforeach(v)
 message("Dashboard script configuration:\n${vars}\n")
 
 # Avoid non-ascii characters in tool output.
-set(ENV{LC_ALL} C)
+set(ENV{LC_ALL} "en_US.UTF-8")
 
 # Helper macro to write the initial cache.
 macro(write_cache)
