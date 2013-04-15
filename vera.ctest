@@ -187,7 +187,7 @@ if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}"
     AND NOT DEFINED CTEST_CHECKOUT_COMMAND)
 
   execute_process(
-    COMMAND "${CTEST_GIT_COMMAND}" clone -n -b ${dashboard_git_branch} -- "${dashboard_git_url}"
+    COMMAND "${CTEST_GIT_COMMAND}" clone -b ${dashboard_git_branch} -- "${dashboard_git_url}"
             "${CTEST_SOURCE_DIRECTORY}"
     )
   if(EXISTS "${CTEST_SOURCE_DIRECTORY}/.git")
