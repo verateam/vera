@@ -27,7 +27,7 @@ if(GITCOMMAND
   file(DOWNLOAD
     https://raw.github.com/Kentzo/git-archive-all/75bd629ef3dde58c83e4af4c92978e753e6c6b72/git-archive-all
     ${CMAKE_CURRENT_BINARY_DIR}/git-archive-all
-    EXPECTED_MD5 d41d8cd98f00b204e9800998ecf8427e
+    EXPECTED_MD5 fe37e10ef385718b5150b154c6f224ad
   )
   # and create the sources archive
   set(dest ${CMAKE_CURRENT_BINARY_DIR}/vera++-${VERA_VERSION}.tar.gz)
