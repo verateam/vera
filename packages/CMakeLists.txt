@@ -2,6 +2,7 @@
 # binary package
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VENDOR "The vera++ team")
+set(CPACK_PACKAGE_CONTACT "none")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Programmable verification and analysis tool for C++")
 set(CPACK_PACKAGE_VERSION_MAJOR "${VERA_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${VERA_MINOR}")
