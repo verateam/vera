@@ -13,7 +13,9 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE_1_0.txt")
 # set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/vera++.bmp")
 # set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/vera++.ico")
 # set(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/vera++.ico")
-set(CPACK_NSIS_MENU_LINKS "share\\\\doc\\\\vera++.html" "documentation")
+if(TARGET doc)
+  set(CPACK_NSIS_MENU_LINKS "share\\\\vera++\\\\doc\\\\vera++.html" "documentation")
+endif()
 include(CPack)
 
 
