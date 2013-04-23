@@ -9,28 +9,32 @@
 #include "RootDirectory.h"
 #include "Interpreter.h"
 
-using namespace std;
-using namespace Vera;
-using namespace Plugins;
-
 
 namespace // unnamed
 {
 
-Rules::RuleName currentRule_;
+Vera::Plugins::Rules::RuleName currentRule_;
 
 } // unnamed namespace
 
+namespace Vera
+{
+namespace Plugins
+{
 
 void Rules::executeRule(const RuleName & name)
 {
     currentRule_ = name;
 
-    const RootDirectory::DirectoryName veraRoot = RootDirectory::getRootDirectory();
+    const Vera::Plugins::RootDirectory::DirectoryName veraRoot =
+            Vera::Plugins::RootDirectory::getRootDirectory();
     Interpreter::execute(veraRoot, Interpreter::rule, name);
 }
 
 Rules::RuleName Rules::getCurrentRule()
 {
     return currentRule_;
+}
+
+}
 }

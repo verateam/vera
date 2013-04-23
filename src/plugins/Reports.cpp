@@ -10,22 +10,18 @@
 #include <map>
 #include <utility>
 
-using namespace std;
-using namespace Vera;
-using namespace Plugins;
-
 
 namespace // unnamed
 {
 
 // for a single report
-typedef pair<Rules::RuleName, Reports::Message> SingleReport;
+typedef std::pair<Vera::Plugins::Rules::RuleName, Vera::Plugins::Reports::Message> SingleReport;
 
 // for a single file (line number -> single report)
-typedef multimap<int, SingleReport> FileMessagesCollection;
+typedef std::multimap<int, SingleReport> FileMessagesCollection;
 
 // for all reports
-typedef map<Reports::FileName, FileMessagesCollection> MessagesCollection;
+typedef std::map<Vera::Plugins::Reports::FileName, FileMessagesCollection> MessagesCollection;
 
 MessagesCollection messages_;
 
@@ -36,6 +32,10 @@ std::string prefix_;
 
 } // unnamed namespace
 
+namespace Vera
+{
+namespace Plugins
+{
 
 void Reports::setShowRules(bool show)
 {
@@ -69,7 +69,7 @@ void Reports::add(const FileName & name, int lineNumber, const Message & msg)
     messages_[name].insert(make_pair(lineNumber, make_pair(currentRule, msg)));
 }
 
-void Reports::dumpAll(ostream & os, bool omitDuplicates)
+void Reports::dumpAll(std::ostream & os, bool omitDuplicates)
 {
     if (xmlReport_)
     {
@@ -88,7 +88,7 @@ void Reports::dumpAll(ostream & os, bool omitDuplicates)
     }
 }
 
-void Reports::writeStd(ostream & os, bool omitDuplicates)
+void Reports::writeStd(std::ostream & os, bool omitDuplicates)
 {
 
     for (MessagesCollection::iterator it = messages_.begin(), end = messages_.end();
@@ -136,7 +136,7 @@ void Reports::writeStd(ostream & os, bool omitDuplicates)
     }
 }
 
-void Reports::writeVc(ostream & os, bool omitDuplicates)
+void Reports::writeVc(std::ostream & os, bool omitDuplicates)
 {
 
     for (MessagesCollection::iterator it = messages_.begin(), end = messages_.end();
@@ -184,7 +184,7 @@ void Reports::writeVc(ostream & os, bool omitDuplicates)
     }
 }
 
-void Reports::writeXml(ostream & os, bool omitDuplicates)
+void Reports::writeXml(std::ostream & os, bool omitDuplicates)
 {
     os<< "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
     os << "<vera>\n";
@@ -234,4 +234,7 @@ void Reports::writeXml(ostream & os, bool omitDuplicates)
     }
 
     os << "</vera>\n";
+}
+
+}
 }

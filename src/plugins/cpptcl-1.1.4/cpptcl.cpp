@@ -12,12 +12,10 @@
 #include <sstream>
 #include <iterator>
 
-
-using namespace Tcl;
-using namespace Tcl::details;
-using namespace std;
-using namespace boost;
-
+namespace Tcl
+{
+namespace details
+{
 
 result::result(Tcl_Interp *interp) : interp_(interp) {}
 
@@ -78,61 +76,60 @@ result::operator long() const
      return val;
 }
 
-result::operator string() const
+result::operator std::string() const
 {
      Tcl_Obj *obj = Tcl_GetObjResult(interp_);
      return Tcl_GetString(obj);
 }
 
-result::operator object() const
+result::operator Tcl::object() const
 {
      return object(Tcl_GetObjResult(interp_));
 }
 
-
-void details::set_result(Tcl_Interp *interp, bool b)
+void set_result(Tcl_Interp *interp, bool b)
 {
      Tcl_SetObjResult(interp, Tcl_NewBooleanObj(b));
 }
 
-void details::set_result(Tcl_Interp *interp, int i)
+void set_result(Tcl_Interp *interp, int i)
 {
      Tcl_SetObjResult(interp, Tcl_NewIntObj(i));
 }
 
-void details::set_result(Tcl_Interp *interp, long i)
+void set_result(Tcl_Interp *interp, long i)
 {
      Tcl_SetObjResult(interp, Tcl_NewLongObj(i));
 }
 
-void details::set_result(Tcl_Interp *interp, double d)
+void set_result(Tcl_Interp *interp, double d)
 {
      Tcl_SetObjResult(interp, Tcl_NewDoubleObj(d));
 }
 
-void details::set_result(Tcl_Interp *interp, string const &s)
+void set_result(Tcl_Interp *interp, std::string const &s)
 {
      Tcl_SetObjResult(interp,
           Tcl_NewStringObj(s.data(), static_cast<int>(s.size())));
 }
 
-void details::set_result(Tcl_Interp *interp, void *p)
+void set_result(Tcl_Interp *interp, void *p)
 {
-     ostringstream ss;
+     std::ostringstream ss;
      ss << 'p' << p;
-     string s(ss.str());
+     std::string s(ss.str());
 
      Tcl_SetObjResult(interp,
           Tcl_NewStringObj(s.data(), static_cast<int>(s.size())));
 }
 
-void details::set_result(Tcl_Interp *interp, object const &o)
+void set_result(Tcl_Interp *interp, object const &o)
 {
      Tcl_SetObjResult(interp, o.get_object());
 }
 
 
-void details::check_params_no(int objc, int required)
+void check_params_no(int objc, int required)
 {
      if (objc < required)
      {
@@ -140,7 +137,7 @@ void details::check_params_no(int objc, int required)
      }
 }
 
-object details::get_var_params(Tcl_Interp *interp,
+object get_var_params(Tcl_Interp *interp,
      int objc, Tcl_Obj * CONST objv[],
      int from, policies const &pol)
 {
@@ -161,32 +158,34 @@ object details::get_var_params(Tcl_Interp *interp,
      return o;
 }
 
+}
 
 namespace // unnamed
 {
 
 // map of polymorphic callbacks
-typedef map<string, shared_ptr<callback_base> > callback_interp_map;
-typedef map<Tcl_Interp *, callback_interp_map> callback_map;
+typedef std::map<std::string, boost::shared_ptr<Tcl::details::callback_base> > callback_interp_map;
+typedef std::map<Tcl_Interp *, callback_interp_map> callback_map;
 
 callback_map callbacks;
 callback_map constructors;
 
 // map of call policies
-typedef map<string, policies> policies_interp_map;
-typedef map<Tcl_Interp *, policies_interp_map> policies_map;
+typedef std::map<std::string, policies> policies_interp_map;
+typedef std::map<Tcl_Interp *, policies_interp_map> policies_map;
 
 policies_map call_policies;
 
 // map of object handlers
-typedef map<string, shared_ptr<class_handler_base> > class_interp_map;
-typedef map<Tcl_Interp *, class_interp_map> class_handlers_map;
+typedef std::map<std::string, boost::shared_ptr<Tcl::details::class_handler_base> >
+    class_interp_map;
+typedef std::map<Tcl_Interp *, class_interp_map> class_handlers_map;
 
 class_handlers_map class_handlers;
 
 
 // helper for finding call policies - returns true when found
-bool find_policies(Tcl_Interp *interp, string const &cmdName,
+bool find_policies(Tcl_Interp *interp, std::string const &cmdName,
      policies_interp_map::iterator &piti)
 {
      policies_map::iterator pit = call_policies.find(interp);
@@ -226,7 +225,7 @@ void post_process_policies(Tcl_Interp *interp, policies &pol,
                     "Factory was registered for unknown class.");
           }
 
-          class_handler_base *chb = oit->second.get();
+          Tcl::details::class_handler_base *chb = oit->second.get();
 
           // register a new command for the object returned
           // by this factory function
@@ -241,7 +240,7 @@ void post_process_policies(Tcl_Interp *interp, policies &pol,
 
      // process all declared sinks
      // - unregister all object commands that envelopes the pointers
-     for (vector<int>::iterator s = pol.sinks_.begin();
+     for (std::vector<int>::iterator s = pol.sinks_.begin();
           s != pol.sinks_.end(); ++s)
      {
           if (isMethod == false)
@@ -285,7 +284,7 @@ int callback_handler(ClientData, Tcl_Interp *interp,
           return TCL_ERROR;
      }
      
-     string cmdName(Tcl_GetString(objv[0]));
+     std::string cmdName(Tcl_GetString(objv[0]));
      callback_interp_map::iterator iti = it->second.find(cmdName);
      if (iti == it->second.end())
      {
@@ -348,20 +347,21 @@ int object_handler(ClientData cd, Tcl_Interp *interp,
      // which is responsible for managing commands for
      // objects of a given type
 
-     class_handler_base *chb = reinterpret_cast<class_handler_base*>(cd);
+     Tcl::details::class_handler_base *chb =
+         reinterpret_cast<Tcl::details::class_handler_base*>(cd);
 
      // the command name has the form 'pXXX' where XXX is the address
      // of the "this" object
 
-     string const str(Tcl_GetString(objv[0]));
-     istringstream ss(str);
+     std::string const str(Tcl_GetString(objv[0]));
+     std::istringstream ss(str);
      char dummy;
      void *p;
      ss >> dummy >> p;
 
      try
      {
-          string methodName(Tcl_GetString(objv[1]));
+          std::string methodName(Tcl_GetString(objv[1]));
           policies &pol = chb->get_policies(methodName);
 
           chb->invoke(p, interp, objc, objv, pol);
@@ -392,7 +392,8 @@ int constructor_handler(ClientData cd, Tcl_Interp *interp,
      // which is responsible for managing commands for
      // objects of a given type
 
-     class_handler_base *chb = reinterpret_cast<class_handler_base*>(cd);
+     Tcl::details::class_handler_base *chb =
+         reinterpret_cast<Tcl::details::class_handler_base*>(cd);
 
      callback_map::iterator it = constructors.find(interp);
      if (it == constructors.end())
@@ -404,7 +405,7 @@ int constructor_handler(ClientData cd, Tcl_Interp *interp,
           return TCL_ERROR;
      }
      
-     string className(Tcl_GetString(objv[0]));
+     std::string className(Tcl_GetString(objv[0]));
      callback_interp_map::iterator iti = it->second.find(className);
      if (iti == it->second.end())
      {
@@ -456,10 +457,10 @@ int constructor_handler(ClientData cd, Tcl_Interp *interp,
 
 } // unnamed namespace
 
-Tcl::details::no_init_type Tcl::no_init;
+Tcl::details::no_init_type no_init;
 
 
-policies & policies::factory(string const &name)
+policies & policies::factory(std::string const &name)
 {
      factory_ = name;
      return *this;
@@ -477,21 +478,24 @@ policies & policies::variadic()
      return *this;
 }
 
-policies Tcl::factory(string const &name)
+policies factory(std::string const &name)
 {
      return policies().factory(name);
 }
 
-policies Tcl::sink(int index)
+policies sink(int index)
 {
      return policies().sink(index);
 }
 
-policies Tcl::variadic()
+policies variadic()
 {
      return policies().variadic();
 }
 
+
+namespace details
+{
 
 class_handler_base::class_handler_base()
 {
@@ -499,14 +503,14 @@ class_handler_base::class_handler_base()
      policies_["-delete"] = policies();
 }
 
-void class_handler_base::register_method(string const &name,
-     shared_ptr<object_cmd_base> ocb, policies const &p)
+void class_handler_base::register_method(std::string const &name,
+     boost::shared_ptr<object_cmd_base> ocb, policies const &p)
 {
      methods_[name] = ocb;
      policies_[name] = p;
 }
 
-policies & class_handler_base::get_policies(string const &name)
+policies & class_handler_base::get_policies(std::string const &name)
 {
      policies_map_type::iterator it = policies_.find(name);
      if (it == policies_.end())
@@ -516,7 +520,7 @@ policies & class_handler_base::get_policies(string const &name)
 
      return it->second;
 }
-
+}
 
 object::object()
      : interp_(0)
@@ -569,7 +573,7 @@ object::object(char const *s)
      Tcl_IncrRefCount(obj_);
 }
 
-object::object(string const &s)
+object::object(std::string const &s)
      : interp_(0)
 {
      obj_ = Tcl_NewStringObj(s.data(), static_cast<int>(s.size()));
@@ -650,7 +654,7 @@ object & object::assign(char const *s)
      return *this;
 }
 
-object & object::assign(string const &s)
+object & object::assign(std::string const &s)
 {
      Tcl_SetStringObj(obj_, s.data(), static_cast<int>(s.size()));
      return *this;
@@ -689,11 +693,11 @@ bool object::get<bool>(interpreter &i) const
 }
 
 template <>
-vector<char> object::get<vector<char> >(interpreter &) const
+std::vector<char> object::get<std::vector<char> >(interpreter &) const
 {
      size_t size;
      char const *buf = get(size);
-     return vector<char>(buf, buf + size);
+     return std::vector<char>(buf, buf + size);
 }
 
 template <>
@@ -743,11 +747,11 @@ char const * object::get<char const *>(interpreter &) const
 }
 
 template <>
-string object::get<string>(interpreter &) const
+std::string object::get<std::string>(interpreter &) const
 {
      int len;
      char const *buf = Tcl_GetStringFromObj(obj_, &len);
-     return string(buf, buf + len);
+     return std::string(buf, buf + len);
 }
 
 char const * object::get() const
@@ -894,7 +898,7 @@ void interpreter::make_safe()
      }
 }
 
-result interpreter::eval(string const &script)
+details::result interpreter::eval(std::string const &script)
 {
      int cc = Tcl_Eval(interp_, script.c_str());
      if (cc != TCL_OK)
@@ -902,19 +906,19 @@ result interpreter::eval(string const &script)
           throw tcl_error(interp_);
      }
 
-     return result(interp_);
+     return details::result(interp_);
 }
 
-result interpreter::eval(istream &s)
+details::result interpreter::eval(std::istream &s)
 {
-     string str(
-          istreambuf_iterator<char>(s.rdbuf()),
-          istreambuf_iterator<char>()
+     std::string str(
+          std::istreambuf_iterator<char>(s.rdbuf()),
+          std::istreambuf_iterator<char>()
      );
      return eval(str);
 }
 
-result interpreter::eval(object const &o)
+details::result interpreter::eval(object const &o)
 {
      int cc = Tcl_EvalObjEx(interp_, o.get_object(), 0);
      if (cc != TCL_OK)
@@ -922,10 +926,10 @@ result interpreter::eval(object const &o)
           throw tcl_error(interp_);
      }
 
-     return result(interp_);
+     return details::result(interp_);
 }
 
-void interpreter::pkg_provide(string const &name, string const &version)
+void interpreter::pkg_provide(std::string const &name, std::string const &version)
 {
      int cc = Tcl_PkgProvide(interp_, name.c_str(), version.c_str());
      if (cc != TCL_OK)
@@ -934,8 +938,8 @@ void interpreter::pkg_provide(string const &name, string const &version)
      }
 }
 
-void interpreter::create_alias(string const &cmd,
-     interpreter &targetInterp, string const &targetCmd)
+void interpreter::create_alias(std::string const &cmd,
+     interpreter &targetInterp, std::string const &targetCmd)
 {
      int cc = Tcl_CreateAlias(interp_, cmd.c_str(),
           targetInterp.interp_, targetCmd.c_str(), 0, 0);
@@ -998,8 +1002,8 @@ void interpreter::clear_definitions(Tcl_Interp *interp)
      class_handlers.erase(interp);
 }
 
-void interpreter::add_function(string const &name,
-     shared_ptr<callback_base> cb, policies const &p)
+void interpreter::add_function(std::string const &name,
+     boost::shared_ptr<details::callback_base> cb, policies const &p)
 {
      Tcl_CreateObjCommand(interp_, name.c_str(),
           callback_handler, 0, 0);
@@ -1008,14 +1012,15 @@ void interpreter::add_function(string const &name,
      call_policies[interp_][name] = p;
 }
 
-void interpreter::add_class(string const &name,
-     shared_ptr<class_handler_base> chb)
+void interpreter::add_class(std::string const &name,
+     boost::shared_ptr<details::class_handler_base> chb)
 {
      class_handlers[interp_][name] = chb;
 }
 
-void interpreter::add_constructor(string const &name,
-     shared_ptr<class_handler_base> chb, shared_ptr<callback_base> cb,
+void interpreter::add_constructor(std::string const &name,
+     boost::shared_ptr<details::class_handler_base> chb,
+     boost::shared_ptr<details::callback_base> cb,
      policies const &p)
 {
      Tcl_CreateObjCommand(interp_, name.c_str(),
@@ -1025,6 +1030,8 @@ void interpreter::add_constructor(string const &name,
      call_policies[interp_][name] = p;
 }
 
+namespace details
+{
 
 int tcl_cast<int>::from(Tcl_Interp *interp, Tcl_Obj *obj)
 {
@@ -1074,7 +1081,7 @@ double tcl_cast<double>::from(Tcl_Interp *interp, Tcl_Obj *obj)
      return res;
 }
 
-string tcl_cast<string>::from(Tcl_Interp *, Tcl_Obj *obj)
+std::string tcl_cast<std::string>::from(Tcl_Interp *, Tcl_Obj *obj)
 {
      return Tcl_GetString(obj);
 }
@@ -1090,4 +1097,8 @@ object tcl_cast<object>::from(Tcl_Interp *interp, Tcl_Obj *obj)
      o.set_interp(interp);
 
      return o;
+}
+
+}
+
 }

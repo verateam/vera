@@ -12,50 +12,47 @@
 #include <fstream>
 #include <sstream>
 
-using namespace std;
-using namespace Vera;
-using namespace Plugins;
-using namespace Structures;
-using namespace Tcl;
-
-
 namespace // unnamed
 {
 
-typedef set<SourceFiles::FileName> FileNameSet;
-typedef map<Rules::RuleName, FileNameSet> ExclusionMap;
+typedef std::set<Vera::Structures::SourceFiles::FileName> FileNameSet;
+typedef std::map<Vera::Plugins::Rules::RuleName, FileNameSet> ExclusionMap;
 ExclusionMap exclusions;
 
 } // unnamed namespace
 
+namespace Vera
+{
+namespace Plugins
+{
 
 void Exclusions::setExclusions(const ExclusionFileName & fileName)
 {
-    ifstream exclusionsFile(fileName.c_str());
+    std::ifstream exclusionsFile(fileName.c_str());
     if (exclusionsFile.is_open() == false)
     {
-        ostringstream ss;
+        std::ostringstream ss;
         ss << "cannot open exclusions file " << fileName;
         throw ExclusionError(ss.str());
     }
 
-    interpreter interp;
+    Tcl::interpreter interp;
 
     interp.eval(exclusionsFile);
 
-    const object ruleNames = interp.eval("array names ruleExclusions");
+    const Tcl::object ruleNames = interp.eval("array names ruleExclusions");
     const size_t ruleNamesLength = ruleNames.length(interp);
     for (size_t i = 0; i != ruleNamesLength; ++i)
     {
-        const string ruleName = ruleNames.at(interp, i).get();
+        const std::string ruleName = ruleNames.at(interp, i).get();
 
-        const object exceptionList = interp.eval("set ruleExclusions(" + ruleName + ")");
+        const Tcl::object exceptionList = interp.eval("set ruleExclusions(" + ruleName + ")");
         const size_t exceptionListLength = exceptionList.length(interp);
 
         FileNameSet files;
         for (size_t j = 0; j != exceptionListLength; ++j)
         {
-            const SourceFiles::FileName file = exceptionList.at(interp, j).get();
+            const Structures::SourceFiles::FileName file = exceptionList.at(interp, j).get();
             files.insert(file);
         }
 
@@ -63,7 +60,7 @@ void Exclusions::setExclusions(const ExclusionFileName & fileName)
     }
 }
 
-bool Exclusions::isExcluded(const SourceFiles::FileName & name)
+bool Exclusions::isExcluded(const Structures::SourceFiles::FileName & name)
 {
     const Rules::RuleName currentRule = Rules::getCurrentRule();
 
@@ -80,4 +77,8 @@ bool Exclusions::isExcluded(const SourceFiles::FileName & name)
     {
         return false;
     }
+}
+
+}
+
 }

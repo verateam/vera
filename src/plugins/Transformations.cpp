@@ -9,13 +9,16 @@
 #include "RootDirectory.h"
 #include "Interpreter.h"
 
-using namespace std;
-using namespace Vera;
-using namespace Plugins;
-
+namespace Vera
+{
+namespace Plugins
+{
 
 void Transformations::executeTransformation(const TransformationName & name)
 {
     const RootDirectory::DirectoryName veraRoot = RootDirectory::getRootDirectory();
     Interpreter::execute(veraRoot, Interpreter::transformation, name);
+}
+
+}
 }

@@ -7,18 +7,18 @@
 
 #include "SourceFiles.h"
 
-using namespace std;
-using namespace Vera;
-using namespace Vera::Structures;
-
 
 namespace // unnamed
 {
 
-SourceFiles::FileNameSet files_;
+Vera::Structures::SourceFiles::FileNameSet files_;
 
 } // unnamed namespace
 
+namespace Vera
+{
+namespace Structures
+{
 
 int SourceFiles::count()
 {
@@ -38,4 +38,7 @@ bool SourceFiles::empty()
 const SourceFiles::FileNameSet & SourceFiles::getAllFileNames()
 {
     return files_;
+}
+
+}
 }

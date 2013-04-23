@@ -16,82 +16,77 @@
 #include <fstream>
 #include <iterator>
 
-using namespace std;
-using namespace Vera;
-using namespace Plugins;
-using namespace Structures;
-using namespace Tcl;
-
-
 namespace // unnamed
 {
 
 // helper global pointer
 // - for those functions that might modify the interpreter's state
 
-interpreter *pInter;
+Tcl::interpreter *pInter;
 
-void report(const string & fileName, int lineNumber, const string & message)
+void report(const std::string & fileName, int lineNumber, const std::string & message)
 {
-    Reports::add(fileName, lineNumber, message);
+    Vera::Plugins::Reports::add(fileName, lineNumber, message);
 }
 
-string getParameter(const string & name, const string & defaultValue)
+std::string getParameter(const std::string & name, const std::string & defaultValue)
 {
-    return Parameters::get(name, defaultValue);
+    return Vera::Plugins::Parameters::get(name, defaultValue);
 }
 
-object getSourceFileNames()
+Tcl::object getSourceFileNames()
 {
-    object obj;
+    Tcl::object obj;
 
-    const SourceFiles::FileNameSet & files = SourceFiles::getAllFileNames();
+    const Vera::Structures::SourceFiles::FileNameSet & files =
+            Vera::Structures::SourceFiles::getAllFileNames();
 
-    typedef SourceFiles::FileNameSet::const_iterator iterator;
+    typedef Vera::Structures::SourceFiles::FileNameSet::const_iterator iterator;
     const iterator end = files.end();
     for (iterator it = files.begin(); it != end; ++it)
     {
-        const SourceFiles::FileName & name = *it;
+        const Vera::Structures::SourceFiles::FileName & name = *it;
 
-        if (Exclusions::isExcluded(name) == false)
+        if (Vera::Plugins::Exclusions::isExcluded(name) == false)
         {
-            obj.append(*pInter, object(name));
+            obj.append(*pInter, Tcl::object(name));
         }
     }
 
     return obj;
 }
 
-int getLineCount(const string & sourceName)
+int getLineCount(const std::string & sourceName)
 {
-    return SourceLines::getLineCount(sourceName);
+    return Vera::Structures::SourceLines::getLineCount(sourceName);
 }
 
-string getLine(const string & sourceName, int lineNumber)
+std::string getLine(const std::string & sourceName, int lineNumber)
 {
-    return SourceLines::getLine(sourceName, lineNumber);
+    return Vera::Structures::SourceLines::getLine(sourceName, lineNumber);
 }
 
-object getAllLines(const string & sourceName)
+Tcl::object getAllLines(const std::string & sourceName)
 {
-    object obj;
+    Tcl::object obj;
 
-    const SourceLines::LineCollection & lines = SourceLines::getAllLines(sourceName);
+    const Vera::Structures::SourceLines::LineCollection & lines =
+            Vera::Structures::SourceLines::getAllLines(sourceName);
 
-    typedef SourceLines::LineCollection::const_iterator iterator;
+    typedef Vera::Structures::SourceLines::LineCollection::const_iterator iterator;
     const iterator end = lines.end();
     for (iterator it = lines.begin(); it != end; ++it)
     {
-        obj.append(*pInter, object(*it));
+        obj.append(*pInter, Tcl::object(*it));
     }
 
     return obj;
 }
 
-object getTokens(const string & sourceName, int fromLine, int fromColumn,
-    int toLine, int toColumn, const object & filter)
+Tcl::object getTokens(const std::string & sourceName, int fromLine, int fromColumn,
+    int toLine, int toColumn, const Tcl::object & filter)
 {
-    Tokens::FilterSequence filterSeq;
+    Vera::Structures::Tokens::FilterSequence filterSeq;
 
     size_t filterLength = filter.length(*pInter);
     for (size_t i = 0; i != filterLength; ++i)
@@ -99,19 +94,20 @@ object getTokens(const string & sourceName, int fromLine, int fromColumn,
         filterSeq.push_back(filter.at(*pInter, i).get());
     }
 
-    Tokens::TokenSequence tokenSeq = Tokens::getTokens(sourceName,
+    Vera::Structures::Tokens::TokenSequence tokenSeq =
+        Vera::Structures::Tokens::getTokens(sourceName,
         fromLine, fromColumn, toLine, toColumn, filterSeq);
 
-    object ret;
-    Tokens::TokenSequence::iterator it = tokenSeq.begin();
-    Tokens::TokenSequence::iterator end = tokenSeq.end();
+    Tcl::object ret;
+    Vera::Structures::Tokens::TokenSequence::iterator it = tokenSeq.begin();
+    Vera::Structures::Tokens::TokenSequence::iterator end = tokenSeq.end();
     for ( ; it != end; ++it)
     {
-        object singleToken;
-        singleToken.append(*pInter, object(it->value_));
-        singleToken.append(*pInter, object(it->line_));
-        singleToken.append(*pInter, object(it->column_));
-        singleToken.append(*pInter, object(it->name_));
+        Tcl::object singleToken;
+        singleToken.append(*pInter, Tcl::object(it->value_));
+        singleToken.append(*pInter, Tcl::object(it->line_));
+        singleToken.append(*pInter, Tcl::object(it->column_));
+        singleToken.append(*pInter, Tcl::object(it->name_));
 
         ret.append(*pInter, singleToken);
     }
@@ -119,7 +115,7 @@ object getTokens(const string & sourceName, int fromLine, int fromColumn,
     return ret;
 }
 
-void registerCommands(interpreter & inter)
+void registerCommands(Tcl::interpreter & inter)
 {
     pInter = &inter;
 
@@ -135,11 +131,15 @@ void registerCommands(interpreter & inter)
 
 } // unnamed namespace
 
+namespace Vera
+{
+namespace Plugins
+{
 
 void Interpreter::execute(const DirectoryName & root,
     ScriptType type, const ScriptName & name)
 {
-    string fileName = root + "/scripts/";
+    std::string fileName = root + "/scripts/";
     switch (type)
     {
     case rule:
@@ -153,18 +153,21 @@ void Interpreter::execute(const DirectoryName & root,
     fileName += name;
     fileName += ".tcl";
 
-    ifstream scriptFile(fileName.c_str());
+    std::ifstream scriptFile(fileName.c_str());
     if (scriptFile.is_open() == false)
     {
-        ostringstream ss;
+        std::ostringstream ss;
         ss << "cannot open script " << fileName;
         throw ScriptError(ss.str());
     }
 
-    string scriptBody;
-    scriptBody.assign(istreambuf_iterator<char>(scriptFile), istreambuf_iterator<char>());
+    std::string scriptBody;
+    scriptBody.assign(std::istreambuf_iterator<char>(scriptFile), std::istreambuf_iterator<char>());
 
-    interpreter inter;
+    Tcl::interpreter inter;
     registerCommands(inter);
     inter.eval(scriptBody);
+}
+
+}
 }

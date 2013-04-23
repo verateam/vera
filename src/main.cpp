@@ -22,10 +22,6 @@
 #include <sys/stat.h>
 #include <boost/program_options.hpp>
 
-using namespace std;
-using namespace Vera;
-using namespace Structures;
-using namespace Plugins;
 
 int legacy_main(int argc, char * argv[]);
 
@@ -40,7 +36,7 @@ int boost_main(int argc, char * argv[])
     // - current directory (if scripts and profile are present)
     // - /usr/lib/vera++/ default debian directory
 
-    RootDirectory::DirectoryName veraRoot(VERA_INSTALL_DIR "/lib/vera++/");
+    Vera::Plugins::RootDirectory::DirectoryName veraRoot(VERA_INSTALL_DIR "/lib/vera++/");
 
     struct stat St;
     bool isInCurrent = ( stat( "./scripts", &St ) == 0
@@ -55,7 +51,7 @@ int boost_main(int argc, char * argv[])
     char * veraRootEnv = getenv("HOME");
     if (veraRootEnv != NULL)
     {
-      RootDirectory::DirectoryName veraRootTmp(veraRootEnv);
+      Vera::Plugins::RootDirectory::DirectoryName veraRootTmp(veraRootEnv);
       veraRootTmp += "/.vera++";
       bool isInHome = ( stat( veraRootTmp.c_str(), &St ) == 0 );
         if (isInHome)
@@ -79,14 +75,14 @@ int boost_main(int argc, char * argv[])
     std::string transform;
     std::string parameters;
     std::string exclusions;
-    std::vector<string> rules;
-    std::vector<string> params;
-    std::vector<string> args;
-    std::vector<string> inputs;
+    std::vector<std::string> rules;
+    std::vector<std::string> params;
+    std::vector<std::string> args;
+    std::vector<std::string> inputs;
     // outputs
-    std::vector<string> stdreports;
-    std::vector<string> vcreports;
-    std::vector<string> xmlreports;
+    std::vector<std::string> stdreports;
+    std::vector<std::string> vcreports;
+    std::vector<std::string> xmlreports;
     /** Define and parse the program options
     */
     namespace po = boost::program_options;
@@ -151,14 +147,14 @@ int boost_main(int argc, char * argv[])
 
     if (vm.count("version"))
     {
-        cout << VERA_VERSION << '\n';
+        std::cout << VERA_VERSION << '\n';
         return EXIT_SUCCESS;
     }
 
     try
     {
-        RootDirectory::setRootDirectory(veraRoot);
-        Reports::setShowRules(vm.count("show-rule"));
+        Vera::Plugins::RootDirectory::setRootDirectory(veraRoot);
+        Vera::Plugins::Reports::setShowRules(vm.count("show-rule"));
         if (vm.count("warning"))
         {
             if (vm.count("error"))
@@ -168,26 +164,26 @@ int boost_main(int argc, char * argv[])
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
-            Reports::setPrefix("warning");
+            Vera::Plugins::Reports::setPrefix("warning");
         }
         if (vm.count("error"))
         {
-            Reports::setPrefix("error");
+            Vera::Plugins::Reports::setPrefix("error");
         }
         if (vm.count("exclusions"))
         {
-            Exclusions::setExclusions(exclusions);
+            Vera::Plugins::Exclusions::setExclusions(exclusions);
         }
         if (vm.count("parameters"))
         {
-            Parameters::readFromFile(parameters);
+            Vera::Plugins::Parameters::readFromFile(parameters);
         }
         for (std::vector<std::string>::const_iterator it = params.begin();
             it != params.end();
             ++it)
         {
-            Parameters::ParamAssoc assoc(*it);
-            Parameters::set(assoc);
+            Vera::Plugins::Parameters::ParamAssoc assoc(*it);
+            Vera::Plugins::Parameters::set(assoc);
         }
         if (vm.count("args"))
         {
@@ -199,15 +195,15 @@ int boost_main(int argc, char * argv[])
                 {
                     // this is not really the right place for this, but we
                     // keep it for backward compatibility
-                    SourceFiles::FileName name;
-                    while (cin >> name)
+                    Vera::Structures::SourceFiles::FileName name;
+                    while (std::cin >> name)
                     {
-                        SourceFiles::addFileName(name);
+                        Vera::Structures::SourceFiles::addFileName(name);
                     }
                 }
                 else
                 {
-                    SourceFiles::addFileName(*it);
+                    Vera::Structures::SourceFiles::addFileName(*it);
                 }
             }
         }
@@ -223,10 +219,10 @@ int boost_main(int argc, char * argv[])
         {
             if (*it == "-")
             {
-                SourceFiles::FileName name;
-                while (cin >> name)
+                Vera::Structures::SourceFiles::FileName name;
+                while (std::cin >> name)
                 {
-                    SourceFiles::addFileName(name);
+                    Vera::Structures::SourceFiles::addFileName(name);
                 }
             }
             else
@@ -240,7 +236,7 @@ int boost_main(int argc, char * argv[])
                 }
                 while (file >> name)
                 {
-                    SourceFiles::addFileName(name);
+                    Vera::Structures::SourceFiles::addFileName(name);
                 }
                 if (file.bad() || file.fail())
                 {
@@ -277,7 +273,7 @@ int boost_main(int argc, char * argv[])
                 it != rules.end();
                 ++it)
             {
-                Rules::executeRule(*it);
+                Vera::Plugins::Rules::executeRule(*it);
             }
         }
         else if (vm.count("transform"))
@@ -289,11 +285,11 @@ int boost_main(int argc, char * argv[])
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
-            Transformations::executeTransformation(transform);
+            Vera::Plugins::Transformations::executeTransformation(transform);
         }
         else
         {
-            Profiles::executeProfile(profile);
+            Vera::Plugins::Profiles::executeProfile(profile);
         }
 
         for (std::vector<std::string>::const_iterator it = stdreports.begin();
@@ -304,11 +300,11 @@ int boost_main(int argc, char * argv[])
             {
                 if (vm.count("warning") || vm.count("error"))
                 {
-                    Reports::writeStd(cerr, vm.count("no-duplicate"));
+                    Vera::Plugins::Reports::writeStd(std::cerr, vm.count("no-duplicate"));
                 }
                 else
                 {
-                  Reports::writeStd(cout, vm.count("no-duplicate"));
+                  Vera::Plugins::Reports::writeStd(std::cout, vm.count("no-duplicate"));
                 }
             }
             else
@@ -319,7 +315,7 @@ int boost_main(int argc, char * argv[])
                 {
                     throw std::ios::failure("Can't open " + *it);
                 }
-                Reports::writeStd(file, vm.count("no-duplicate"));
+                Vera::Plugins::Reports::writeStd(file, vm.count("no-duplicate"));
                 if (file.bad() || file.fail())
                 {
                     throw std::ios::failure( "Can't write to " + *it);
@@ -335,11 +331,11 @@ int boost_main(int argc, char * argv[])
             {
                 if (vm.count("warning") || vm.count("error"))
                 {
-                    Reports::writeVc(cerr, vm.count("no-duplicate"));
+                    Vera::Plugins::Reports::writeVc(std::cerr, vm.count("no-duplicate"));
                 }
                 else
                 {
-                  Reports::writeVc(cout, vm.count("no-duplicate"));
+                  Vera::Plugins::Reports::writeVc(std::cout, vm.count("no-duplicate"));
                 }
             }
             else
@@ -350,7 +346,7 @@ int boost_main(int argc, char * argv[])
                 {
                     throw std::ios::failure("Can't open " + *it);
                 }
-                Reports::writeVc(file, vm.count("no-duplicate"));
+                Vera::Plugins::Reports::writeVc(file, vm.count("no-duplicate"));
                 if (file.bad() || file.fail())
                 {
                     throw std::ios::failure( "Can't write to " + *it);
@@ -366,11 +362,11 @@ int boost_main(int argc, char * argv[])
             {
                 if (vm.count("warning") || vm.count("error"))
                 {
-                    Reports::writeXml(cerr, vm.count("no-duplicate"));
+                    Vera::Plugins::Reports::writeXml(std::cerr, vm.count("no-duplicate"));
                 }
                 else
                 {
-                  Reports::writeXml(cout, vm.count("no-duplicate"));
+                  Vera::Plugins::Reports::writeXml(std::cout, vm.count("no-duplicate"));
                 }
             }
             else
@@ -381,7 +377,7 @@ int boost_main(int argc, char * argv[])
                 {
                     throw std::ios::failure("Can't open " + *it);
                 }
-                Reports::writeXml(file, vm.count("no-duplicate"));
+                Vera::Plugins::Reports::writeXml(file, vm.count("no-duplicate"));
                 if (file.bad() || file.fail())
                 {
                     throw std::ios::failure( "Can't write to " + *it);
@@ -392,17 +388,17 @@ int boost_main(int argc, char * argv[])
 
         if (vm.count("summary"))
         {
-            std::cerr << Reports::count() << " reports in "
-                << SourceFiles::count() << " files." << std::endl;
+            std::cerr << Vera::Plugins::Reports::count() << " reports in "
+                << Vera::Structures::SourceFiles::count() << " files." << std::endl;
         }
     }
-    catch (const exception & e)
+    catch (const std::exception & e)
     {
-        cerr << "error: " << e.what() << '\n';
+        std::cerr << "error: " << e.what() << '\n';
         return EXIT_FAILURE;
     }
 
-    if (vm.count("error") && Reports::count() !=0)
+    if (vm.count("error") && Vera::Plugins::Reports::count() !=0)
     {
         return EXIT_FAILURE;
     }

@@ -16,45 +16,41 @@
 #include <sstream>
 #include <algorithm>
 
-using namespace std;
-using namespace Vera;
-using namespace Plugins;
-using namespace Tcl;
-
 
 namespace // unnamed
 {
 
-typedef vector<Rules::RuleName> RuleNameCollection;
+typedef std::vector<Vera::Plugins::Rules::RuleName> RuleNameCollection;
 
-RuleNameCollection getListOfScriptNames(const Profiles::ProfileName & profile)
+RuleNameCollection getListOfScriptNames(const Vera::Plugins::Profiles::ProfileName & profile)
 {
     RuleNameCollection allRules;
 
     // name of the profile is also the name of the profile file
 
-    const RootDirectory::DirectoryName veraRoot = RootDirectory::getRootDirectory();
+    const Vera::Plugins::RootDirectory::DirectoryName veraRoot =
+            Vera::Plugins::RootDirectory::getRootDirectory();
 
-    string fileName(veraRoot + "/profiles/");
+    std::string fileName(veraRoot + "/profiles/");
     fileName += profile;
 
-    ifstream profileFile(fileName.c_str());
+    std::ifstream profileFile(fileName.c_str());
     if (profileFile.is_open() == false)
     {
-        ostringstream ss;
+        std::ostringstream ss;
         ss << "cannot open profile description for profile " << profile;
-        throw ProfileError(ss.str());
+        throw Vera::Plugins::ProfileError(ss.str());
     }
 
-    interpreter interp;
+    Tcl::interpreter interp;
 
     interp.eval(profileFile);
-    const object ruleList = interp.eval("set rules");
+    const Tcl::object ruleList = interp.eval("set rules");
 
     const size_t ruleListLength = ruleList.length(interp);
     for (size_t i = 0; i != ruleListLength; ++i)
     {
-        const Rules::RuleName rName = ruleList.at(interp, i).get();
+        const Vera::Plugins::Rules::RuleName rName = ruleList.at(interp, i).get();
         allRules.push_back(rName);
     }
 
@@ -63,6 +59,11 @@ RuleNameCollection getListOfScriptNames(const Profiles::ProfileName & profile)
 
 } // unnamed namespace
 
+
+namespace Vera
+{
+namespace Plugins
+{
 
 void Profiles::executeProfile(const ProfileName & profile)
 {
@@ -74,4 +75,7 @@ void Profiles::executeProfile(const ProfileName & profile)
     {
         Rules::executeRule(*it);
     }
+}
+
+}
 }
