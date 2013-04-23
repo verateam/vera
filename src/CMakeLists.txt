@@ -3,9 +3,15 @@ find_package(TCL REQUIRED)
 include_directories(SYSTEM ${TCL_INCLUDE_PATH})
 link_directories(${TCL_LIBRARY_DIRS})
 
-# expose the Boost_USE_STATIC_LIBS option to ease the manual creation of
-# packages with cpack
-option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
+if(WIN32)
+  # use boost static libs to avoid LNK2019 errors
+  # feel free to contribute a better fix!
+  set(Boost_USE_STATIC_LIBS ON)
+else()
+  # expose the Boost_USE_STATIC_LIBS option to ease the manual creation of
+  # packages with cpack
+  option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
+endif()
 find_package(Boost COMPONENTS program_options system wave REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
