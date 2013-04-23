@@ -27,6 +27,16 @@ target_link_libraries(vera++
   ${TCL_LIBRARY}
   ${Boost_LIBRARIES})
 
+if(WIN32)
+  # install the tcl lib, if we can find it
+  get_filename_component(tcldir "${TCL_LIBRARY}" PATH)
+  get_filename_component(tclname "${TCL_LIBRARY}" NAME_WE)
+  set(tcldll "${tcldir}/../bin/${tclname}.dll")
+  if(EXISTS "${tcldll}")
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS "${tcldll}")
+  endif()
+endif()
+
 include(InstallRequiredSystemLibraries)
 install(TARGETS vera++ DESTINATION bin)
 

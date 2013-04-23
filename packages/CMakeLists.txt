@@ -16,6 +16,8 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE_1_0.txt")
 if(TARGET doc)
   set(CPACK_NSIS_MENU_LINKS "share\\\\vera++\\\\doc\\\\vera++.html" "documentation")
 endif()
+set(CPACK_NSIS_MODIFY_PATH "ON")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
 include(CPack)
 
 
