@@ -75,6 +75,7 @@ foreach(d ${dirs})
     COMMAND vera++
       --root ${CMAKE_SOURCE_DIR}
       --std-report=-
+      --show-rule
       --warning
       --xml-report=${CMAKE_CURRENT_BINARY_DIR}/${d}/vera.xml
       ${srcs}
@@ -86,6 +87,7 @@ foreach(d ${dirs})
     COMMAND vera++
       --root ${CMAKE_SOURCE_DIR}
       --std-report=-
+      --show-rule
       --warning
       ${srcs}
     DEPENDS ${srcs}
