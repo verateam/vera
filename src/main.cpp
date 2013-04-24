@@ -191,26 +191,13 @@ int boost_main(int argc, char * argv[])
                 it != args.end();
                 ++it)
             {
-                if (*it == "-")
-                {
-                    // this is not really the right place for this, but we
-                    // keep it for backward compatibility
-                    Vera::Structures::SourceFiles::FileName name;
-                    while (std::cin >> name)
-                    {
-                        Vera::Structures::SourceFiles::addFileName(name);
-                    }
-                }
-                else
-                {
-                    Vera::Structures::SourceFiles::addFileName(*it);
-                }
+                Vera::Structures::SourceFiles::addFileName(*it);
             }
         }
         else if (vm.count("input") == 0)
         {
-            // list of source files is provided on stdin
-            inputs.push_back("-");
+            // stdin is a source file to check
+            Vera::Structures::SourceFiles::addFileName("-");
         }
 
         for (std::vector<std::string>::const_iterator it = inputs.begin();

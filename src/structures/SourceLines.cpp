@@ -12,7 +12,6 @@
 #include <map>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 
 namespace // unnamed
@@ -48,14 +47,25 @@ const SourceLines::LineCollection & SourceLines::getAllLines(const SourceFiles::
 
 void SourceLines::loadFile(const SourceFiles::FileName & name)
 {
-    std::ifstream file(name.c_str());
-    if (file.is_open() == false)
+    if (name == "-")
     {
-        std::ostringstream ss;
-        ss << "cannot open source file " << name;
-        throw SourceFileError(ss.str());
+        SourceLines::loadFile(std::cin, name);
     }
+    else
+    {
+        std::ifstream file(name.c_str());
+        if (file.is_open() == false)
+        {
+            std::ostringstream ss;
+            ss << "cannot open source file " << name;
+            throw SourceFileError(ss.str());
+        }
+        SourceLines::loadFile(file, name);
+    }
+}
 
+void SourceLines::loadFile(std::istream & file, const SourceFiles::FileName & name)
+{
     LineCollection & lines = sources_[name];
 
     std::string line;

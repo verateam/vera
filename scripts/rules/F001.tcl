@@ -2,6 +2,10 @@
 # Source files should not use the '\r' (CR) character
 
 foreach fileName [getSourceFileNames] {
+    if { $fileName == "-" } {
+      # can't check the content from stdin
+      continue
+    }
     set file [open $fileName "r"]
     fconfigure $file -translation lf
     set line [gets $file]

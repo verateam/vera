@@ -10,6 +10,7 @@
 
 #include "SourceFiles.h"
 #include <vector>
+#include <iostream>
 
 namespace Vera
 {
@@ -27,6 +28,7 @@ public:
     static const std::string & getLine(const SourceFiles::FileName & name, int lineNumber);
 
     static void loadFile(const SourceFiles::FileName & name);
+    static void loadFile(std::istream & file, const SourceFiles::FileName & name);
 };
 
 } // namespace Structures
