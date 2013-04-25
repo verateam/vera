@@ -22,6 +22,7 @@ set(inputs
   Rules.md
   Transformations.md
   ScriptAPI.md
+  Changes.md
 )
 # generate the list of inputs with the full path to deal properly with
 # dependencies in add_custom_command
