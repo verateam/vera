@@ -196,8 +196,8 @@ int boost_main(int argc, char * argv[])
         }
         else if (vm.count("input") == 0)
         {
-            // stdin is a source file to check
-            Vera::Structures::SourceFiles::addFileName("-");
+            // list of source files is provided on stdin
+            inputs.push_back("-");
         }
 
         for (std::vector<std::string>::const_iterator it = inputs.begin();
