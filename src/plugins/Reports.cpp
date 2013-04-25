@@ -73,19 +73,76 @@ void Reports::dumpAll(std::ostream & os, bool omitDuplicates)
 {
     if (xmlReport_)
     {
-        writeXml(os, omitDuplicates);
+        dumpAllXML(os, omitDuplicates);
     }
     else
     {
-        if (vcFormat_)
+        dumpAllNormal(os, omitDuplicates);
+    }
+}
+
+void Reports::dumpAllNormal(std::ostream & os, bool omitDuplicates)
+{
+
+    for (MessagesCollection::iterator it = messages_.begin(), end = messages_.end();
+         it != end; ++it)
+    {
+        const FileName & name = it->first;
+
+        FileMessagesCollection & fileMessages = it->second;
+
+        FileMessagesCollection::iterator fit = fileMessages.begin();
+        FileMessagesCollection::iterator fend = fileMessages.end();
+
+        int lastLineNumber = 0;
+        SingleReport lastReport;
+        for ( ; fit != fend; ++fit)
         {
-            writeVc(os, omitDuplicates);
-        }
-        else
-        {
-            writeStd(os, omitDuplicates);
+            int lineNumber = fit->first;
+            const SingleReport & report = fit->second;
+            const Rules::RuleName & rule = report.first;
+            const Message & msg = report.second;
+
+            if (omitDuplicates == false ||
+                lineNumber != lastLineNumber || report != lastReport)
+            {
+                if (showRules_)
+                {
+                    if (vcFormat_)
+                    {
+                        os << name << '(' << lineNumber << ") : "
+                            << '(' << rule << ") " << msg << '\n';
+                    }
+                    else
+                    {
+                        os << name << ':' << lineNumber << ": "
+                            << '(' << rule << ") " << msg << '\n';
+                    }
+                }
+                else
+                {
+                    if (vcFormat_)
+                    {
+                        os << name << '(' << lineNumber << ") : "
+                            << msg << '\n';
+                    }
+                    else
+                    {
+                        os << name << ':' << lineNumber << ": "
+                            << msg << '\n';
+                    }
+                }
+
+                lastLineNumber = lineNumber;
+                lastReport = report;
+            }
         }
     }
+}
+
+void Reports::dumpAllXML(std::ostream & os, bool omitDuplicates)
+{
+    writeXml(os, omitDuplicates);
 }
 
 void Reports::writeStd(std::ostream & os, bool omitDuplicates)

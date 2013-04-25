@@ -49,7 +49,7 @@ bool isSourceFileName(const Vera::Structures::SourceFiles::FileName & name)
 } // unnamed namespace
 
 
-int legacy_main(int argc, char * argv[])
+int legacy_main(int argc, char * argv[], bool silent = false)
 {
     int exitCodeOnFailure = EXIT_FAILURE;
 
@@ -113,7 +113,31 @@ int legacy_main(int argc, char * argv[])
         {
             const std::string arg(argv[i]);
 
-            if (arg == "-version")
+            if (arg == "-help")
+            {
+                std::cout << "vera++ [options] [list-of-files]\n\n"
+                    "This command line interface is deprecated and is planned to be removed.\n\n"
+                    "Recognized options:\n\n"
+                    "-                  (a single minus sign) indicates that the list of\n"
+                    "                   source file names will be provided on the stdin.\n\n"
+                    "-exclusions file   read exclusions from file\n\n"
+                    "-help              print this message\n\n"
+                    "-nofail            do not fail even when finding rule violations\n\n"
+                    "-nodup             do not duplicate messages if a single rule is violated\n"
+                    "                   many times in a single line of code\n\n"
+                    "-profile name      execute all rules from the given profile\n\n"
+                    "-param name=value  provide parameters to scripts (can be used many times)\n\n"
+                    "-paramfile file    read parameters from file\n\n"
+                    "-rule name         execute the given rule\n"
+                    "                   (note: the .tcl extension is added automatically)\n\n"
+                    "-showrules         include rule name in each report\n\n"
+                    "-vcformat          report in Visual C++ format\n\n"
+                    "-xmlreport         produce report in the XML format\n\n"
+                    "-transform name    execute the given transformation\n\n"
+                    "-version           print version number\n\n";
+                exit(EXIT_SUCCESS);
+            }
+            else if (arg == "-version")
             {
                 std::cout << VERA_VERSION << '\n';
                 exit(EXIT_SUCCESS);
@@ -156,7 +180,10 @@ int legacy_main(int argc, char * argv[])
                 }
                 else
                 {
-                    // std::cerr << "error: option -rule provided with no rule name\n";
+                    if (silent == false)
+                    {
+                        std::cerr << "error: option -rule provided with no rule name\n";
+                    }
                     return exitCodeOnFailure;
                 }
             }
@@ -169,7 +196,10 @@ int legacy_main(int argc, char * argv[])
                 }
                 else
                 {
-                    // std::cerr << "error: option -profile provided with no profile name\n";
+                    if (silent == false)
+                    {
+                        std::cerr << "error: option -profile provided with no profile name\n";
+                    }
                     return exitCodeOnFailure;
                 }
             }
@@ -183,7 +213,10 @@ int legacy_main(int argc, char * argv[])
                 }
                 else
                 {
-                    std::cerr << "error: option -exclusions provided without name of file\n";
+                    if (silent == false)
+                    {
+                        std::cerr << "error: option -exclusions provided without name of file\n";
+                    }
                     return exitCodeOnFailure;
                 }
             }
@@ -197,7 +230,10 @@ int legacy_main(int argc, char * argv[])
                 }
                 else
                 {
-                    std::cerr << "error: option -param provided without name and value\n";
+                    if (silent == false)
+                    {
+                        std::cerr << "error: option -param provided without name and value\n";
+                    }
                     return exitCodeOnFailure;
                 }
             }
@@ -211,7 +247,10 @@ int legacy_main(int argc, char * argv[])
                 }
                 else
                 {
-                    std::cerr << "error: option -paramfile provided without name of file\n";
+                    if (silent == false)
+                    {
+                        std::cerr << "error: option -paramfile provided without name of file\n";
+                    }
                     return exitCodeOnFailure;
                 }
             }
@@ -224,8 +263,11 @@ int legacy_main(int argc, char * argv[])
                 }
                 else
                 {
-                    std::cerr
-                        << "error: option -transform provided without name of transformation\n";
+                    if (silent == false)
+                    {
+                        std::cerr
+                            << "error: option -transform provided without name of transformation\n";
+                    }
                     return exitCodeOnFailure;
                 }
             }
@@ -237,8 +279,10 @@ int legacy_main(int argc, char * argv[])
             {
                 // the option was not recognized as a name of the source file
                 // or a vera-specific option
-
-                // std::cerr << "error: option " << arg << " not recognized\n";
+                if (silent == false)
+                {
+                    std::cerr << "error: option " << arg << " not recognized\n";
+                }
                 return EXIT_FAILURE;
             }
 
@@ -247,7 +291,10 @@ int legacy_main(int argc, char * argv[])
 
         if (Vera::Structures::SourceFiles::empty())
         {
-            // std::cerr << "vera++: no input files\n";
+            if (silent == false)
+            {
+                std::cerr << "vera++: no input files\n";
+            }
             return exitCodeOnFailure;
         }
 
@@ -255,8 +302,11 @@ int legacy_main(int argc, char * argv[])
         {
             if (singleRule.empty() == false || profile != "default")
             {
-                std::cerr <<
-                    "error: transformation cannot be specified together with rules or profiles\n";
+                if (silent == false)
+                {
+                    std::cerr << "error: "
+                        "transformation cannot be specified together with rules or profiles\n";
+                }
                 return exitCodeOnFailure;
             }
 
@@ -272,7 +322,7 @@ int legacy_main(int argc, char * argv[])
             Vera::Plugins::Profiles::executeProfile(profile);
         }
 
-        Vera::Plugins::Reports::dumpAll(std::cout, omitDuplicates);
+        Vera::Plugins::Reports::dumpAll(std::cerr, omitDuplicates);
     }
     catch (const std::exception & e)
     {
