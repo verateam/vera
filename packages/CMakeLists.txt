@@ -18,28 +18,26 @@ if(TARGET doc)
 endif()
 set(CPACK_NSIS_MODIFY_PATH "ON")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
-include(CPack)
-
 
 # source package
-find_package(PythonInterp)
+set(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERA_VERSION}")
+set(CPACK_SOURCE_IGNORE_FILES
+  "/\\\\.git"
+  "/\\\\.mailmap$"
+  "/\\\\.gitignore$"
+  ".*~$"
+  "\\\\.bak$"
+  "\\\\.orig$"
+  "/\\\\.DS_Store$"
+  "/Thumbs\\\\.db"
+  "/CMakeLists.txt.user$"
+  ${CPACK_SOURCE_IGNORE_FILES})
+# also ignore the build directories that may be in the source tree
+file(GLOB_RECURSE caches "${CMAKE_SOURCE_DIR}/CMakeCache.txt")
+foreach(c ${caches})
+  get_filename_component(d "${c}" PATH)
+  list(APPEND CPACK_SOURCE_IGNORE_FILES "^${d}/")
+endforeach()
 
-if(GITCOMMAND
-  AND PYTHON_EXECUTABLE
-  AND EXISTS ${CMAKE_SOURCE_DIR}/.git)
-  # get the git-archive-all script that allows to package the submodules within
-  # the main sources
-  file(DOWNLOAD
-    https://raw.github.com/Kentzo/git-archive-all/75bd629ef3dde58c83e4af4c92978e753e6c6b72/git-archive-all
-    ${CMAKE_CURRENT_BINARY_DIR}/git-archive-all
-    EXPECTED_MD5 fe37e10ef385718b5150b154c6f224ad
-  )
-  # and create the sources archive
-  set(dest ${CMAKE_CURRENT_BINARY_DIR}/vera++-${VERA_VERSION}.tar.gz)
-  add_custom_command(OUTPUT ${dest}
-    COMMAND ${PYTHON_EXECUTABLE}
-    ${CMAKE_CURRENT_BINARY_DIR}/git-archive-all ${dest}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  )
-  add_custom_target(src DEPENDS ${dest})
-endif()
+include(CPack)
