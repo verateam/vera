@@ -22,13 +22,14 @@
 #include <sys/stat.h>
 #include <boost/program_options.hpp>
 
+#ifdef _MSC_VER
+// vm.count() used as a bool
+#pragma warning(disable:4800)
+#endif
 
-int legacy_main(int argc, char * argv[]);
 
 int boost_main(int argc, char * argv[])
 {
-    // std::cout << "boost_main" << std::endl;
-
     // the directory containing the profile and rule definitions
     // by default it is (in this order, first has highest precedence):
     // - VERA_ROOT (if VERA_ROOT is defined)
