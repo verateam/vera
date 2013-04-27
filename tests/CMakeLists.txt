@@ -23,6 +23,33 @@ if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/lib/vera++/")
   )
 endif()
 
+vera_add_test(VeraRootEnvironment
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
+  "" 0
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+set_tests_properties(VeraRootEnvironment
+  PROPERTIES ENVIRONMENT "VERA_ROOT=${CMAKE_SOURCE_DIR}")
+
+vera_add_test(VeraRootCurrentDirectory
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
+  "" 0
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+set_tests_properties(VeraRootCurrentDirectory
+  PROPERTIES WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
+vera_add_test(VeraLegacy
+  "" ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
+  0
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+set_tests_properties(VeraLegacy
+  PROPERTIES ENVIRONMENT "VERA_LEGACY=ON;VERA_ROOT=${CMAKE_SOURCE_DIR}")
+
 vera_add_test(StdInNoArgs
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n"
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
