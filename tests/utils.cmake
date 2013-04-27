@@ -7,6 +7,10 @@ function(vera_add_test_stdin_file name input output error retcode)
   string(REPLACE ";" "\" \"" args "${ARGN}")
   set(args "\"${args}\"")
   string(REPLACE "\"" "\\\"" protected_args "${args}")
+  string(REPLACE "\\" "\\\\" protected_output "${output}")
+  string(REPLACE "\"" "\\\"" protected_output "${protected_output}")
+  string(REPLACE "\\" "\\\\" protected_error "${error}")
+  string(REPLACE "\"" "\\\"" protected_error "${protected_error}")
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/run.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${name}.cmake @ONLY)
   add_test(NAME ${name}
