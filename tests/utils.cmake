@@ -1,10 +1,12 @@
 function(vera_add_test_stdin_file name input output error retcode)
   if(NOT "${input}" STREQUAL "")
-    set(input_option "INPUT_FILE ${input}")
+    set(input_option "INPUT_FILE \"${input}\"")
   else()
     set(input_option)
   endif()
-  set(args "${ARGN}")
+  string(REPLACE ";" "\" \"" args "${ARGN}")
+  set(args "\"${args}\"")
+  string(REPLACE "\"" "\\\"" protected_args "${args}")
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/run.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${name}.cmake @ONLY)
   add_test(NAME ${name}

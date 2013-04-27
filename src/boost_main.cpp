@@ -208,7 +208,7 @@ int boost_main(int argc, char * argv[])
             if (*it == "-")
             {
                 Vera::Structures::SourceFiles::FileName name;
-                while (std::cin >> name)
+                while (std::getline(std::cin, name))
                 {
                     Vera::Structures::SourceFiles::addFileName(name);
                 }

@@ -1,4 +1,4 @@
-message("Running: ${VERA_PROGRAM} @args@")
+message("Running: \"${VERA_PROGRAM}\" @protected_args@")
 execute_process(COMMAND "${VERA_PROGRAM}"
   @args@
   RESULT_VARIABLE ret
