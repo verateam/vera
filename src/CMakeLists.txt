@@ -27,8 +27,9 @@ configure_file(config.h.in config.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB_RECURSE srcs *.cpp)
-add_executable(vera++ ${srcs})
-target_link_libraries(vera++
+add_executable(vera ${srcs})
+set_target_properties(vera PROPERTIES OUTPUT_NAME vera++)
+target_link_libraries(vera
   ${TCL_LIBRARY}
   ${Boost_LIBRARIES})
 
@@ -43,7 +44,7 @@ if(WIN32)
 endif()
 
 include(InstallRequiredSystemLibraries)
-install(TARGETS vera++ DESTINATION bin)
+install(TARGETS vera DESTINATION bin)
 
 ########## check the coding style with vera++ ##############
 
@@ -77,7 +78,7 @@ foreach(d ${dirs})
   file(GLOB srcs "${CMAKE_CURRENT_SOURCE_DIR}/${d}/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/${d}/*.cpp")
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${d}/vera.xml
-    COMMAND vera++
+    COMMAND vera
       --root ${CMAKE_SOURCE_DIR}
       --std-report=-
       --show-rule
@@ -89,7 +90,7 @@ foreach(d ${dirs})
   )
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${d}/noreport
-    COMMAND vera++
+    COMMAND vera
       --root ${CMAKE_SOURCE_DIR}
       --std-report=-
       --show-rule
@@ -107,5 +108,5 @@ add_custom_target(style_reports ALL DEPENDS ${xmlreports})
 add_custom_target(style DEPENDS ${noreports})
 # And add a dependency on vera++, because we are building vera++ and running it
 # in the same build process
-add_dependencies(style_reports vera++)
-add_dependencies(style vera++)
+add_dependencies(style_reports vera)
+add_dependencies(style vera)
