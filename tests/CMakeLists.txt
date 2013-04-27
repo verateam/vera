@@ -245,6 +245,13 @@ vera_add_test(AggregatedShortOptions
 
 ####### rule tests #######
 
+vera_add_rule_test(F001 "F001.cpp" "4: \\r (CR) detected in isolation at position 7")
+vera_add_rule_test(L001 "L001.cpp" "4: trailing whitespace
+6: trailing whitespace")
+vera_add_rule_test(L002 "L002.cpp" "2: horizontal tab used
+4: horizontal tab used
+6: horizontal tab used")
+
 vera_add_rule_test(T013 "test.cpp" "1: no copyright notice found")
 
 # Rules to test
