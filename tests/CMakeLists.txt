@@ -272,14 +272,14 @@ vera_add_test(AggregatedShortOptions
 
 ####### rule tests #######
 
-vera_add_rule_test(F001 "F001.cpp" "4: \\r (CR) detected in isolation at position 7")
+vera_add_rule_test(F001 "4: \\r (CR) detected in isolation at position 7")
 
 # F002
 
-vera_add_rule_test(L001 "L001.cpp" "4: trailing whitespace
+vera_add_rule_test(L001 "4: trailing whitespace
 6: trailing whitespace")
 
-vera_add_rule_test(L002 "L002.cpp" "2: horizontal tab used
+vera_add_rule_test(L002 "2: horizontal tab used
 4: horizontal tab used
 6: horizontal tab used")
 
@@ -293,10 +293,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L003-2.cpp:4: trailing empty line(s)\n"
   ${CMAKE_CURRENT_SOURCE_DIR}/L003-2.cpp
 )
 
-vera_add_rule_test(L004 "L004.cpp" "1: line is longer than 100 characters
+vera_add_rule_test(L004 "1: line is longer than 100 characters
 2: line is longer than 100 characters")
 
-vera_add_rule_test(L005 "L005.cpp" "6: too many consecutive empty lines")
+vera_add_rule_test(L005 "6: too many consecutive empty lines")
 
 vera_add_test(RuleL006
   "" "${CMAKE_CURRENT_SOURCE_DIR}/L006-2.cpp:2001: source file is too long\n"
@@ -307,12 +307,25 @@ vera_add_test(RuleL006
   ${CMAKE_CURRENT_SOURCE_DIR}/L006-2.cpp
 )
 
-vera_add_rule_test(T013 "test.cpp" "1: no copyright notice found")
+vera_add_rule_test(T001 "6: line-continuation in one-line comment")
+
+set(output "4: reserved name used for macro (incorrect use of underscore)
+5: reserved name used for macro (incorrect use of underscore)")
+foreach(i RANGE 7 80)
+  set(output "${output}\n${i}: reserved name used for macro (keyword or alternative token redefined)")
+endforeach()
+vera_add_rule_test(T002 "${output}")
+
+vera_add_test(RuleT013
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
+  "" 0
+  --rule T013
+  --root "${CMAKE_SOURCE_DIR}"
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
 
 # Rules to test
 # DUMP
-# L005
-# L006
 # T001
 # T002
 # T003

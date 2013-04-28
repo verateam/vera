@@ -29,8 +29,8 @@ function(vera_add_test name input output error retcode)
   vera_add_test_stdin_file("${name}" "${input_file}" "${output}" "${error}" "${retcode}" ${ARGN})
 endfunction()
 
-function(vera_add_rule_test name input output)
-  set(full_input "${CMAKE_CURRENT_SOURCE_DIR}/${input}")
+function(vera_add_rule_test name output)
+  set(full_input "${CMAKE_CURRENT_SOURCE_DIR}/${name}.cpp")
   string(REPLACE "\n" "\n${full_input}:" formated_output "${output}")
   set(formated_output "${full_input}:${formated_output}\n")
   vera_add_test(Rule${name} "" "${formated_output}" "" 0
