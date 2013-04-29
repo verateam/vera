@@ -472,3 +472,22 @@ vera_add_test(RuleDUMP
   --root "${CMAKE_SOURCE_DIR}"
   ${CMAKE_CURRENT_SOURCE_DIR}/T017.cpp
 )
+
+vera_add_test(ErrorReport
+  "" "" "error: can't read \"auie\": no such variable
+    while executing
+\"lindex $auie\"
+    (procedure \"Foo\" line 2)
+    invoked from within
+\"Foo\"
+    (procedure \"Bar\" line 2)
+    invoked from within
+\"Bar\"
+    invoked from within
+\"puts [Bar]\"
+    (file \"${CMAKE_CURRENT_SOURCE_DIR}/errorReport/scripts/rules/Broken.tcl\" line 9)\n"
+  1
+  --rule Broken
+  --root "${CMAKE_CURRENT_SOURCE_DIR}/errorReport"
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)

@@ -31,7 +31,8 @@ public:
      explicit tcl_error(std::string const &msg)
           : std::runtime_error(msg) {}
      explicit tcl_error(Tcl_Interp *interp)
-          : std::runtime_error(Tcl_GetString(Tcl_GetObjResult(interp))) {}
+          : std::runtime_error(
+              Tcl_GetString(Tcl_GetVar2Ex(interp, "errorInfo", NULL, TCL_GLOBAL_ONLY))){}
 };
 
 // call policies

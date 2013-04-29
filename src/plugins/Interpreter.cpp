@@ -15,6 +15,8 @@
 #include "cpptcl-1.1.4/cpptcl.h"
 #include <fstream>
 #include <iterator>
+#include <boost/lexical_cast.hpp>
+
 
 namespace // unnamed
 {
@@ -166,7 +168,17 @@ void Interpreter::execute(const DirectoryName & root,
 
     Tcl::interpreter inter;
     registerCommands(inter);
-    inter.eval(scriptBody);
+    try
+    {
+      inter.eval(scriptBody);
+    }
+    catch (Tcl::tcl_error & e)
+    {
+        // rethrow the exception with the name of the rule
+        throw Tcl::tcl_error(std::string(e.what()) +
+            "\n    (file \"" + fileName + "\" line " +
+            boost::lexical_cast<std::string>(inter.get()->errorLine) + ")");
+    }
 }
 
 }
