@@ -316,6 +316,29 @@ foreach(i RANGE 7 80)
 endforeach()
 vera_add_rule_test(T002 "${output}")
 
+vera_add_rule_test(T003 "1: keyword 'case' not followed by a single space
+2: keyword 'class' not followed by a single space
+3: keyword 'delete' not followed by a single space
+4: keyword 'enum' not followed by a single space
+5: keyword 'explicit' not followed by a single space
+6: keyword 'extern' not followed by a single space
+7: keyword 'goto' not followed by a single space
+8: keyword 'new' not followed by a single space
+9: keyword 'struct' not followed by a single space
+10: keyword 'union' not followed by a single space
+11: keyword 'using' not followed by a single space
+13: keyword 'case' not followed by a single space
+14: keyword 'class' not followed by a single space
+15: keyword 'delete' not followed by a single space
+16: keyword 'enum' not followed by a single space
+17: keyword 'explicit' not followed by a single space
+18: keyword 'extern' not followed by a single space
+19: keyword 'goto' not followed by a single space
+20: keyword 'new' not followed by a single space
+21: keyword 'struct' not followed by a single space
+22: keyword 'union' not followed by a single space
+23: keyword 'using' not followed by a single space")
+
 vera_add_test(RuleT013
   "" "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
   "" 0
@@ -324,15 +347,24 @@ vera_add_test(RuleT013
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 )
 
+vera_add_rule_test(T004 "25: colon not immediately after the 'public' keyword
+28: colon not immediately after the 'protected' keyword
+30: colon not immediately after the 'private' keyword
+39: colon not immediately after the 'default' keyword")
+
+vera_add_rule_test(T005 "19: keyword 'break' not immediately followed by a semicolon
+23: keyword 'continue' not immediately followed by a semicolon")
+
+vera_add_rule_test(T006 "24: keyword 'throw' not immediately followed by a semicolon or a single space
+25: keyword 'return' not immediately followed by a semicolon or a single space
+29: keyword 'return' not immediately followed by a semicolon or a single space")
+
+vera_add_rule_test(T007 "6: semicolon is isolated from other tokens
+7: semicolon is isolated from other tokens
+9: semicolon is isolated from other tokens")
+
 # Rules to test
 # DUMP
-# T001
-# T002
-# T003
-# T004
-# T005
-# T006
-# T007
 # T008
 # T009
 # T010
