@@ -259,6 +259,33 @@ vera_add_test(AggregatedShortOptions
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 )
 
+vera_add_test(NoDuplicate
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:10: comma should not be preceded by whitespace
+${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:12: comma should not be preceded by whitespace
+${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:13: comma should not be preceded by whitespace
+${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:14: comma should not be preceded by whitespace\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --rule T009
+  --no-duplicate
+  ${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp
+)
+
+vera_add_test(ShortNoDuplicate
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:10: comma should not be preceded by whitespace
+${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:12: comma should not be preceded by whitespace
+${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:13: comma should not be preceded by whitespace
+${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:14: comma should not be preceded by whitespace\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --rule T009
+  -d
+  ${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp
+)
+
+
 
 # options to test
 # -p [ --profile ] arg
@@ -339,14 +366,6 @@ vera_add_rule_test(T003 "1: keyword 'case' not followed by a single space
 22: keyword 'union' not followed by a single space
 23: keyword 'using' not followed by a single space")
 
-vera_add_test(RuleT013
-  "" "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
-  "" 0
-  --rule T013
-  --root "${CMAKE_SOURCE_DIR}"
-  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
-)
-
 vera_add_rule_test(T004 "25: colon not immediately after the 'public' keyword
 28: colon not immediately after the 'protected' keyword
 30: colon not immediately after the 'private' keyword
@@ -363,17 +382,93 @@ vera_add_rule_test(T007 "6: semicolon is isolated from other tokens
 7: semicolon is isolated from other tokens
 9: semicolon is isolated from other tokens")
 
-# Rules to test
-# DUMP
-# T008
-# T009
-# T010
-# T011
-# T012
-# T013
-# T014
-# T015
-# T016
-# T017
-# T018
-# T019
+vera_add_rule_test(T008 "22: keyword 'catch' not followed by a single space
+24: keyword 'for' not followed by a single space
+26: keyword 'if' not followed by a single space
+28: keyword 'while' not followed by a single space")
+
+vera_add_rule_test(T009 "10: comma should not be preceded by whitespace
+12: comma should not be preceded by whitespace
+12: comma should not be preceded by whitespace
+13: comma should not be preceded by whitespace
+13: comma should not be preceded by whitespace
+14: comma should not be preceded by whitespace")
+
+vera_add_rule_test(T010 "5: identifier should not be composed of only 'l' and 'O'
+6: identifier should not be composed of only 'l' and 'O'")
+
+vera_add_rule_test(T011 "22: closing curly bracket not in the same line or column
+27: closing curly bracket not in the same line or column
+30: closing curly bracket not in the same line or column
+39: closing curly bracket not in the same line or column")
+
+vera_add_rule_test(T012 "1: negation operator used in its short form")
+
+vera_add_test(RuleT013
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
+  "" 0
+  --rule T013
+  --root "${CMAKE_SOURCE_DIR}"
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/T013.cpp
+)
+
+vera_add_test(RuleT014
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no reference to the Boost Software License found\n"
+  "" 0
+  --rule T014
+  --root "${CMAKE_SOURCE_DIR}"
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/T013.cpp
+)
+
+vera_add_rule_test(T015 "8: URL points to non-existing file
+9: URL points to non-existing file")
+
+vera_add_rule_test(T016 "1: min/max potential macro substitution problem")
+
+vera_add_test(RuleT017
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/T017.h:1: unnamed namespace not allowed in header file\n"
+  "" 0
+  --rule T017
+  --root "${CMAKE_SOURCE_DIR}"
+  ${CMAKE_CURRENT_SOURCE_DIR}/T017.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/T017.cpp
+)
+
+vera_add_test(RuleT018
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/T018.h:1: using namespace not allowed in header file\n"
+  "" 0
+  --rule T018
+  --root "${CMAKE_SOURCE_DIR}"
+  ${CMAKE_CURRENT_SOURCE_DIR}/T018.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/T018.cpp
+)
+
+vera_add_rule_test(T019 "1: full block {} expected in the control structure
+5: full block {} expected in the control structure
+13: full block {} expected in the control structure
+14: full block {} expected in the control structure
+24: full block {} expected in the control structure")
+
+vera_add_test(RuleDUMP
+  "" "Tokens in file ${CMAKE_CURRENT_SOURCE_DIR}/T017.cpp:
+1/0\tnamespace\tnamespace
+1/9\tnewline\t
+
+2/0\tleftbrace\t{
+2/1\tnewline\t
+
+3/0\tcppcomment\t// some stuff here
+
+4/0\trightbrace\t}
+4/1\tnewline\t
+
+5/0\teof\t
+
+"
+  "" 0
+  --rule DUMP
+  --root "${CMAKE_SOURCE_DIR}"
+  ${CMAKE_CURRENT_SOURCE_DIR}/T017.cpp
+)

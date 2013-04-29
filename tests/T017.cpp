@@ -1,0 +1,4 @@
+namespace
+{
+// some stuff here
+}
