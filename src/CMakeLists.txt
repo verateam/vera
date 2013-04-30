@@ -43,8 +43,29 @@ if(WIN32)
   endif()
 endif()
 
+# runtime libs will be copied by hand in the package - there is no need
+# for these warnings
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
 include(InstallRequiredSystemLibraries)
 install(TARGETS vera DESTINATION bin)
+
+# install the runtime libraries
+if(MSVC10)
+  if(NOT MSVC10_REDIST_DIR)
+    # the libs where not found by InstallRequiredSystemLibraries, so we get
+    # them from System32
+    set(msvc_redist_libs
+      "C:/Windows/System32/msvcp100.dll"
+      "C:/Windows/System32/msvcr100.dll")
+    foreach(lib ${msvc_redist_libs})
+      if(EXISTS ${lib})
+        install(PROGRAMS ${lib} DESTINATION bin)
+      endif()
+    endforeach()
+  endif()
+endif()
+
+
 
 ########## check the coding style with vera++ ##############
 
