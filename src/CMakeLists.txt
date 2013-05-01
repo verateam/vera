@@ -1,5 +1,15 @@
 
 find_package(TCL REQUIRED)
+
+option(VERA_PYTHON "Build Python rules support" OFF)
+if(VERA_PYTHON)
+  find_package(PythonLibs REQUIRED)
+  include_directories(${PYTHON_INCLUDE_DIRS})
+  link_directories(${PYTHON_LIBRARIES})
+  set(boost_python python)
+  add_definitions(-DVERA_PYTHON)
+endif()
+
 include_directories(SYSTEM ${TCL_INCLUDE_PATH})
 link_directories(${TCL_LIBRARY_DIRS})
 
@@ -12,7 +22,13 @@ else()
   # packages with cpack
   option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
 endif()
-find_package(Boost COMPONENTS program_options system wave REQUIRED)
+find_package(Boost COMPONENTS
+  filesystem
+  program_options
+  system
+  wave
+  ${boost_python}
+  REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 # hide Boost_DIR option that doesn't seem to be set by FindBoost
@@ -33,6 +49,9 @@ set_target_properties(vera PROPERTIES OUTPUT_NAME vera++)
 target_link_libraries(vera
   ${TCL_LIBRARY}
   ${Boost_LIBRARIES})
+if(VERA_PYTHON)
+  target_link_libraries(vera ${PYTHON_LIBRARIES})
+endif()
 
 if(WIN32)
   # install the tcl lib, if we can find it

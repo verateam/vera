@@ -16,6 +16,14 @@
 #include <fstream>
 #include <iterator>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
+
+#ifdef VERA_PYTHON
+#include <boost/python.hpp>
+#include <vector>
+#include <sstream>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#endif
 
 
 namespace // unnamed
@@ -152,9 +160,30 @@ void Interpreter::execute(const DirectoryName & root,
         break;
     }
 
-    fileName += name;
-    fileName += ".tcl";
+    // first look at tcl rules
+    std::string tclFileName = fileName + name + ".tcl";
+    if (boost::filesystem::exists(tclFileName))
+    {
+        executeTcl(root, type, tclFileName);
+        return;
+    }
+#ifdef VERA_PYTHON
+    // then python
+    std::string pyFileName = fileName + name + ".py";
+    if (boost::filesystem::exists(pyFileName))
+    {
+        executePython(root, type, pyFileName);
+        return;
+    }
+#endif
+    std::ostringstream ss;
+    ss << "cannot open script " << name;
+    throw ScriptError(ss.str());
+}
 
+void Interpreter::executeTcl(const DirectoryName & root,
+    ScriptType type, const std::string & fileName)
+{
     std::ifstream scriptFile(fileName.c_str());
     if (scriptFile.is_open() == false)
     {
@@ -170,7 +199,7 @@ void Interpreter::execute(const DirectoryName & root,
     registerCommands(inter);
     try
     {
-      inter.eval(scriptBody);
+        inter.eval(scriptBody);
     }
     catch (Tcl::tcl_error & e)
     {
@@ -180,6 +209,91 @@ void Interpreter::execute(const DirectoryName & root,
             boost::lexical_cast<std::string>(inter.get()->errorLine) + ")");
     }
 }
+
+#ifdef VERA_PYTHON
+
+namespace py = boost::python;
+
+// Structures::SourceFiles::getAllFileNames() returns a std::set that is not
+// easily wrapped with boost python. It also lack the filtering of the excluded
+// files
+std::vector<std::string> pyGetSourceFileNames()
+{
+    std::vector<std::string> res;
+
+    const Vera::Structures::SourceFiles::FileNameSet & files =
+            Vera::Structures::SourceFiles::getAllFileNames();
+
+    typedef Vera::Structures::SourceFiles::FileNameSet::const_iterator iterator;
+    const iterator end = files.end();
+    for (iterator it = files.begin(); it != end; ++it)
+    {
+        const Vera::Structures::SourceFiles::FileName & name = *it;
+
+        if (Vera::Plugins::Exclusions::isExcluded(name) == false)
+        {
+            res.push_back(name);
+        }
+    }
+
+    return res;
+}
+
+BOOST_PYTHON_MODULE(vera)
+{
+  py::class_<Structures::Token>("Token")
+    .def(py::init<>())
+    .def(py::init<std::string, int, int, std::string>())
+    // .def("__repr__", &Token::toString)
+    .add_property("value", &Structures::Token::value_)
+    .add_property("line", &Structures::Token::line_)
+    .add_property("column", &Structures::Token::column_)
+    .add_property("name", &Structures::Token::name_);
+
+  py::class_<Structures::Tokens::TokenSequence>("TokenVector")
+        .def(py::vector_indexing_suite<Structures::Tokens::TokenSequence>());
+
+  py::class_<Structures::SourceLines::LineCollection>("StringVector")
+          .def(py::vector_indexing_suite<Structures::SourceLines::LineCollection>());
+
+  py::def("getTokens", &Structures::Tokens::getTokens);
+
+  py::def("report", &Plugins::Reports::add);
+
+  py::def("getParameter", &Plugins::Parameters::get);
+
+  py::def("getSourceFileNames", &pyGetSourceFileNames);
+
+  py::def("getLineCount", &Structures::SourceLines::getLineCount);
+
+  py::def("getLine", &Structures::SourceLines::getLine,
+      py::return_value_policy<py::reference_existing_object>());
+
+  py::def("getAllLines", &Structures::SourceLines::getAllLines,
+      py::return_value_policy<py::reference_existing_object>());
+};
+
+void Interpreter::executePython(const DirectoryName & root,
+    ScriptType type, const std::string & fileName)
+{
+    try
+    {
+        PyImport_AppendInittab("vera", initvera);
+        Py_Initialize();
+
+        py::object main_module = py::import("__main__");
+        py::object main_namespace = main_module.attr("__dict__");
+        main_namespace["vera"] = py::import("vera");
+
+        py::exec_file(fileName.c_str(), main_namespace, main_namespace);
+    }
+    catch (py::error_already_set const&)
+    {
+        PyErr_Print();
+    }
+    Py_Finalize();
+}
+#endif
 
 }
 }

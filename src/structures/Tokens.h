@@ -24,23 +24,35 @@ public:
     TokensError(const std::string & msg) : std::runtime_error(msg) {}
 };
 
+struct Token
+{
+    Token(const std::string & v, int ln, int cl, const std::string & n)
+        : value_(v), line_(ln), column_(cl), name_(n) {}
+
+    Token()
+        : value_(""), line_(0), column_(0), name_("") {}
+
+    bool operator==(Token const& t) const
+    {
+      return value_ == t.value_
+          && line_ == t.line_
+          && column_ == t.column_
+          && name_ == t.name_;
+    }
+
+    std::string value_;
+    int line_;
+    int column_;
+    std::string name_;
+};
+
+
 class Tokens
 {
 public:
     typedef std::string FileContent;
 
-    struct SingleToken
-    {
-        SingleToken(const std::string & v, int ln, int cl, const std::string & n)
-            : value_(v), line_(ln), column_(cl), name_(n) {}
-
-        std::string value_;
-        int line_;
-        int column_;
-        std::string name_;
-    };
-
-    typedef std::vector<SingleToken> TokenSequence;
+    typedef std::vector<Token> TokenSequence;
 
     typedef std::string TokenFilter;
 
