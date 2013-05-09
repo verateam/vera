@@ -93,6 +93,13 @@ list(REMOVE_DUPLICATES dirs)
 # in this target pretend to produce a file without actually producing it.
 # Because the output file is not there after the run, the command will be rerun
 # again at the next target build.
+# The report style is selected based on the build environment, so the style
+# problems are properly reported in the IDEs
+if(MSVC)
+  set(style vc)
+else()
+  set(style std)
+endif()
 set(xmlreports)
 set(noreports)
 foreach(d ${dirs})
@@ -102,7 +109,7 @@ foreach(d ${dirs})
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${d}/vera.xml
     COMMAND vera
       --root ${CMAKE_SOURCE_DIR}
-      --std-report=-
+      --${style}-report=-
       --show-rule
       --warning
       --xml-report=${CMAKE_CURRENT_BINARY_DIR}/${d}/vera.xml
@@ -114,7 +121,7 @@ foreach(d ${dirs})
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${d}/noreport
     COMMAND vera
       --root ${CMAKE_SOURCE_DIR}
-      --std-report=-
+      --${style}-report=-
       --show-rule
       --warning
       ${srcs}
