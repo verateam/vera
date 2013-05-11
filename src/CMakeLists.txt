@@ -1,5 +1,9 @@
 
-find_package(TCL REQUIRED)
+find_package(TCL) # REQUIRED)
+# don't use find_package's REQUIRED parameter to avoid requiring tk
+if(NOT TCL_FOUND)
+  message(FATAL_ERROR "TCL was not found.")
+endif()
 include_directories(SYSTEM ${TCL_INCLUDE_PATH})
 link_directories(${TCL_LIBRARY_DIRS})
 
