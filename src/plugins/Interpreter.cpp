@@ -175,9 +175,14 @@ void Interpreter::execute(const DirectoryName & root,
     catch (Tcl::tcl_error & e)
     {
         // rethrow the exception with the name of the rule
+#if (TCL_MAJOR_VERSION < 8) || (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION < 6)
+        int errorLine = inter.get()->errorLine;
+#else
+        int errorLine = Tcl_GetErrorLine(inter.get());
+#endif
         throw Tcl::tcl_error(std::string(e.what()) +
             "\n    (file \"" + fileName + "\" line " +
-            boost::lexical_cast<std::string>(inter.get()->errorLine) + ")");
+            boost::lexical_cast<std::string>(errorLine) + ")");
     }
 }
 
