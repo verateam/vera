@@ -9,6 +9,7 @@
 #include "Rules.h"
 #include <map>
 #include <utility>
+#include <boost/algorithm/string/replace.hpp>
 
 
 namespace // unnamed
@@ -272,7 +273,7 @@ void Reports::writeXml(std::ostream & os, bool omitDuplicates)
             {
                 if (showRules_)
                 {
-                    os << "        <report rule=\"" << rule
+                    os << "        <report rule=\"" << xmlEscape(rule)
                         << "\" line=\"" << lineNumber
                         << "\">![CDATA[" << msg << "]]</report>\n";
                 }
@@ -327,10 +328,10 @@ void Reports::writeCheckStyle(std::ostream & os, bool omitDuplicates)
             if (omitDuplicates == false ||
                 lineNumber != lastLineNumber || report != lastReport)
             {
-                os << "        <error source=\"" << rule
-                    << "\" severity=\"" << severity
+                os << "        <error source=\"" << xmlEscape(rule)
+                    << "\" severity=\"" << xmlEscape(severity)
                     << "\" line=\"" << lineNumber
-                    << "\" message=\"" << msg
+                    << "\" message=\"" << xmlEscape(msg)
                     << "\" />\n";
 
                 lastLineNumber = lineNumber;
@@ -342,6 +343,17 @@ void Reports::writeCheckStyle(std::ostream & os, bool omitDuplicates)
     }
 
     os << "</checkstyle>\n";
+}
+
+std::string Reports::xmlEscape(const std::string & msg)
+{
+    std::string res = msg;
+    boost::algorithm::replace_all(res, "&",  "&amp;");
+    boost::algorithm::replace_all(res, "\"", "&quot;");
+    boost::algorithm::replace_all(res, "\'", "&apos;");
+    boost::algorithm::replace_all(res, "<",  "&lt;");
+    boost::algorithm::replace_all(res, ">",  "&gt;");
+    return res;
 }
 
 }

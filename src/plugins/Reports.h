@@ -44,6 +44,7 @@ public:
 private:
     static void dumpAllNormal(std::ostream & os, bool omitDuplicates);
     static void dumpAllXML(std::ostream & os, bool omitDuplicates);
+    static std::string xmlEscape(const std::string & msg);
 };
 
 } // namespace Plugins
