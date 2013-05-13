@@ -84,6 +84,7 @@ int boost_main(int argc, char * argv[])
     std::vector<std::string> stdreports;
     std::vector<std::string> vcreports;
     std::vector<std::string> xmlreports;
+    std::vector<std::string> checkstylereports;
     /** Define and parse the program options
     */
     namespace po = boost::program_options;
@@ -99,6 +100,9 @@ int boost_main(int argc, char * argv[])
         ("vc-report,v", po::value(&vcreports), "write the Visual C report to this file."
             " Not used by default. (note: may be used many times.)")
         ("xml-report,x", po::value(&xmlreports), "write the XML report to this file."
+            " Not used by default. (note: may be used many times.)")
+        ("checkstyle-report,c", po::value(&checkstylereports),
+            "write the checkstyle report to this file."
             " Not used by default. (note: may be used many times.)")
         ("show-rule,s", "include rule name in each report")
         ("no-duplicate,d", "do not duplicate messages if a single rule is violated many times in a"
@@ -235,7 +239,8 @@ int boost_main(int argc, char * argv[])
         }
 
         if (vm.count("std-report") == 0 && vm.count("vc-report") == 0
-            && vm.count("xml-report") == 0 && vm.count("quiet") == 0)
+            && vm.count("xml-report") == 0 && vm.count("checkstyle-report") == 0
+            && vm.count("quiet") == 0)
         {
             // no report set - use std report on std out/err
             stdreports.push_back("-");
@@ -366,6 +371,37 @@ int boost_main(int argc, char * argv[])
                     throw std::ios::failure("Can't open " + *it);
                 }
                 Vera::Plugins::Reports::writeXml(file, vm.count("no-duplicate"));
+                if (file.bad() || file.fail())
+                {
+                    throw std::ios::failure( "Can't write to " + *it);
+                }
+                file.close();
+            }
+        }
+        for (std::vector<std::string>::const_iterator it = checkstylereports.begin();
+            it != checkstylereports.end();
+            ++it)
+        {
+            if (*it == "-")
+            {
+                if (vm.count("warning") || vm.count("error"))
+                {
+                    Vera::Plugins::Reports::writeCheckStyle(std::cerr, vm.count("no-duplicate"));
+                }
+                else
+                {
+                  Vera::Plugins::Reports::writeCheckStyle(std::cout, vm.count("no-duplicate"));
+                }
+            }
+            else
+            {
+                std::ofstream file;
+                file.open(it->c_str());
+                if (file.fail())
+                {
+                    throw std::ios::failure("Can't open " + *it);
+                }
+                Vera::Plugins::Reports::writeCheckStyle(file, vm.count("no-duplicate"));
                 if (file.bad() || file.fail())
                 {
                     throw std::ios::failure( "Can't write to " + *it);

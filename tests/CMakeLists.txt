@@ -145,6 +145,34 @@ vera_add_test(ShortXMLReport
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 )
 
+vera_add_test(CheckStyleReport
+  ""
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<checkstyle version=\"5.0\">
+    <file name=\"${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\">
+        <error source=\"T013\" severity=\"info\" line=\"1\" message=\"no copyright notice found\" />
+    </file>
+</checkstyle>\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --checkstyle-report=-
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+
+vera_add_test(ShortCheckStyleReport
+  ""
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<checkstyle version=\"5.0\">
+    <file name=\"${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\">
+        <error source=\"T013\" severity=\"info\" line=\"1\" message=\"no copyright notice found\" />
+    </file>
+</checkstyle>\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  -c -
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+
 vera_add_test(ShowRule
   ""
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: T013: no copyright notice found\n"
