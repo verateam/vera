@@ -57,15 +57,15 @@ vera_add_test(StdInNoArgs
   --root "${CMAKE_SOURCE_DIR}"
 )
 
-vera_add_test(Input
+vera_add_test(Inputs
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n"
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
   "" 0
   --root "${CMAKE_SOURCE_DIR}"
-  --input=-
+  --inputs=-
 )
 
-vera_add_test(ShortInput
+vera_add_test(ShortInputs
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n"
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
   "" 0
@@ -142,6 +142,34 @@ vera_add_test(ShortXMLReport
   "" 0
   --root "${CMAKE_SOURCE_DIR}"
   -x -
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+
+vera_add_test(CheckStyleReport
+  ""
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<checkstyle version=\"5.0\">
+    <file name=\"${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\">
+        <error source=\"T013\" severity=\"info\" line=\"1\" message=\"no copyright notice found\" />
+    </file>
+</checkstyle>\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --checkstyle-report=-
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+
+vera_add_test(ShortCheckStyleReport
+  ""
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<checkstyle version=\"5.0\">
+    <file name=\"${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\">
+        <error source=\"T013\" severity=\"info\" line=\"1\" message=\"no copyright notice found\" />
+    </file>
+</checkstyle>\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  -c -
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 )
 
@@ -285,17 +313,69 @@ ${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp:14: comma should not be preceded by whitesp
   ${CMAKE_CURRENT_SOURCE_DIR}/T009.cpp
 )
 
+vera_add_test(Parameter
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: line is longer than 99 characters
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: line is longer than 99 characters\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --rule L004
+  --parameter max-line-length=99
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
 
+vera_add_test(ShortParameter
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: line is longer than 99 characters
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: line is longer than 99 characters\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --rule L004
+  -P max-line-length=99
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
+
+vera_add_test(Parameters
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: line is longer than 99 characters
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: line is longer than 99 characters\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --rule L004
+  --parameters ${CMAKE_CURRENT_SOURCE_DIR}/parameters.txt
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
+
+vera_add_test(Profile
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: L004: line is longer than 100 characters
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T013: no copyright notice found
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T014: no reference to the Boost Software License found
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters\n" "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --show-rule
+  --profile full
+  --parameter max-directory-depth=20
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
+
+vera_add_test(ShortProfile
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: L004: line is longer than 100 characters
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T013: no copyright notice found
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T014: no reference to the Boost Software License found
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters\n" "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --show-rule
+  -p full
+  --parameter max-directory-depth=20
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
+
+# just make sure the help test does not fail
+add_test(NAME Help COMMAND vera --help foo bar)
+add_test(NAME ShortHelp COMMAND vera -h foo bar)
 
 # options to test
-# -p [ --profile ] arg
-# -R [ --rule ] arg
 # --transform arg
-# -d [ --no-duplicate ]
-# --parameters arg
-# -P [ --param ] arg
-# --exclusions arg
-# -h [ --help ]
 
 ####### rule tests #######
 

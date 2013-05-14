@@ -39,10 +39,12 @@ public:
     static void writeStd(std::ostream & os, bool omitDuplicates);
     static void writeVc(std::ostream & os, bool omitDuplicates);
     static void writeXml(std::ostream & os, bool omitDuplicates);
+    static void writeCheckStyle(std::ostream & os, bool omitDuplicates);
 
 private:
     static void dumpAllNormal(std::ostream & os, bool omitDuplicates);
     static void dumpAllXML(std::ostream & os, bool omitDuplicates);
+    static std::string xmlEscape(const std::string & msg);
 };
 
 } // namespace Plugins

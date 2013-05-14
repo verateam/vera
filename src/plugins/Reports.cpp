@@ -9,6 +9,7 @@
 #include "Rules.h"
 #include <map>
 #include <utility>
+#include <boost/algorithm/string/replace.hpp>
 
 
 namespace // unnamed
@@ -272,7 +273,7 @@ void Reports::writeXml(std::ostream & os, bool omitDuplicates)
             {
                 if (showRules_)
                 {
-                    os << "        <report rule=\"" << rule
+                    os << "        <report rule=\"" << xmlEscape(rule)
                         << "\" line=\"" << lineNumber
                         << "\">![CDATA[" << msg << "]]</report>\n";
                 }
@@ -291,6 +292,68 @@ void Reports::writeXml(std::ostream & os, bool omitDuplicates)
     }
 
     os << "</vera>\n";
+}
+
+void Reports::writeCheckStyle(std::ostream & os, bool omitDuplicates)
+{
+    std::string severity = prefix_;
+    if (severity == "")
+    {
+        severity = "info";
+    }
+    os<< "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
+    os << "<checkstyle version=\"5.0\">\n";
+
+    for (MessagesCollection::iterator it = messages_.begin(), end = messages_.end();
+         it != end; ++it)
+    {
+        const FileName & name = it->first;
+
+        os << "    <file name=\"" << name << "\">\n";
+
+        FileMessagesCollection & fileMessages = it->second;
+
+        FileMessagesCollection::iterator fit = fileMessages.begin();
+        FileMessagesCollection::iterator fend = fileMessages.end();
+
+        int lastLineNumber = 0;
+        SingleReport lastReport;
+        for ( ; fit != fend; ++fit)
+        {
+            int lineNumber = fit->first;
+            const SingleReport & report = fit->second;
+            const Rules::RuleName & rule = report.first;
+            const Message & msg = report.second;
+
+            if (omitDuplicates == false ||
+                lineNumber != lastLineNumber || report != lastReport)
+            {
+                os << "        <error source=\"" << xmlEscape(rule)
+                    << "\" severity=\"" << xmlEscape(severity)
+                    << "\" line=\"" << lineNumber
+                    << "\" message=\"" << xmlEscape(msg)
+                    << "\" />\n";
+
+                lastLineNumber = lineNumber;
+                lastReport = report;
+            }
+        }
+
+        os << "    </file>\n";
+    }
+
+    os << "</checkstyle>\n";
+}
+
+std::string Reports::xmlEscape(const std::string & msg)
+{
+    std::string res = msg;
+    boost::algorithm::replace_all(res, "&",  "&amp;");
+    boost::algorithm::replace_all(res, "\"", "&quot;");
+    boost::algorithm::replace_all(res, "\'", "&apos;");
+    boost::algorithm::replace_all(res, "<",  "&lt;");
+    boost::algorithm::replace_all(res, ">",  "&gt;");
+    return res;
 }
 
 }

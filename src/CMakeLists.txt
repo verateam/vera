@@ -1,5 +1,11 @@
 
-find_package(TCL REQUIRED)
+find_package(TCL) # REQUIRED)
+# don't use find_package's REQUIRED parameter to avoid requiring tk
+if(NOT TCL_FOUND)
+  message(FATAL_ERROR "TCL was not found.")
+endif()
+include_directories(SYSTEM ${TCL_INCLUDE_PATH})
+link_directories(${TCL_LIBRARY_DIRS})
 
 option(VERA_PYTHON "Build Python rules support" OFF)
 if(VERA_PYTHON)
@@ -9,9 +15,6 @@ if(VERA_PYTHON)
   set(boost_python python)
   add_definitions(-DVERA_PYTHON)
 endif()
-
-include_directories(SYSTEM ${TCL_INCLUDE_PATH})
-link_directories(${TCL_LIBRARY_DIRS})
 
 if(WIN32)
   # use boost static libs to avoid LNK2019 errors
@@ -112,6 +115,13 @@ list(REMOVE_DUPLICATES dirs)
 # in this target pretend to produce a file without actually producing it.
 # Because the output file is not there after the run, the command will be rerun
 # again at the next target build.
+# The report style is selected based on the build environment, so the style
+# problems are properly reported in the IDEs
+if(MSVC)
+  set(style vc)
+else()
+  set(style std)
+endif()
 set(xmlreports)
 set(noreports)
 foreach(d ${dirs})
@@ -121,7 +131,7 @@ foreach(d ${dirs})
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${d}/vera.xml
     COMMAND vera
       --root ${CMAKE_SOURCE_DIR}
-      --std-report=-
+      --${style}-report=-
       --show-rule
       --warning
       --xml-report=${CMAKE_CURRENT_BINARY_DIR}/${d}/vera.xml
@@ -133,7 +143,7 @@ foreach(d ${dirs})
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${d}/noreport
     COMMAND vera
       --root ${CMAKE_SOURCE_DIR}
-      --std-report=-
+      --${style}-report=-
       --show-rule
       --warning
       ${srcs}
