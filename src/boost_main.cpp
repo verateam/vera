@@ -21,12 +21,49 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <boost/program_options.hpp>
+#include <boost/foreach.hpp>
+
+#define foreach BOOST_FOREACH
 
 #ifdef _MSC_VER
 // vm.count() used as a bool
 #pragma warning(disable:4800)
 #endif
 
+template<typename Files, typename Options, typename Reporter>
+void doReports(Files & reports, Options & vm, Reporter * reporter)
+{
+    foreach (const std::string & fn, reports)
+    {
+        if (fn == "-")
+        {
+            if (vm.count("warning") || vm.count("error"))
+            {
+                (*reporter)(std::cerr, vm.count("no-duplicate"));
+            }
+            else
+            {
+              (*reporter)(std::cout, vm.count("no-duplicate"));
+            }
+        }
+        else
+        {
+            std::ofstream file;
+            file.open(fn.c_str());
+            if (file.fail())
+            {
+                throw std::ios::failure("Can't open " + fn);
+            }
+            (*reporter)(file, vm.count("no-duplicate"));
+            if (file.bad() || file.fail())
+            {
+                throw std::ios::failure( "Can't write to " + fn);
+            }
+            file.close();
+        }
+    }
+
+}
 
 int boost_main(int argc, char * argv[])
 {
@@ -183,20 +220,16 @@ int boost_main(int argc, char * argv[])
         {
             Vera::Plugins::Parameters::readFromFile(parameters);
         }
-        for (std::vector<std::string>::const_iterator it = params.begin();
-            it != params.end();
-            ++it)
+        foreach (const std::string & p, params)
         {
-            Vera::Plugins::Parameters::ParamAssoc assoc(*it);
+            Vera::Plugins::Parameters::ParamAssoc assoc(p);
             Vera::Plugins::Parameters::set(assoc);
         }
         if (vm.count("args"))
         {
-            for (std::vector<std::string>::const_iterator it = args.begin();
-                it != args.end();
-                ++it)
+            foreach (const std::string & a, args)
             {
-                Vera::Structures::SourceFiles::addFileName(*it);
+                Vera::Structures::SourceFiles::addFileName(a);
             }
         }
         else if (vm.count("input") == 0)
@@ -205,11 +238,9 @@ int boost_main(int argc, char * argv[])
             inputs.push_back("-");
         }
 
-        for (std::vector<std::string>::const_iterator it = inputs.begin();
-            it != inputs.end();
-            ++it)
+        foreach (const std::string & i, inputs)
         {
-            if (*it == "-")
+            if (i == "-")
             {
                 Vera::Structures::SourceFiles::FileName name;
                 while (std::getline(std::cin, name))
@@ -221,10 +252,10 @@ int boost_main(int argc, char * argv[])
             {
                 std::ifstream file;
                 std::string name;
-                file.open(it->c_str());
+                file.open(i.c_str());
                 if (file.fail())
                 {
-                    throw std::ios::failure("Can't open " + *it);
+                    throw std::ios::failure("Can't open " + i);
                 }
                 while (file >> name)
                 {
@@ -232,7 +263,7 @@ int boost_main(int argc, char * argv[])
                 }
                 if (file.bad() || file.fail())
                 {
-                    throw std::ios::failure( "Can't read from " + *it);
+                    throw std::ios::failure( "Can't read from " + i);
                 }
                 file.close();
             }
@@ -262,11 +293,9 @@ int boost_main(int argc, char * argv[])
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
-            for (std::vector<std::string>::const_iterator it = rules.begin();
-                it != rules.end();
-                ++it)
+            foreach (const std::string & r, rules)
             {
-                Vera::Plugins::Rules::executeRule(*it);
+                Vera::Plugins::Rules::executeRule(r);
             }
         }
         else if (vm.count("transform"))
@@ -285,130 +314,10 @@ int boost_main(int argc, char * argv[])
             Vera::Plugins::Profiles::executeProfile(profile);
         }
 
-        for (std::vector<std::string>::const_iterator it = stdreports.begin();
-            it != stdreports.end();
-            ++it)
-        {
-            if (*it == "-")
-            {
-                if (vm.count("warning") || vm.count("error"))
-                {
-                    Vera::Plugins::Reports::writeStd(std::cerr, vm.count("no-duplicate"));
-                }
-                else
-                {
-                  Vera::Plugins::Reports::writeStd(std::cout, vm.count("no-duplicate"));
-                }
-            }
-            else
-            {
-                std::ofstream file;
-                file.open(it->c_str());
-                if (file.fail())
-                {
-                    throw std::ios::failure("Can't open " + *it);
-                }
-                Vera::Plugins::Reports::writeStd(file, vm.count("no-duplicate"));
-                if (file.bad() || file.fail())
-                {
-                    throw std::ios::failure( "Can't write to " + *it);
-                }
-                file.close();
-            }
-        }
-        for (std::vector<std::string>::const_iterator it = vcreports.begin();
-            it != vcreports.end();
-            ++it)
-        {
-            if (*it == "-")
-            {
-                if (vm.count("warning") || vm.count("error"))
-                {
-                    Vera::Plugins::Reports::writeVc(std::cerr, vm.count("no-duplicate"));
-                }
-                else
-                {
-                  Vera::Plugins::Reports::writeVc(std::cout, vm.count("no-duplicate"));
-                }
-            }
-            else
-            {
-                std::ofstream file;
-                file.open(it->c_str());
-                if (file.fail())
-                {
-                    throw std::ios::failure("Can't open " + *it);
-                }
-                Vera::Plugins::Reports::writeVc(file, vm.count("no-duplicate"));
-                if (file.bad() || file.fail())
-                {
-                    throw std::ios::failure( "Can't write to " + *it);
-                }
-                file.close();
-            }
-        }
-        for (std::vector<std::string>::const_iterator it = xmlreports.begin();
-            it != xmlreports.end();
-            ++it)
-        {
-            if (*it == "-")
-            {
-                if (vm.count("warning") || vm.count("error"))
-                {
-                    Vera::Plugins::Reports::writeXml(std::cerr, vm.count("no-duplicate"));
-                }
-                else
-                {
-                  Vera::Plugins::Reports::writeXml(std::cout, vm.count("no-duplicate"));
-                }
-            }
-            else
-            {
-                std::ofstream file;
-                file.open(it->c_str());
-                if (file.fail())
-                {
-                    throw std::ios::failure("Can't open " + *it);
-                }
-                Vera::Plugins::Reports::writeXml(file, vm.count("no-duplicate"));
-                if (file.bad() || file.fail())
-                {
-                    throw std::ios::failure( "Can't write to " + *it);
-                }
-                file.close();
-            }
-        }
-        for (std::vector<std::string>::const_iterator it = checkstylereports.begin();
-            it != checkstylereports.end();
-            ++it)
-        {
-            if (*it == "-")
-            {
-                if (vm.count("warning") || vm.count("error"))
-                {
-                    Vera::Plugins::Reports::writeCheckStyle(std::cerr, vm.count("no-duplicate"));
-                }
-                else
-                {
-                  Vera::Plugins::Reports::writeCheckStyle(std::cout, vm.count("no-duplicate"));
-                }
-            }
-            else
-            {
-                std::ofstream file;
-                file.open(it->c_str());
-                if (file.fail())
-                {
-                    throw std::ios::failure("Can't open " + *it);
-                }
-                Vera::Plugins::Reports::writeCheckStyle(file, vm.count("no-duplicate"));
-                if (file.bad() || file.fail())
-                {
-                    throw std::ios::failure( "Can't write to " + *it);
-                }
-                file.close();
-            }
-        }
+        doReports(stdreports, vm, Vera::Plugins::Reports::writeStd);
+        doReports(vcreports, vm, Vera::Plugins::Reports::writeVc);
+        doReports(xmlreports, vm, Vera::Plugins::Reports::writeXml);
+        doReports(checkstylereports, vm, Vera::Plugins::Reports::writeCheckStyle);
 
         if (vm.count("summary"))
         {
