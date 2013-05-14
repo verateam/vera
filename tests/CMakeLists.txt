@@ -57,15 +57,15 @@ vera_add_test(StdInNoArgs
   --root "${CMAKE_SOURCE_DIR}"
 )
 
-vera_add_test(Input
+vera_add_test(Inputs
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n"
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
   "" 0
   --root "${CMAKE_SOURCE_DIR}"
-  --input=-
+  --inputs=-
 )
 
-vera_add_test(ShortInput
+vera_add_test(ShortInputs
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n"
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
   "" 0
@@ -320,7 +320,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: line is longer than 99 characters\n"
   "" 0
   --root "${CMAKE_SOURCE_DIR}"
   --rule L004
-  --param max-line-length=99
+  --parameter max-line-length=99
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 
@@ -354,7 +354,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters
   --root "${CMAKE_SOURCE_DIR}"
   --show-rule
   --profile full
-  --param max-directory-depth=20
+  --parameter max-directory-depth=20
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 
@@ -366,7 +366,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters
   --root "${CMAKE_SOURCE_DIR}"
   --show-rule
   -p full
-  --param max-directory-depth=20
+  --parameter max-directory-depth=20
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 

@@ -111,12 +111,12 @@ int boost_main(int argc, char * argv[])
 
     std::string profile = "default";
     std::string transform;
-    std::string parameters;
-    std::string exclusions;
     std::vector<std::string> rules;
-    std::vector<std::string> params;
-    std::vector<std::string> args;
+    std::vector<std::string> parameters;
+    std::vector<std::string> parameterFiles;
     std::vector<std::string> inputs;
+    std::vector<std::string> inputFiles;
+    std::vector<std::string> exclusionFiles;
     // outputs
     std::vector<std::string> stdreports;
     std::vector<std::string> vcreports;
@@ -149,22 +149,26 @@ int boost_main(int argc, char * argv[])
             " An non zero exit code is used when one or more reports are generated.")
         ("quiet,q", "don't display the reports")
         ("summary,S", "display the number of reports and the number of processed files")
-        ("parameters", po::value(&parameters), "read parameters from file")
-        ("param,P", po::value(&params), "provide parameters to the scripts as name=value"
+        ("parameters", po::value(&parameterFiles), "read parameters from file"
             " (note: can be used many times)")
-        ("exclusions", po::value(&exclusions), "read exclusions from file")
-        ("input,i", po::value(&inputs), "the inputs are read from that file (note: one file per"
-            " line. can be used many times.")
+        ("parameter,P", po::value(&parameters), "provide parameters to the scripts as name=value"
+            " (note: can be used many times)")
+        ("exclusions", po::value(&exclusionFiles), "read exclusions from file"
+            " (note: can be used many times)")
+        ("inputs,i", po::value(&inputFiles), "the inputs are read from that file (note: one file"
+            " per line. can be used many times.)")
         ("root,r", po::value(&veraRoot), "use the given directory as the vera root directory")
         ("help,h", "show this help message and exit")
         ("version", "show vera++'s version and exit");
 
+    // don't call it "input", as is may seems more logical, in order to get an error when
+    // --inputs is used without the "s" at the end
     po::options_description allOptions;
     allOptions.add(visibleOptions).add_options()
-            ("args", po::value(&args), "input files from command line");
+            ("__input__", po::value(&inputs), "input files from command line");
 
     po::positional_options_description positionalOptions;
-    positionalOptions.add("args", -1);
+    positionalOptions.add("__input__", -1);
 
     po::variables_map vm;
     try
@@ -212,35 +216,35 @@ int boost_main(int argc, char * argv[])
         {
             Vera::Plugins::Reports::setPrefix("error");
         }
-        if (vm.count("exclusions"))
+        foreach (const std::string & f, exclusionFiles)
         {
-            Vera::Plugins::Exclusions::setExclusions(exclusions);
+            Vera::Plugins::Exclusions::setExclusions(f);
         }
-        if (vm.count("parameters"))
+        foreach (const std::string & f, parameterFiles)
         {
-            Vera::Plugins::Parameters::readFromFile(parameters);
+            Vera::Plugins::Parameters::readFromFile(f);
         }
-        foreach (const std::string & p, params)
+        foreach (const std::string & p, parameters)
         {
             Vera::Plugins::Parameters::ParamAssoc assoc(p);
             Vera::Plugins::Parameters::set(assoc);
         }
-        if (vm.count("args"))
+        if (vm.count("__input__"))
         {
-            foreach (const std::string & a, args)
+            foreach (const std::string & i, inputs)
             {
-                Vera::Structures::SourceFiles::addFileName(a);
+                Vera::Structures::SourceFiles::addFileName(i);
             }
         }
-        else if (vm.count("input") == 0)
+        else
         {
             // list of source files is provided on stdin
-            inputs.push_back("-");
+            inputFiles.push_back("-");
         }
 
-        foreach (const std::string & i, inputs)
+        foreach (const std::string & f, inputFiles)
         {
-            if (i == "-")
+            if (f == "-")
             {
                 Vera::Structures::SourceFiles::FileName name;
                 while (std::getline(std::cin, name))
@@ -252,10 +256,10 @@ int boost_main(int argc, char * argv[])
             {
                 std::ifstream file;
                 std::string name;
-                file.open(i.c_str());
+                file.open(f.c_str());
                 if (file.fail())
                 {
-                    throw std::ios::failure("Can't open " + i);
+                    throw std::ios::failure("Can't open " + f);
                 }
                 while (file >> name)
                 {
@@ -263,7 +267,7 @@ int boost_main(int argc, char * argv[])
                 }
                 if (file.bad() || file.fail())
                 {
-                    throw std::ios::failure( "Can't read from " + i);
+                    throw std::ios::failure( "Can't read from " + f);
                 }
                 file.close();
             }
