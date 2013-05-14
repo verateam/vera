@@ -354,6 +354,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters
   --root "${CMAKE_SOURCE_DIR}"
   --show-rule
   --profile full
+  --param max-directory-depth=20
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 
@@ -365,6 +366,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters
   --root "${CMAKE_SOURCE_DIR}"
   --show-rule
   -p full
+  --param max-directory-depth=20
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 
