@@ -138,7 +138,7 @@ endif()
 
 # Select Git source to use.
 if(NOT DEFINED dashboard_git_url)
-  set(dashboard_git_url "https://bitbucket.org/ThArGos/vera.git")
+  set(dashboard_git_url "https://bitbucket.org/verateam/vera.git")
 endif()
 if(NOT DEFINED dashboard_git_branch)
 #  if("${dashboard_model}" STREQUAL "Nightly")
