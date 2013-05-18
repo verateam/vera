@@ -15,3 +15,4 @@ include(CTest)
 add_subdirectory(tests)
 
 add_subdirectory(packages)
+add_subdirectory(cmake)
