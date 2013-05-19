@@ -9,7 +9,7 @@ add_test(NAME VeraStyle
 
 # now the real tests
 
-include(utils.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/use_vera++.cmake)
 
 ####### command line iterface tests #######
 
@@ -378,6 +378,8 @@ add_test(NAME ShortHelp COMMAND vera -h foo bar)
 # --transform arg
 
 ####### rule tests #######
+
+set(VERA_TEST_RULE_ROOT ${CMAKE_SOURCE_DIR})
 
 vera_add_rule_test(F001 "4: \\r (CR) detected in isolation at position 7")
 
