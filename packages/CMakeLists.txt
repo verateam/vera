@@ -32,6 +32,7 @@ set(CPACK_SOURCE_IGNORE_FILES
   "/\\\\.DS_Store$"
   "/Thumbs\\\\.db"
   "/CMakeLists.txt.user$"
+  "/wiki/images/.*png$"
   ${CPACK_SOURCE_IGNORE_FILES})
 # also ignore the build directories that may be in the source tree
 file(GLOB_RECURSE caches "${CMAKE_SOURCE_DIR}/CMakeCache.txt")
