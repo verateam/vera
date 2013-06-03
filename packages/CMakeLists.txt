@@ -32,6 +32,7 @@ set(CPACK_SOURCE_IGNORE_FILES
   "/\\\\.DS_Store$"
   "/Thumbs\\\\.db"
   "/CMakeLists.txt.user$"
+  "/wiki/images/.*png$"
   ${CPACK_SOURCE_IGNORE_FILES})
 # also ignore the build directories that may be in the source tree
 file(GLOB_RECURSE caches "${CMAKE_SOURCE_DIR}/CMakeCache.txt")
@@ -41,3 +42,15 @@ foreach(c ${caches})
 endforeach()
 
 include(CPack)
+
+find_program(TAR_EXECUTABLE tar)
+if(TARGET doc AND TAR_EXECUTABLE)
+  set(output ${CMAKE_BINARY_DIR}/vera++-doc-${VERA_VERSION}.tar.gz)
+  add_custom_command(
+    OUTPUT ${output}
+    COMMAND ${TAR_EXECUTABLE}
+      czf ${output}
+      vera++.1 vera++.html
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc)
+  add_custom_target(package_doc DEPENDS doc ${output})
+endif()
