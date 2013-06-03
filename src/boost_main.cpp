@@ -67,7 +67,7 @@ void doReports(Files & reports, Options & vm, Reporter * reporter)
 
 int boost_main(int argc, char * argv[])
 {
-    // the directory containing the profile and rule definitions
+    // The directory containing the profile and rule definitions
     // by default it is (in this order, first has highest precedence):
     // - VERA_ROOT (if VERA_ROOT is defined)
     // - HOME/.vera++ (if HOME is defined)
@@ -146,7 +146,7 @@ int boost_main(int argc, char * argv[])
             " single line of code")
         ("warning,w", "reports are marked as warning and generated on error output")
         ("error,e", "reports are marked as error and generated on error output."
-            " An non zero exit code is used when one or more reports are generated.")
+            " A non zero exit code is used when one or more reports are generated.")
         ("quiet,q", "don't display the reports")
         ("summary,S", "display the number of reports and the number of processed files")
         ("parameters", po::value(&parameterFiles), "read parameters from file"
