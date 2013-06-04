@@ -370,6 +370,19 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 
+vera_add_test(Exclusions
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: L004: line is longer than 100 characters
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T013: no copyright notice found
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters\n" "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --show-rule
+  --profile full
+  --parameter max-directory-depth=20
+  --exclusions ${CMAKE_CURRENT_SOURCE_DIR}/exclusions
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
+
+
 # just make sure the help test does not fail
 add_test(NAME Help COMMAND vera --help foo bar)
 add_test(NAME ShortHelp COMMAND vera -h foo bar)
