@@ -236,7 +236,7 @@ int boost_main(int argc, char * argv[])
                 Vera::Structures::SourceFiles::addFileName(i);
             }
         }
-        else
+        if (vm.count("__input__") == 0 && vm.count("inputs") == 0)
         {
             // list of source files is provided on stdin
             inputFiles.push_back("-");
@@ -261,11 +261,11 @@ int boost_main(int argc, char * argv[])
                 {
                     throw std::ios::failure("Can't open " + f);
                 }
-                while (file >> name)
+                while (std::getline(file, name))
                 {
                     Vera::Structures::SourceFiles::addFileName(name);
                 }
-                if (file.bad() || file.fail())
+                if (file.bad())
                 {
                     throw std::ios::failure( "Can't read from " + f);
                 }

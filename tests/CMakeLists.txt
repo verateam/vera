@@ -57,12 +57,22 @@ vera_add_test(StdInNoArgs
   --root "${CMAKE_SOURCE_DIR}"
 )
 
-vera_add_test(Inputs
+vera_add_test(InputsDash
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n"
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
   "" 0
   --root "${CMAKE_SOURCE_DIR}"
   --inputs=-
+)
+
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/inputs
+  "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n")
+vera_add_test(InputsFile
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --inputs=${CMAKE_CURRENT_BINARY_DIR}/inputs
 )
 
 vera_add_test(ShortInputs
