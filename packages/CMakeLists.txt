@@ -45,7 +45,7 @@ include(CPack)
 
 find_program(TAR_EXECUTABLE tar)
 if(TARGET doc AND TAR_EXECUTABLE)
-  set(output ${CMAKE_BINARY_DIR}/vera++-doc-${VERA_VERSION}.tar.gz)
+  set(output ${CMAKE_BINARY_DIR}/vera++-${VERA_VERSION}-doc.tar.gz)
   add_custom_command(
     OUTPUT ${output}
     COMMAND ${TAR_EXECUTABLE}
