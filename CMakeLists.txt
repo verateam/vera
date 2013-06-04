@@ -10,9 +10,15 @@ add_subdirectory(src)
 add_subdirectory(doc)
 add_subdirectory(scripts)
 add_subdirectory(profiles)
+add_subdirectory(packages)
+add_subdirectory(cmake)
 
 include(CTest)
 add_subdirectory(tests)
 
-add_subdirectory(packages)
-add_subdirectory(cmake)
+# pass a few specific options to CTest. CTestCustom.cmake must be at the root of
+# the binary dir
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake
+  COPYONLY)
