@@ -581,7 +581,7 @@ vera_add_test(RuleDUMP
 )
 
 vera_add_test(ErrorReport
-  "" "" "error: can't read \"auie\": no such variable
+  "" "" "vera++: can't read \"auie\": no such variable
     while executing
 \"lindex $auie\"
     (procedure \"Foo\" line 2)

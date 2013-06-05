@@ -38,7 +38,7 @@ RuleNameCollection getListOfScriptNames(const Vera::Plugins::Profiles::ProfileNa
     if (profileFile.is_open() == false)
     {
         std::ostringstream ss;
-        ss << "cannot open profile description for profile " << profile;
+        ss << "Cannot open profile description for profile '" << profile << "'";
         throw Vera::Plugins::ProfileError(ss.str());
     }
 

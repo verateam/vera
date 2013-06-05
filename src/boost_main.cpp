@@ -189,7 +189,7 @@ int boost_main(int argc, char * argv[])
     }
     catch (po::error& e)
     {
-        std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+        std::cerr << "vera++: " << e.what() << std::endl << std::endl;
         std::cerr << visibleOptions << std::endl;
         return EXIT_FAILURE;
     }
@@ -208,8 +208,8 @@ int boost_main(int argc, char * argv[])
         {
             if (vm.count("error"))
             {
-                std::cerr
-                    << "ERROR: --warning and --error can't be used at the same time." << std::endl;
+                std::cerr << "vera++: --warning and --error can't be used at the same time."
+                    << std::endl;
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
@@ -289,15 +289,15 @@ int boost_main(int argc, char * argv[])
         {
             if (vm.count("profile"))
             {
-                std::cerr
-                    << "ERROR: --profile and --rule can't be used at the same time." << std::endl;
+                std::cerr << "vera++: --profile and --rule can't be used at the same time."
+                    << std::endl;
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
             if (vm.count("transform"))
             {
-                std::cerr
-                    << "ERROR: --transform and --rule can't be used at the same time." << std::endl;
+                std::cerr << "vera++: --transform and --rule can't be used at the same time."
+                    << std::endl;
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
@@ -310,8 +310,8 @@ int boost_main(int argc, char * argv[])
         {
             if (vm.count("profile"))
             {
-                std::cerr <<
-                    "ERROR: --profile and --transform can't be used at the same time." << std::endl;
+                std::cerr << "vera++: --profile and --transform can't be used at the same time."
+                    << std::endl;
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
@@ -335,7 +335,7 @@ int boost_main(int argc, char * argv[])
     }
     catch (const std::exception & e)
     {
-        std::cerr << "error: " << e.what() << '\n';
+        std::cerr << "vera++: " << e.what() << '\n';
         return EXIT_FAILURE;
     }
 
