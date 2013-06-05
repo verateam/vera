@@ -20,6 +20,8 @@
 #include <vector>
 #include <cstdlib>
 #include <sys/stat.h>
+#include <cstring>
+#include <cerrno>
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 
@@ -48,16 +50,17 @@ void doReports(Files & reports, Options & vm, Reporter * reporter)
         }
         else
         {
-            std::ofstream file;
-            file.open(fn.c_str());
-            if (file.fail())
+            std::ofstream file(fn.c_str());
+            if (file.is_open() == false)
             {
-                throw std::ios::failure("Can't open " + fn);
+                throw std::ios::failure(
+                    "Can't open " + fn + ": " + strerror(errno));
             }
             (*reporter)(file, vm.count("no-duplicate"));
-            if (file.bad() || file.fail())
+            if (file.bad())
             {
-                throw std::ios::failure( "Can't write to " + fn);
+                throw std::ios::failure(
+                    "Can't write to " + fn + ": " + strerror(errno));
             }
             file.close();
         }
@@ -254,20 +257,21 @@ int boost_main(int argc, char * argv[])
             }
             else
             {
-                std::ifstream file;
-                std::string name;
-                file.open(f.c_str());
-                if (file.fail())
+                std::ifstream file(f.c_str());
+                if (file.is_open() == false)
                 {
-                    throw std::ios::failure("Can't open " + f);
+                    throw std::ios::failure(
+                        "Can't open " + f + ": " + strerror(errno));
                 }
+                std::string name;
                 while (std::getline(file, name))
                 {
                     Vera::Structures::SourceFiles::addFileName(name);
                 }
                 if (file.bad())
                 {
-                    throw std::ios::failure( "Can't read from " + f);
+                    throw std::ios::failure(
+                        "Can't read from " + f + ": " + strerror(errno));
                 }
                 file.close();
             }
