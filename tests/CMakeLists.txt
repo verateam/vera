@@ -18,7 +18,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/use_vera++.cmake)
 # it in that case.
 if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/lib/vera++/")
   vera_add_test(NoRoot
-    "" "" "error: cannot open profile description for profile default\n" 1
+    "" "" "vera++: Cannot open profile description for profile 'default'\n" 1
     "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp"
   )
 endif()
