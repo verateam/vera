@@ -40,6 +40,25 @@ foreach(c ${caches})
   get_filename_component(d "${c}" PATH)
   list(APPEND CPACK_SOURCE_IGNORE_FILES "^${d}/")
 endforeach()
+# if git is there, we also use it to exclude the files not in the repository
+macro(ignore_git_others dir)
+  if(GITCOMMAND AND EXISTS "${dir}/.git")
+    execute_process(COMMAND "${GITCOMMAND}" ls-files --others --directory
+      RESULT_VARIABLE ret
+      OUTPUT_VARIABLE output
+      ERROR_VARIABLE error
+      WORKING_DIRECTORY "${dir}")
+    string(REGEX REPLACE "\r?\n" ";" output "${output}")
+    foreach(f ${output})
+      set(df "${dir}/${f}")
+      # escape regex special character that may be in the paths
+      string(REGEX REPLACE "([.[{()\\*+?|^$])" "\\\\\\\\\\1" df "${df}")
+      list(APPEND CPACK_SOURCE_IGNORE_FILES "^${df}")
+    endforeach()
+  endif()
+endmacro()
+ignore_git_others("${CMAKE_SOURCE_DIR}")
+ignore_git_others("${CMAKE_SOURCE_DIR}/wiki")
 
 include(CPack)
 
