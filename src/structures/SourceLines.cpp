@@ -12,6 +12,8 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <cstring>
+#include <cerrno>
 
 
 namespace // unnamed
@@ -57,10 +59,16 @@ void SourceLines::loadFile(const SourceFiles::FileName & name)
         if (file.is_open() == false)
         {
             std::ostringstream ss;
-            ss << "cannot open source file " << name;
+            ss << "Cannot open source file " << name << ": "
+               << strerror(errno);
             throw SourceFileError(ss.str());
         }
         SourceLines::loadFile(file, name);
+        if (file.bad())
+        {
+            throw std::ios::failure(
+                "Cannot read from " + name + ": " + strerror(errno));
+        }
     }
 }
 

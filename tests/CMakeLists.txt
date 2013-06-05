@@ -18,7 +18,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/use_vera++.cmake)
 # it in that case.
 if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/lib/vera++/")
   vera_add_test(NoRoot
-    "" "" "vera++: Cannot open profile description for profile 'default'\n" 1
+    "" "" "vera++: Cannot open profile description for profile 'default': No such file or directory\n" 1
     "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp"
   )
 endif()
@@ -331,6 +331,15 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: line is longer than 99 characters\n"
   --root "${CMAKE_SOURCE_DIR}"
   --rule L004
   --parameter max-line-length=99
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
+
+vera_add_test(ParameterInvalid
+  "" ""
+  "vera++: Invalid parameter association: max-line-length\n" 1
+  --root "${CMAKE_SOURCE_DIR}"
+  --rule L004
+  --parameter max-line-length
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 

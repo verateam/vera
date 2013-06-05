@@ -159,7 +159,7 @@ void Interpreter::execute(const DirectoryName & root,
     if (scriptFile.is_open() == false)
     {
         std::ostringstream ss;
-        ss << "cannot open script " << fileName;
+        ss << "Cannot open script " << fileName;
         throw ScriptError(ss.str());
     }
 

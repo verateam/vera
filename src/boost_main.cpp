@@ -54,13 +54,13 @@ void doReports(Files & reports, Options & vm, Reporter * reporter)
             if (file.is_open() == false)
             {
                 throw std::ios::failure(
-                    "Can't open " + fn + ": " + strerror(errno));
+                    "Cannot open " + fn + ": " + strerror(errno));
             }
             (*reporter)(file, vm.count("no-duplicate"));
             if (file.bad())
             {
                 throw std::ios::failure(
-                    "Can't write to " + fn + ": " + strerror(errno));
+                    "Cannot write to " + fn + ": " + strerror(errno));
             }
             file.close();
         }
@@ -261,7 +261,7 @@ int boost_main(int argc, char * argv[])
                 if (file.is_open() == false)
                 {
                     throw std::ios::failure(
-                        "Can't open " + f + ": " + strerror(errno));
+                        "Cannot open " + f + ": " + strerror(errno));
                 }
                 std::string name;
                 while (std::getline(file, name))
@@ -271,7 +271,7 @@ int boost_main(int argc, char * argv[])
                 if (file.bad())
                 {
                     throw std::ios::failure(
-                        "Can't read from " + f + ": " + strerror(errno));
+                        "Cannot read from " + f + ": " + strerror(errno));
                 }
                 file.close();
             }
@@ -335,7 +335,7 @@ int boost_main(int argc, char * argv[])
     }
     catch (const std::exception & e)
     {
-        std::cerr << "vera++: " << e.what() << '\n';
+        std::cerr << "vera++: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
 

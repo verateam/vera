@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <cstring>
+#include <cerrno>
 
 
 namespace // unnamed
@@ -65,7 +67,8 @@ void Parameters::readFromFile(const FileName & name)
     if (file.is_open() == false)
     {
         std::ostringstream ss;
-        ss << "cannot open parameters file " << name;
+        ss << "Cannot open parameters file " << name << ": "
+           << strerror(errno);
         throw ParametersError(ss.str());
     }
 
@@ -85,6 +88,12 @@ void Parameters::readFromFile(const FileName & name)
             set(line);
         }
     }
+    if (file.bad())
+    {
+        throw std::ios::failure(
+            "Cannot read from " + name + ": " + strerror(errno));
+    }
+    file.close();
 }
 
 }
