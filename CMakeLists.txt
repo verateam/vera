@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set(VERA_MAJOR 1)
 set(VERA_MINOR 2)
-set(VERA_BUILD 0)
+set(VERA_BUILD 1)
 set(VERA_VERSION "${VERA_MAJOR}.${VERA_MINOR}.${VERA_BUILD}")
 
 add_subdirectory(src)
