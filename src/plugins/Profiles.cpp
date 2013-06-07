@@ -15,6 +15,8 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <cstring>
+#include <cerrno>
 
 
 namespace // unnamed
@@ -38,13 +40,19 @@ RuleNameCollection getListOfScriptNames(const Vera::Plugins::Profiles::ProfileNa
     if (profileFile.is_open() == false)
     {
         std::ostringstream ss;
-        ss << "cannot open profile description for profile " << profile;
+        ss << "Cannot open profile description for profile '" << profile
+            << "': "<< strerror(errno);
         throw Vera::Plugins::ProfileError(ss.str());
     }
 
     Tcl::interpreter interp;
-
     interp.eval(profileFile);
+    if (profileFile.bad())
+    {
+        throw std::ios::failure(
+            "Cannot read from " + fileName + ": " + strerror(errno));
+    }
+
     const Tcl::object ruleList = interp.eval("set rules");
 
     const size_t ruleListLength = ruleList.length(interp);

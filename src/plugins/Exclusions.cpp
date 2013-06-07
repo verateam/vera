@@ -11,6 +11,9 @@
 #include "cpptcl-1.1.4/cpptcl.h"
 #include <fstream>
 #include <sstream>
+#include <cstring>
+#include <cerrno>
+
 
 namespace // unnamed
 {
@@ -32,13 +35,18 @@ void Exclusions::setExclusions(const ExclusionFileName & fileName)
     if (exclusionsFile.is_open() == false)
     {
         std::ostringstream ss;
-        ss << "cannot open exclusions file " << fileName;
+        ss << "Cannot open exclusions file " << fileName << ": "
+           << strerror(errno);
         throw ExclusionError(ss.str());
     }
 
     Tcl::interpreter interp;
-
     interp.eval(exclusionsFile);
+    if (exclusionsFile.bad())
+    {
+        throw std::ios::failure(
+            "Cannot read from " + fileName + ": " + strerror(errno));
+    }
 
     const Tcl::object ruleNames = interp.eval("array names ruleExclusions");
     const size_t ruleNamesLength = ruleNames.length(interp);

@@ -9,7 +9,7 @@ add_test(NAME VeraStyle
 
 # now the real tests
 
-include(utils.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/use_vera++.cmake)
 
 ####### command line iterface tests #######
 
@@ -18,7 +18,7 @@ include(utils.cmake)
 # it in that case.
 if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/lib/vera++/")
   vera_add_test(NoRoot
-    "" "" "error: cannot open profile description for profile default\n" 1
+    "" "" "vera++: Cannot open profile description for profile 'default': No such file or directory\n" 1
     "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp"
   )
 endif()
@@ -57,12 +57,22 @@ vera_add_test(StdInNoArgs
   --root "${CMAKE_SOURCE_DIR}"
 )
 
-vera_add_test(Inputs
+vera_add_test(InputsDash
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n"
   "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
   "" 0
   --root "${CMAKE_SOURCE_DIR}"
   --inputs=-
+)
+
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/inputs
+  "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp\n")
+vera_add_test(InputsFile
+  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp:1: no copyright notice found\n"
+  "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --inputs=${CMAKE_CURRENT_BINARY_DIR}/inputs
 )
 
 vera_add_test(ShortInputs
@@ -324,6 +334,15 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: line is longer than 99 characters\n"
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 
+vera_add_test(ParameterInvalid
+  "" ""
+  "vera++: Invalid parameter association: max-line-length\n" 1
+  --root "${CMAKE_SOURCE_DIR}"
+  --rule L004
+  --parameter max-line-length
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
+
 vera_add_test(ShortParameter
   ""
   "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: line is longer than 99 characters
@@ -370,6 +389,19 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 
+vera_add_test(Exclusions
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: L004: line is longer than 100 characters
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T013: no copyright notice found
+${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters\n" "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --show-rule
+  --profile full
+  --parameter max-directory-depth=20
+  --exclusions ${CMAKE_CURRENT_SOURCE_DIR}/exclusions
+  ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
+)
+
+
 # just make sure the help test does not fail
 add_test(NAME Help COMMAND vera --help foo bar)
 add_test(NAME ShortHelp COMMAND vera -h foo bar)
@@ -378,6 +410,8 @@ add_test(NAME ShortHelp COMMAND vera -h foo bar)
 # --transform arg
 
 ####### rule tests #######
+
+set(VERA_TEST_RULE_ROOT ${CMAKE_SOURCE_DIR})
 
 vera_add_rule_test(F001 "4: \\r (CR) detected in isolation at position 7")
 
@@ -529,7 +563,9 @@ vera_add_rule_test(T019 "1: full block {} expected in the control structure
 5: full block {} expected in the control structure
 13: full block {} expected in the control structure
 14: full block {} expected in the control structure
-24: full block {} expected in the control structure")
+24: full block {} expected in the control structure
+33: full block {} expected in the control structure
+34: full block {} expected in the control structure")
 
 vera_add_test(RuleDUMP
   "" "Tokens in file ${CMAKE_CURRENT_SOURCE_DIR}/T017.cpp:
@@ -554,7 +590,7 @@ vera_add_test(RuleDUMP
 )
 
 vera_add_test(ErrorReport
-  "" "" "error: can't read \"auie\": no such variable
+  "" "" "vera++: can't read \"auie\": no such variable
     while executing
 \"lindex $auie\"
     (procedure \"Foo\" line 2)

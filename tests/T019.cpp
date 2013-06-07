@@ -28,3 +28,13 @@ for (int i = 0; i = 10; ++i)   // OK
 {
     cout << "Hello\n";
 }
+
+do
+    cout << "Hello\n";
+while (int i = 0; i = 10; ++i);   // not OK
+
+do
+{
+    cout << "Hello\n";
+}
+while (int i = 0; i = 10; ++i);   // OK

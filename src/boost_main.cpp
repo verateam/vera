@@ -20,6 +20,8 @@
 #include <vector>
 #include <cstdlib>
 #include <sys/stat.h>
+#include <cstring>
+#include <cerrno>
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 
@@ -48,16 +50,17 @@ void doReports(Files & reports, Options & vm, Reporter * reporter)
         }
         else
         {
-            std::ofstream file;
-            file.open(fn.c_str());
-            if (file.fail())
+            std::ofstream file(fn.c_str());
+            if (file.is_open() == false)
             {
-                throw std::ios::failure("Can't open " + fn);
+                throw std::ios::failure(
+                    "Cannot open " + fn + ": " + strerror(errno));
             }
             (*reporter)(file, vm.count("no-duplicate"));
-            if (file.bad() || file.fail())
+            if (file.bad())
             {
-                throw std::ios::failure( "Can't write to " + fn);
+                throw std::ios::failure(
+                    "Cannot write to " + fn + ": " + strerror(errno));
             }
             file.close();
         }
@@ -67,7 +70,7 @@ void doReports(Files & reports, Options & vm, Reporter * reporter)
 
 int boost_main(int argc, char * argv[])
 {
-    // the directory containing the profile and rule definitions
+    // The directory containing the profile and rule definitions
     // by default it is (in this order, first has highest precedence):
     // - VERA_ROOT (if VERA_ROOT is defined)
     // - HOME/.vera++ (if HOME is defined)
@@ -146,7 +149,7 @@ int boost_main(int argc, char * argv[])
             " single line of code")
         ("warning,w", "reports are marked as warning and generated on error output")
         ("error,e", "reports are marked as error and generated on error output."
-            " An non zero exit code is used when one or more reports are generated.")
+            " A non zero exit code is used when one or more reports are generated.")
         ("quiet,q", "don't display the reports")
         ("summary,S", "display the number of reports and the number of processed files")
         ("parameters", po::value(&parameterFiles), "read parameters from file"
@@ -186,7 +189,7 @@ int boost_main(int argc, char * argv[])
     }
     catch (po::error& e)
     {
-        std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+        std::cerr << "vera++: " << e.what() << std::endl << std::endl;
         std::cerr << visibleOptions << std::endl;
         return EXIT_FAILURE;
     }
@@ -205,8 +208,8 @@ int boost_main(int argc, char * argv[])
         {
             if (vm.count("error"))
             {
-                std::cerr
-                    << "ERROR: --warning and --error can't be used at the same time." << std::endl;
+                std::cerr << "vera++: --warning and --error can't be used at the same time."
+                    << std::endl;
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
@@ -236,7 +239,7 @@ int boost_main(int argc, char * argv[])
                 Vera::Structures::SourceFiles::addFileName(i);
             }
         }
-        else
+        if (vm.count("__input__") == 0 && vm.count("inputs") == 0)
         {
             // list of source files is provided on stdin
             inputFiles.push_back("-");
@@ -254,20 +257,21 @@ int boost_main(int argc, char * argv[])
             }
             else
             {
-                std::ifstream file;
-                std::string name;
-                file.open(f.c_str());
-                if (file.fail())
+                std::ifstream file(f.c_str());
+                if (file.is_open() == false)
                 {
-                    throw std::ios::failure("Can't open " + f);
+                    throw std::ios::failure(
+                        "Cannot open " + f + ": " + strerror(errno));
                 }
-                while (file >> name)
+                std::string name;
+                while (std::getline(file, name))
                 {
                     Vera::Structures::SourceFiles::addFileName(name);
                 }
-                if (file.bad() || file.fail())
+                if (file.bad())
                 {
-                    throw std::ios::failure( "Can't read from " + f);
+                    throw std::ios::failure(
+                        "Cannot read from " + f + ": " + strerror(errno));
                 }
                 file.close();
             }
@@ -285,15 +289,15 @@ int boost_main(int argc, char * argv[])
         {
             if (vm.count("profile"))
             {
-                std::cerr
-                    << "ERROR: --profile and --rule can't be used at the same time." << std::endl;
+                std::cerr << "vera++: --profile and --rule can't be used at the same time."
+                    << std::endl;
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
             if (vm.count("transform"))
             {
-                std::cerr
-                    << "ERROR: --transform and --rule can't be used at the same time." << std::endl;
+                std::cerr << "vera++: --transform and --rule can't be used at the same time."
+                    << std::endl;
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
@@ -306,8 +310,8 @@ int boost_main(int argc, char * argv[])
         {
             if (vm.count("profile"))
             {
-                std::cerr <<
-                    "ERROR: --profile and --transform can't be used at the same time." << std::endl;
+                std::cerr << "vera++: --profile and --transform can't be used at the same time."
+                    << std::endl;
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
@@ -331,7 +335,7 @@ int boost_main(int argc, char * argv[])
     }
     catch (const std::exception & e)
     {
-        std::cerr << "error: " << e.what() << '\n';
+        std::cerr << "vera++: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
 

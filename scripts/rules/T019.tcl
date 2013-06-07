@@ -4,7 +4,8 @@
 foreach fileName [getSourceFileNames] {
 
     set state "start"
-    foreach token [getTokens $fileName 1 0 -1 -1 {for if while leftparen rightparen leftbrace semicolon}] {
+    set prev ""
+    foreach token [getTokens $fileName 1 0 -1 -1 {for if while do leftparen rightparen leftbrace rightbrace semicolon}] {
         set type [lindex $token 3]
 
         if {$state == "control"} {
@@ -24,9 +25,15 @@ foreach fileName [getSourceFileNames] {
             set state "block"
         }
 
-        if {$type == "for" || $type == "if" || $type == "while"} {
+        if {$type == "for" || $type == "if"} {
+            set parenCount 0
+            set state "control"
+        } elseif {$type == "do"} {
+            set state "expectedblock"
+        } elseif {$type == "while" && $prev != "rightbrace"} {
             set parenCount 0
             set state "control"
         }
+        set prev $type
     }
 }
