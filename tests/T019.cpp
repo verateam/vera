@@ -10,6 +10,34 @@ if (x)
 }
 
 if (x)
+{                 // OK
+    foo();
+}
+else
+    foo();        // bad style
+
+if (x)
+{                 // OK
+    foo();
+}
+else
+{
+    foo();        // OK
+}
+
+if (x)
+{                 // OK
+    foo();
+}
+else if (x)
+    foo();        // bad style
+
+if (x) {   // OK
+    foo();
+} else if (x) { foo(); }        // OK
+	
+
+if (x)
     while (y)     // bad style
         foo();    // bad style
 

@@ -561,11 +561,13 @@ vera_add_test(RuleT018
 
 vera_add_rule_test(T019 "1: full block {} expected in the control structure
 5: full block {} expected in the control structure
-13: full block {} expected in the control structure
-14: full block {} expected in the control structure
-24: full block {} expected in the control structure
+17: full block {} expected in the control structure
 33: full block {} expected in the control structure
-34: full block {} expected in the control structure")
+41: full block {} expected in the control structure
+42: full block {} expected in the control structure
+52: full block {} expected in the control structure
+61: full block {} expected in the control structure
+62: full block {} expected in the control structure")
 
 vera_add_test(RuleDUMP
   "" "Tokens in file ${CMAKE_CURRENT_SOURCE_DIR}/T017.cpp:
