@@ -113,7 +113,7 @@ function(add_vera_targets)
   # Two custom targets will be created:
   # * style_reports is run as part of the build, and is not rerun unless one of
   # the file checked is modified;
-  # * style must be explicitely called (make style) and is rerun even if the files
+  # * style must be explicitly called (make style) and is rerun even if the files
   # to check have not been modified. To achieve this behavior, the commands used
   # in this target pretend to produce a file without actually producing it.
   # Because the output file is not there after the run, the command will be rerun
