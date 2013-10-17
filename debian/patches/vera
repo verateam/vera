@@ -1,0 +1,498 @@
+Description: Patch to make the package build on debian:
+ .
+ Removal of the liblexer library build and usage of libboost-wave
+ instead.
+ Fixed some linker issue with boost and removed version number
+ of libboost.
+ Added an install target to be compliant with debian.
+ Fixed tcl include directory
+ Added hardening flags
+ Hardening flags fix
+ Proper usage of CXXFLAGS
+ Added scripts and profiles to the installation process
+ Added a check to /usr/lib/vera++/profiles directory
+ The person named in the Author field signed this changelog entry.
+Author: Vincent Hobeïka <vincent.hobeika@gmail.com>
+Bug-Debian: http://bugs.debian.org/536363
+Bug-Debian: http://bugs.debian.org/685168
+Last-Update: 2012-08-20
+
+Index: vera++-1.1.1/Makefile
+===================================================================
+--- vera++-1.1.1.orig/Makefile	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/Makefile	2012-09-13 09:22:11.000000000 +0200
+@@ -2,6 +2,9 @@
+ 	make -C src
+ 	mv src/vera++ .
+ 
++install :
++	install vera++ $(DESTDIR)/usr/bin
++
+ clean :
+ 	make -C src clean
+ 	rm -f vera++
+Index: vera++-1.1.1/src/Makefile
+===================================================================
+--- vera++-1.1.1.orig/src/Makefile	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/src/Makefile	2012-09-13 09:22:37.000000000 +0200
+@@ -8,20 +8,15 @@
+ 	plugins/Transformations.o plugins/RootDirectory.o plugins/Parameters.o \
+ 	plugins/Reports.o plugins/cpptcl-1.1.4/cpptcl.o
+ 
+-LIBS_DIRS = -L./structures/lexer -L${TCLLIB_DIR}
+-LIBS = -l${TCL_LIB} -llexer
++LIBS = -l${TCL_LIB} -lboost_wave -lboost_system ${LDFLAGS}
+ 
+ ALL_OBJ = ${STRUCTURES_OBJ} ${PLUGINS_OBJ}
+ 
+-vera++ : main.o structures_objects plugins_objects liblexer
+-	${CXX} -o $@ main.o ${ALL_OBJ} ${LIBS_DIRS} ${LIBS}
+-
+-
+-liblexer :
+-	make -C structures/lexer
++vera++ : main.o structures_objects plugins_objects
++	${CXX} -o $@ main.o ${ALL_OBJ} ${LIBS}
+ 
+ main.o : main.cpp
+-	${CXX} -c -o $@ ${CXXFLAGS} $?
++	${CXX} ${CXXFLAGS} -c -o $@ $?
+ 
+ structures_objects :
+ 	make -C structures
+@@ -29,7 +24,6 @@
+ plugins_objects :
+ 	make -C plugins
+ 
+-
+ clean :
+ 	rm -f vera++ main.o
+ 	make -C structures clean
+Index: vera++-1.1.1/src/Make.common
+===================================================================
+--- vera++-1.1.1.orig/src/Make.common	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/src/Make.common	2012-09-13 09:22:11.000000000 +0200
+@@ -1,16 +1,12 @@
+ # Paths that can be different in each installation:
+ 
+ # Location of Boost libraries:
+-BOOST_DIR = /usr/local/include/boost_1_36_0
++BOOST_DIR = /usr/include/boost
+ 
+ # Location of headers and libraries for the Tcl interpreter:
+-TCLINCLUDE_DIR = /usr/include
++TCLINCLUDE_DIR = /usr/include/tcl
+ TCLLIB_DIR = /usr/lib
+ TCL_LIB = tcl
+ 
+-
+ # Common compilation options and choices:
+ CXX = g++
+-CXXFLAGS = -Wall -pedantic -W -Wshadow -O2
+-CXXFLAGS_BOOST = -Wall -pedantic -Wno-long-long -O2
+-CXXFLAGS_TCL = -Wall -pedantic -W -Wshadow -Wno-long-long -O2
+Index: vera++-1.1.1/scripts/rules/DUMP.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/DUMP.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/DUMP.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ foreach f [getSourceFileNames] {
+     puts "Tokens in file ${f}:"
+     foreach t [getTokens $f 1 0 -1 -1 {}] {
+Index: vera++-1.1.1/scripts/rules/F001.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/F001.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/F001.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Source files should not use the '\r' (CR) character
+ 
+ foreach fileName [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/F002.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/F002.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/F002.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # File names should be well-formed
+ 
+ set maxDirectoryDepth [getParameter "max-directory-depth" 8]
+Index: vera++-1.1.1/scripts/rules/L001.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/L001.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/L001.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # No trailing whitespace
+ 
+ set strictMode [getParameter "strict-trailing-space" 0]
+Index: vera++-1.1.1/scripts/rules/L002.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/L002.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/L002.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Don't use tab characters
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/L003.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/L003.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/L003.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # No leading and no trailing empty lines
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/L004.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/L004.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/L004.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Line cannot be too long
+ 
+ set maxLength [getParameter "max-line-length" 100]
+Index: vera++-1.1.1/scripts/rules/L005.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/L005.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/L005.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,4 +1,4 @@
+-# There should not be too many consecutive empty lines
++#!/usr/bin/tclsh                                                                                                                                                                                                                                                                  # There should not be too many consecutive empty lines
+ 
+ set maxEmptyLines [getParameter "max-consecutive-empty-lines" 2]
+ 
+Index: vera++-1.1.1/scripts/rules/L006.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/L006.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/L006.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Source file should not be too long
+ 
+ set maxLines [getParameter "max-file-length" 2000]
+Index: vera++-1.1.1/scripts/rules/T001.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T001.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T001.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # One-line comments should not have forced continuation
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T002.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T002.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T002.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,8 +1,9 @@
++#!/usr/bin/tclsh
+ # Reserved names should not be used for preprocessor macros
+ 
+ set keywords {
+     asm
+-    auto   
++    auto
+     bool
+     break
+     case
+Index: vera++-1.1.1/scripts/rules/T003.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T003.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T003.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Some keywords should be followed by a single space
+ 
+ set keywords {
+@@ -33,7 +34,7 @@
+             }
+         } elseif {$state == "space"} {
+             if {$tokenName == "newline"} {
+-                report $f $lineNumber "keyword \'${keywordValue}\' not followed by a single space"                
++                report $f $lineNumber "keyword \'${keywordValue}\' not followed by a single space"
+             }
+             set state "other"
+         } else {
+Index: vera++-1.1.1/scripts/rules/T004.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T004.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T004.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Some keywords should be immediately followed by a colon
+ 
+ set keywords {
+Index: vera++-1.1.1/scripts/rules/T005.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T005.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T005.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Keywords break and continue should be immediately followed by a semicolon
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T006.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T006.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T006.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Keywords return and throw should be immediately followed by a semicolon or a single space
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T007.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T007.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T007.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Semicolons should not be isolated by spaces or comments from the rest of the code
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T008.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T008.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T008.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Keywords catch, for, if and while should be followed by a single space
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T009.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T009.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T009.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Comma should not be preceded by whitespace, but should be followed by one
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T010.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T010.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T010.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Identifiers should not be composed of 'l' and 'O' characters only
+ 
+ foreach file [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T011.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T011.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T011.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Curly brackets from the same pair should be either in the same line or in the same column
+ 
+ proc acceptPairs {} {
+Index: vera++-1.1.1/scripts/rules/T012.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T012.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T012.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Negation operator should not be used in its short form
+ 
+ foreach file [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T013.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T013.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T013.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Source files should contain the copyright notice
+ 
+ foreach file [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T014.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T014.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T014.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Source files should refer the Boost Software License
+ 
+ foreach file [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T015.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T015.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T015.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # HTML links in comments and string literals should be correct
+ 
+ set urlRe {<[[:space:]]*[^>]*[[:space:]]+(?:HREF|SRC)[[:space:]]*=[[:space:]]*\"([^\"]*)\"}
+Index: vera++-1.1.1/scripts/rules/T016.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T016.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T016.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Calls to min/max should be protected against accidental macro substitution
+ 
+ foreach file [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T017.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T017.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T017.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # Unnamed namespaces are not allowed in header files
+ 
+ foreach fileName [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T018.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T018.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T018.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # using namespace are not allowed in header files
+ 
+ foreach fileName [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/rules/T019.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/rules/T019.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/rules/T019.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # control structures should have complete curly-braced block of code
+ 
+ foreach fileName [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/transformations/move_includes.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/transformations/move_includes.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/transformations/move_includes.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # change prefix of #include paths
+ 
+ set oldPrefix "\"boost/"
+Index: vera++-1.1.1/scripts/transformations/move_macros.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/transformations/move_macros.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/transformations/move_macros.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # change the prefix in all macros
+ 
+ set oldPrefix "BOOST"
+Index: vera++-1.1.1/scripts/transformations/move_namespace.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/transformations/move_namespace.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/transformations/move_namespace.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # change the namespace of all source files
+ 
+ set oldNamespace "boost"
+Index: vera++-1.1.1/scripts/transformations/to_lower.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/transformations/to_lower.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/transformations/to_lower.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # transform indentifier names from CamelCase to standard_lower_case
+ 
+ # this list contains exceptional mappings as pairs ?original new?
+Index: vera++-1.1.1/scripts/transformations/to_xml.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/transformations/to_xml.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/transformations/to_xml.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # transform the source file into XML file
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/transformations/to_xml2.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/transformations/to_xml2.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/transformations/to_xml2.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # transform the source file into XML file (another variant)
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.1.1/scripts/transformations/trim_right.tcl
+===================================================================
+--- vera++-1.1.1.orig/scripts/transformations/trim_right.tcl	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/scripts/transformations/trim_right.tcl	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # trim each line by removing trailing whitespace
+ 
+ foreach fileName [getSourceFileNames] {
+Index: vera++-1.1.1/profiles/boost
+===================================================================
+--- vera++-1.1.1.orig/profiles/boost	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/profiles/boost	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # This file defines the set of scripts (rules) that should be executed
+ # to verify whether the code complies with the Boost conventions,
+ # as defined in the original Boost inspect tool.
+Index: vera++-1.1.1/profiles/default
+===================================================================
+--- vera++-1.1.1.orig/profiles/default	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/profiles/default	2012-09-13 09:22:11.000000000 +0200
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # This file defines the set of scripts (rules) that should be executed
+ # by default (if no specific profile is named when vera++ is launched).
+ 
+Index: vera++-1.1.1/src/main.cpp
+===================================================================
+--- vera++-1.1.1.orig/src/main.cpp	2012-09-13 09:21:45.000000000 +0200
++++ vera++-1.1.1/src/main.cpp	2012-09-13 09:22:11.000000000 +0200
+@@ -17,6 +17,7 @@
+ #include <string>
+ #include <vector>
+ #include <cstdlib>
++#include <sys/stat.h>
+ 
+ using namespace std;
+ using namespace Vera;
+@@ -65,15 +66,38 @@
+         // the directory containing the profile and rule definitions
+         // by default it is (in this order, first has highest precedence):
+         // - VERA_ROOT (if VERA_ROOT is defined)
+-        // - HOME/.vera (if HOME is defined)
+-        // - current directory
++        // - HOME/.vera++ (if HOME is defined)
++        // - current directory (if scripts and profile are present)
++        // - /usr/lib/vera++/ default debian directory
++
++        RootDirectory::DirectoryName veraRoot("/usr/lib/vera++/");
++
++        struct stat St;
++        bool isInCurrent = ( stat( "./scripts", &St ) == 0
++                             && stat( "./profiles", &St ) == 0 );
+ 
+-        RootDirectory::DirectoryName veraRoot(".");
++        // scripts and profiles folders are inside current directory
++        if (isInCurrent)
++        {
++            // we can override /usr/lib/vera++
++            veraRoot = ".";
++        }
+         char * veraRootEnv = getenv("HOME");
+         if (veraRootEnv != NULL)
+         {
+-            veraRoot = veraRootEnv;
+-            veraRoot += "/.vera++";
++          RootDirectory::DirectoryName veraRootTmp(veraRootEnv);
++          veraRootTmp += "/.vera++";
++          bool isInHome = ( stat( veraRootTmp.c_str(), &St ) == 0 );
++            if (isInHome)
++            {
++                // We assume that if the user has a .vera++ folder in
++                // their home then we can override the current
++                // directory
++                // We don't want to override the current directory
++                // only because $HOME is defined.
++                veraRoot = veraRootEnv;
++                veraRoot += "/.vera++";
++            }
+         }
+         veraRootEnv = getenv("VERA_ROOT");
+         if (veraRootEnv != NULL)
