@@ -1,0 +1,22 @@
+Description: Patch to make the package build on debian:
+ .
+ Removal of a rule in the full profile in order for all the tests to
+ pass. The rule is failing because there are dots in the filepath
+ during the building process of the debian package. This is a
+ false positive.
+ The person named in the Author field signed this changelog entry.
+Author: Vincent Hobeïka <vincent.hobeika@gmail.com>
+Last-Update: 2013-10-17
+
+Index: vera++-1.2.1/profiles/full
+===================================================================
+--- vera++-1.2.1.orig/profiles/full	2013-10-17 16:31:03.832952000 +0200
++++ vera++-1.2.1/profiles/full	2013-10-17 16:31:34.800750311 +0200
+@@ -3,7 +3,6 @@
+
+ set rules {
+   F001
+-  F002
+   L001
+   L002
+   L003
