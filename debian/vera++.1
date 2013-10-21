@@ -1,0 +1,1822 @@
+.TH VERA++ 1 "April 10, 2013" "Vera++ User Manuals"
+.SH NAME
+.PP
+vera++ \- Programmable verification and analysis tool for C++
+.SH SYNOPSIS
+.PP
+vera++ \f[I][options] [file ...]\f[]
+.SH Introduction
+.PP
+Vera++ is a programmable tool for verification, analysis and
+transformation of C++ source code.
+.PP
+The main usage scenarios that are foreseen for Vera++ are:
+.IP \[bu] 2
+Ensure that the source code complies with the given \f[I]coding
+standards and conventions\f[].
+.IP \[bu] 2
+Provide source code \f[I]metrics and statistics\f[].
+.IP \[bu] 2
+Perform automated \f[I]transformations\f[] of the source code, which can
+range from \f[I]pretty\-printing\f[] to \f[I]diagnostics\f[] to
+\f[I]fault injection\f[] and advanced testing.
+.PP
+The main design idea of Vera++ is to create a generic engine that will
+be able to parse the C++ code and present it in the form of collections
+of various objects to user provided \f[I]scripts\f[] that will define
+the concrete actions to be executed.
+.PP
+Currently the following object collections are provided:
+.IP \[bu] 2
+Collection of source \f[I]file names\f[].
+.IP \[bu] 2
+Collection of \f[I]source lines\f[] for each file.
+.IP \[bu] 2
+Collection of identified \f[I]tokens\f[] in each file.
+.PP
+\f[B]Note:\f[] It is foreseen that future versions of Vera++ will
+provide also the semantic view on the code.
+.PP
+The most important feature of Vera++ is that all activities other than
+code parsing are defined by scripts.
+This means that Vera++ is \f[I]flexible\f[] and \f[I]extensible\f[].
+.PP
+For example, compliance with coding standards can be expressed in terms
+of \f[I]rules\f[], each being defined by a separate script.
+The scripts can access all collections listed above and perform actions
+related to the given rule.
+The user can ask to run any given script or some defined set of scripts
+in a single program execution.
+.PP
+As a simple example, a coding convention that limits the length of the
+source line can be implemented as a script that traverses the collection
+of files and the collection of source lines and checks whether each
+source line fits within the given limits.
+A report can be generated for each non\-conforming line of code so that
+the user gets a clear information about where the problem is located.
+.PP
+All existing rules present their reports in the format that is
+compatible with regular compiler\[aq]s output, so that it is easy to
+integrate Vera++ with the existing build framework.
+.PP
+Similarly, automated transformation procedures are implemented as
+separate scripts that scan the above collections and produce another
+source files according to their algorithms.
+A simple example of such transformation might be a script that removes
+empty lines from source code.
+.PP
+The Tcl programming language is currently supported for scripts that run
+within Vera++.
+.SH Running Vera++
+.PP
+Vera++ needs to know where the rules and transformation scripts are
+located.
+The following rules are applied:
+.IP \[bu] 2
+If the \f[C]\-\-root\f[] option is used, its argument is used as the
+name of the directory where the \f[C]scripts\f[] subdirectory with
+scripts should be located, otherwise
+.IP \[bu] 2
+If the \f[C]VERA_ROOT\f[] environment variable is defined, it is used as
+the name of the directory where the \f[C]scripts\f[] subdirectory with
+scripts should be located, otherwise
+.IP \[bu] 2
+If the \f[C]HOME\f[] environment variable is defined, then the
+\f[C]~/.vera++\f[] directory is used (and it should contain the
+\f[C]scripts\f[] subdirectory with scripts), otherwise
+.IP \[bu] 2
+The current directory should contain the \f[C]scripts\f[] subdirectory.
+.SS Options
+.PP
+Vera++ recognizes the following parameters:
+.TP
+.B \f[C]\-\f[]
+(a single minus) indicates that the source code to check will be
+provided on the stdin.
+.RS
+.RE
+.TP
+.B \f[C]\-p\f[] \f[C]\-\-profile\f[] \f[I]profilename\f[]
+instructs the program to execute all rules defined in the given profile;
+the profile name is just a name of the file that will be found under the
+\f[C]profiles\f[] directory, the content of this file is a Tcl script
+that must set a \f[C]rules\f[] variable to be the list of all rules that
+are part of the profile.
+An example profile definition that groups three rules (L001, L002 and
+L003) might look like:
+.RS
+.IP
+.nf
+\f[C]
+set\ rules\ {
+\ \ \ \ L001
+\ \ \ \ L002
+\ \ \ \ L003
+}
+\f[]
+.fi
+.PP
+There is always a \f[C]default\f[] profile that lists all existing rules
+\- it is used when no profile is named explicitly.
+.RE
+.TP
+.B \f[C]\-R\f[] \f[C]\-\-rule\f[] \f[I]rulename\f[]
+instructs the program to execute the given rule; note that the name of
+the rule should not contain the file extension of the script
+implementing the rule \- this is added automatically, so that for
+example \f[C]\-\-rule\ my_rule\f[] means that Vera++ will find the
+\f[C]my_rule.tcl\f[] script and will run it.
+.RS
+.RE
+.TP
+.B \f[C]\-\-transform\f[] \f[I]transformationname\f[]
+instructs the program to execute a single named transformation; the
+naming scheme is the same as for the \f[C]\-\-rule\f[] option.
+.RS
+.RE
+.TP
+.B \f[C]\-o\f[] \f[C]\-\-std\-report\f[] \f[I]filename\f[]
+writes the standard (gcc\-like) report to this file.
+A single dash \f[C]\-\f[] means that the standard output or the error
+output will be used, depending on the usage of the \f[C]\-\-warning\f[]
+or \f[C]\-\-error\f[] option.
+This option may be used several times in order to produce the reports in
+several locations \- for example on the standard output and in a file.
+Default value is \f[C]\-\f[].
+.RS
+.RE
+.TP
+.B \f[C]\-v\f[] \f[C]\-\-vc\-report\f[] \f[I]filename\f[]
+writes the Visual C report to this file.
+A single dash \f[C]\-\f[] means that the standard output or the error
+output will be used, depending on the usage of the \f[C]\-\-warning\f[]
+or \f[C]\-\-error\f[] option.
+This option may be used several times in order to produce the reports in
+several locations \- for example on the standard output and in a file.
+This report is not produced by default.
+.RS
+.RE
+.TP
+.B \f[C]\-x\f[] \f[C]\-\-xml\-report\f[] \f[I]filename\f[]
+writes the XML report to this file.
+Not used by default.
+A single dash \f[C]\-\f[] means that the standard output or the error
+output will be used, depending on the usage of the \f[C]\-\-warning\f[]
+or \f[C]\-\-error\f[] option.
+This option may be used several times in order to produce the reports in
+several locations \- for example on the standard output and in a file.
+This report is not produced by default.
+.RS
+.RE
+.TP
+.B \f[C]\-c\f[] \f[C]\-\-checkstyle\-report\f[] \f[I]filename\f[]
+writes the checkstyle report to this file.
+Not used by default.
+A single dash \f[C]\-\f[] means that the standard output or the error
+output will be used, depending on the usage of the \f[C]\-\-warning\f[]
+or \f[C]\-\-error\f[] option.
+This option may be used several times in order to produce the reports in
+several locations \- for example on the standard output and in a file.
+This report is not produced by default.
+.RS
+.RE
+.TP
+.B \f[C]\-s\f[] \f[C]\-\-show\-rule\f[]
+includes the name of the rule in each report line.
+.RS
+.RE
+.TP
+.B \f[C]\-d\f[] \f[C]\-\-no\-duplicate\f[]
+instructs the program to omit duplicated messages in the final report
+(the duplicates can be a result of violating the same rule many times in
+the same line of source code).
+.RS
+.RE
+.TP
+.B \f[C]\-w\f[] \f[C]\-\-warning\f[]
+reports are marked as warning and generated on the error output.
+.RS
+.RE
+.TP
+.B \f[C]\-e\f[] \f[C]\-\-error\f[]
+reports are marked as error and generated on the error output.
+An non zero exit code is used when one or more reports are generated.
+.RS
+.RE
+.TP
+.B \f[C]\-q\f[] \f[C]\-\-quiet\f[]
+don\[aq]t display the reports.
+This option is best used with \f[C]\-\-summary\f[] and/or with
+\f[C]\-\-error\f[].
+.RS
+.RE
+.TP
+.B \f[C]\-S\f[] \f[C]\-\-summary\f[]
+displays the number of reports and the number of processed files.
+.RS
+.RE
+.TP
+.B \f[C]\-\-parameters\f[] \f[I]filename\f[]
+instructs the program to read parameter values from the given file; each
+parameter association should be placed in a separate line of this file.
+This option may be used several times.
+.RS
+.RE
+.TP
+.B \f[C]\-P\f[] \f[C]\-\-parameter\f[] \f[I]parameterassociation\f[]
+provides the value of the named parameter to the scripts (see the
+documentation of each script to see whether it recognizes any
+parameters); the parameter association has the form \f[C]name=value\f[].
+.RS
+.RE
+.TP
+.B \f[C]\-\-exclusions\f[] \f[I]exclusionsfilename\f[]
+instructs the program to exclude some source files from rule checks, as
+described in the given file; the content of this file is a Tcl script
+that must set a \f[C]ruleExclusions\f[] array, where keys are rule names
+and values are lists of files to omit for the given rule.
+For example:
+.RS
+.IP
+.nf
+\f[C]
+set\ ruleExclusions(L002)\ {
+\ \ \ \ some_file.cpp
+}
+
+set\ ruleExclusions(T005)\ {
+\ \ \ \ some_file.cpp
+\ \ \ \ some_other_file.cpp
+}
+\f[]
+.fi
+.PP
+Note that the given file names are compared for exact match with the
+source file names that are provided as parameters to Vera++.
+This means that links in paths are not resolved for comparison purposes.
+This option may be used several times.
+.RE
+.TP
+.B \f[C]\-i\f[] \f[C]\-\-inputs\f[] \f[I]filename\f[]
+the inputs are read from that file.
+A single dash \f[C]\-\f[] means that the files to check will be read
+from the standard input.
+This option may be used several times.
+.RS
+.RE
+.TP
+.B \f[C]\-r\f[] \f[C]\-\-root\f[] \f[I]path\f[]
+uses the given path as the vera++ root directory
+.RS
+.RE
+.TP
+.B \f[C]\-\-version\f[]
+prints the program version information and exits.
+.RS
+.RE
+.TP
+.B \f[C]\-h\f[] \f[C]\-\-help\f[]
+prints the list of recognized options and exits.
+.RS
+.RE
+.TP
+.B \f[C]\-\-\f[]
+(a double dash) do not interpret any more arguments as options.
+.RS
+.RE
+.PP
+Arguments that are not starting with a dash \f[C]\-\f[] are treated as
+source files to check.
+Files starting with a dash can be checked by prefixing them with the
+current directory shortcut \f[C]\&./\f[].
+.PP
+When no input file is provided either as an argument or with the
+\f[C]\-\-input\f[] option, the list of source file names is read from
+the standard input.
+.SS Examples of executing Vera++ with rules
+.PP
+To execute all default verification rules against the file
+\f[C]file.cpp\f[], run:
+.IP
+.nf
+\f[C]
+vera++\ file.cpp
+\f[]
+.fi
+.PP
+To execute only rule \f[C]L001\f[] (this rule ensures that there is no
+trailing whitespace in each source line) against the same file, run:
+.IP
+.nf
+\f[C]
+vera++\ \-R\ L001\ file.cpp
+\f[]
+.fi
+.PP
+To execute rule \f[C]L004\f[] (this rule checks for too long source
+lines) with the parameter value providing 78 as the maximum line length,
+run:
+.IP
+.nf
+\f[C]
+vera++\ \-R\ L004\ \-P\ max\-line\-length=78\ file.cpp
+\f[]
+.fi
+.PP
+To execute all rules from your favorite profile (assuming that the
+\f[C]my_favorite\f[] profile definition is stored in the
+\f[C]profiles\f[] directory) against all header files in the current
+filesystem subtree, run:
+.IP
+.nf
+\f[C]
+find\ .\ \-name\ \[aq]*.h\[aq]\ |\ vera++\ \-\-profile\ my_favorite
+\f[]
+.fi
+.PP
+\f[B]Note:\f[] Vera++ collects the reports generated by each rule and
+prints them out sorted and after all rules were executed.
+If there were no problem reports, the output of the program is empty.
+.PP
+\f[B]Note:\f[] Vera++ reports are generated on the standard output by
+default, making them easy to use with a pipe.
+The \f[C]\-\-warning\f[] and \f[C]\-\-error\f[] options are changing the
+output to the standard error.
+The options \f[C]\-\-std\-report\f[], \f[C]\-\-vc\-report\f[],
+\f[C]\-\-xml\-report\f[] and \f[C]\-\-quiet\f[] may be used to disable
+the output to the standard or error output.
+.SS Examples of executing Vera++ with transformations
+.PP
+To execute the \f[C]trim_right\f[] source code transformation (it
+removes the trailing whitespace that the rule \f[C]L001\f[] above
+complained about) on all \f[C]\&.cpp\f[] files in the current directory
+run:
+.IP
+.nf
+\f[C]
+vera++\ \-\-transform\ trim_right\ *.cpp
+\f[]
+.fi
+.PP
+As a result, each \f[C]\&.cpp\f[] file will be backed up with the
+additional extension \f[C]\&.bak\f[] and the files will be trimmed by
+removing trailing whitespace.
+The exact behavior is defined by the script named
+\f[C]trim_right.tcl\f[] in the \f[C]scripts/transformations\f[]
+directory.
+.SS Running Vera++ as a test with CMake
+.PP
+CMake offers the possibility to run tests that are considered to pass
+when they return a 0 value and to fail otherwise.
+Fortunately, vera++, when used with the \f[C]\-\-error\f[] option, has
+exactly this behavior.
+Creating the test is just a matter of listing the sources to check:
+.IP
+.nf
+\f[C]
+file(GLOB_RECURSE\ srcs
+\ \ ${CMAKE_SOURCE_DIR}/src/*.cpp
+\ \ ${CMAKE_SOURCE_DIR}/src/*.h)
+add_test(NAME\ VeraStyle
+\ \ COMMAND\ vera++
+\ \ \-\-error
+\ \ ${srcs})
+\f[]
+.fi
+.SS Running Vera++ during the build with CMake
+.PP
+Running vera++ in a test integrates quite badly with the IDEs or with
+CDash (http://cdash.org): the reports are hidden in the test log, and it
+is not easy to look at the problematic code.
+Moreover, a failure in the coding style is not the same as a failure in
+a unit or functional test, and shouldn\[aq]t appear in the same way.
+Another option is to run vera++ during the build and make it generate
+warnings that are well interpreted by the IDEs and CDash.
+In QtCreator for instance, it is then possible to click on the warning
+to go to the problematic code.
+.PP
+Running vera++ during the build can be done in a similar way to the
+previous section, by replacing the \f[C]add_test()\f[] call with a
+\f[C]add_custom_target()\f[] that will run the style check every time
+the custom target is built.
+.IP
+.nf
+\f[C]
+file(GLOB_RECURSE\ srcs
+\ \ ${CMAKE_SOURCE_DIR}/src/*.cpp
+\ \ ${CMAKE_SOURCE_DIR}/src/*.h)
+add_custom_target(VeraStyle\ ALL
+\ \ vera++
+\ \ \-\-warning
+\ \ ${srcs})
+\f[]
+.fi
+.PP
+For large projects, running the style check every time can be quite time
+consuming and uncomfortable for the developer.
+It is then more convenient to split the style check in several parts
+that can be run in parallel, and to avoid rerunning the check if the
+files to check have not been modified.
+A vera++ macro is available to do that very easily:
+.IP
+.nf
+\f[C]
+find_package(vera++)
+include(${VERA++_USE_FILE})
+add_vera_targets(*.h\ *.cpp
+\ \ RECURSE
+\ \ ROOT\ "${CMAKE_SOURCE_DIR}")
+\f[]
+.fi
+.PP
+This macro adds a new \f[C]style_reports\f[] target that is run every
+time a source file is modified.
+A \f[C]style\f[] target is still available to force the style check.
+The target names can be configured with the parameters \f[C]NAME\f[] and
+\f[C]NAME_ALL\f[].
+This macro is the recommended way to use vera++ with CMake.
+.SS Backward compatibility with vera++ 1.1
+.PP
+Vera++ is still mostly compatible with the vera++ 1.1 command line
+interface, but this feature is planned for removal and its usage is not
+recommended.
+.PP
+Vera++ tries to detect if the old command line style is used by
+searching for the old options in the arguments.
+If no old style option is found, vera++ uses the new command line
+parser.
+.PP
+The command line style can be forced to the old style by setting the
+environment variable \f[C]VERA_LEGACY\f[] to \f[C]on\f[], \f[C]true\f[]
+or \f[C]1\f[].
+Any other value will force vera++ to use the new command line style.
+.PP
+Note: the behavior of vera++ is not backward compatible with vera++ 1.1
+when no option is passed to vera++ and \f[C]VERA_LEGACY\f[] is not set:
+.IP \[bu] 2
+the reports are generated on the standard output instead of the error
+output;
+.IP \[bu] 2
+a single dash \f[C]\-\f[] means that the source code to check is read
+from the standard input instead of reading the list of files to check;
+.IP \[bu] 2
+the lack of input files makes vera++ read the standard input instead of
+generating an error.
+.SH Rules
+.SS F001 Source files should not use the \[aq]\\r\[aq] (CR) character
+.PP
+As a commonly accepted practice, line breaks are denoted by a single
+\[aq]\\n\[aq] (LF) character or by two characters "\\r\\n" (CRLF).
+A single appearance of \[aq]\\r\[aq] (CR) is discouraged.
+.PP
+\f[B]Compliance:\f[] Boost
+.SS F002 File names should be well\-formed
+.PP
+The source file names should be well\-formed in the sense of their
+allowed maximum length and directory depth.
+Directory and file names should start with alphabetic character or
+underscore.
+In addition, directory names should not contain dots and file names can
+have only one dot.
+.PP
+\f[B]Recognized parameters:\f[]
+.IP
+.nf
+\f[C]
+Name\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Default\ \ \ Description
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+max\-directory\-depth\ \ \ \ \ 8\ \ \ \ \ \ \ \ \ Maximum\ depth\ of\ the\ directory\ structure.
+max\-dirname\-length\ \ \ \ \ \ 31\ \ \ \ \ \ \ \ Maximum\ length\ of\ the\ directory\ path\ component.
+max\-filename\-length\ \ \ \ \ 31\ \ \ \ \ \ \ \ Maximum\ length\ of\ the\ leaf\ file\ name.
+max\-path\-length\ \ \ \ \ \ \ \ \ 100\ \ \ \ \ \ \ Maximum\ length\ of\ the\ full\ path.
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Boost
+.SS L001 No trailing whitespace
+.PP
+\f[I]Trailing whitespace\f[] is any whitespace character (space or tab)
+that is placed at the end of the source line, after other characters or
+alone.
+.PP
+The presence of \f[I]trailing whitespace\f[] artificially influences
+some source code metrics and is therefore discouraged.
+.PP
+As a special case, the trailing whitespace in the otherwise empty lines
+is allowed provided that the amount of whitespace is identical to the
+indent in the previous line \- this exception is more friendly with less
+smart editors, but can be switched off by setting non\-zero value for
+the \f[C]strict\-trailing\-space\f[] parameter.
+.PP
+\f[B]Recognized parameters:\f[]
+.IP
+.nf
+\f[C]
+Name\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Default\ \ \ Description
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+strict\-trailing\-space\ \ \ \ \ 0\ \ \ \ \ \ \ \ \ Strict\ mode\ for\ trailing\ whitespace.
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS L002 Don\[aq]t use tab characters
+.PP
+\f[I]Horizontal tabs\f[] are not consistently handled by editors and
+tools.
+Avoiding them ensures that the intended formatting of the code is
+preserved.
+.PP
+\f[B]Compliance:\f[] HICPP, JSF
+.SS L003 No leading and no trailing empty lines
+.PP
+\f[I]Leading and trailing empty lines\f[] confuse users of various tools
+(like \f[C]head\f[] and \f[C]tail\f[]) and artificially influence some
+source code metrics.
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS L004 Line cannot be too long
+.PP
+The source code line should not exceed some \f[I]reasonable\f[] length.
+.PP
+\f[B]Recognized parameters:\f[]
+.IP
+.nf
+\f[C]
+Name\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Default\ \ \ Description
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+max\-line\-length\ \ \ \ \ 100\ \ \ \ \ \ \ Maximum\ length\ of\ source\ code\ line.
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS L005 There should not be too many consecutive empty lines
+.PP
+The empty lines (if any) help to introduce more "light" in the source
+code, but they should not be overdosed in the sense that too many
+consecutive empty lines make the code harder to follow.
+.PP
+Lines containing only whitespace are considered to be empty in this
+context.
+.PP
+\f[B]Recognized parameters:\f[]
+.IP
+.nf
+\f[C]
+Name\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Default\ \ \ Description
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+max\-consecutive\-empty\-lines\ \ \ \ \ 2\ \ \ \ \ \ \ \ \ Maximum\ number\ of\ consecutive\ empty\ lines.
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS L006 Source file should not be too long
+.PP
+The source file should not exceed a \f[I]reasonable\f[] length.
+.PP
+Long source files can indicate an opportunity for refactoring.
+.PP
+\f[B]Recognized parameters:\f[]
+.IP
+.nf
+\f[C]
+Name\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Default\ \ \ Description
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+max\-file\-length\ \ \ \ \ 2000\ \ \ \ \ \ Maximum\ number\ of\ lines\ in\ a\ file.
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T001 One\-line comments should not have forced continuation
+.PP
+The one\-line comment is a comment that starts with \f[C]//\f[].
+.PP
+The usual intent is to let the comment continue till the end of the
+line, but the preprocessing rules of the language allow to actually
+continue the comment in the next line if \f[I]line\-splicing\f[] is
+forced with the backslash at the end of the line:
+.IP
+.nf
+\f[C]
+void\ foo()
+{
+\ \ \ \ //\ this\ comment\ is\ continued\ in\ the\ next\ line\ \\
+\ \ \ \ exit(0);
+}
+\f[]
+.fi
+.PP
+It is not immediately obvious what happens in this example.
+Moreover, the line\-splicing works only if the backslash is really the
+last character in the line \- which is error prone because any white
+characters that might appear after the backslash will change the meaning
+of the program without being visible in the code.
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T002 Reserved names should not be used for preprocessor macros
+.PP
+The C++ Standard reserves some forms of names for language
+implementations.
+One of the most frequent violations is a definition of preprocessor
+macro that begins with underscore followed by a capital letter or
+containing two consecutive underscores:
+.IP
+.nf
+\f[C]
+#define\ _MY_MACRO\ something
+#define\ MY__MACRO\ something
+\f[]
+.fi
+.PP
+Even though the majority of known compilers use more obscure names for
+internal purposes and the above code is not likely to cause any
+significant problems, all such names are \f[I]formally reserved\f[] and
+therefore should not be used.
+.PP
+Apart from the use of underscore in macro names, preprocessor macros
+should not be used to redefine language keywords:
+.IP
+.nf
+\f[C]
+#define\ private\ public
+#define\ const
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] ISO
+.SS T003 Some keywords should be followed by a single space
+.PP
+Keywords from the following list:
+.IP \[bu] 2
+\f[C]case\f[]
+.IP \[bu] 2
+\f[C]class\f[]
+.IP \[bu] 2
+\f[C]delete\f[]
+.IP \[bu] 2
+\f[C]enum\f[]
+.IP \[bu] 2
+\f[C]explicit\f[]
+.IP \[bu] 2
+\f[C]extern\f[]
+.IP \[bu] 2
+\f[C]goto\f[]
+.IP \[bu] 2
+\f[C]new\f[]
+.IP \[bu] 2
+\f[C]struct\f[]
+.IP \[bu] 2
+\f[C]union\f[]
+.IP \[bu] 2
+\f[C]using\f[]
+.PP
+should be followed by a single space for better readability.
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T004 Some keywords should be immediately followed by a colon
+.PP
+Keywords from the following list:
+.IP \[bu] 2
+\f[C]default\f[]
+.IP \[bu] 2
+\f[C]private\f[]
+.IP \[bu] 2
+\f[C]protected\f[]
+.IP \[bu] 2
+\f[C]public\f[]
+.PP
+should be immediately followed by a colon, unless used in the list of
+base classes:
+.IP
+.nf
+\f[C]
+class\ A\ :\ public\ B,\ private\ C
+{
+public:
+\ \ \ \ \ A();
+\ \ \ \ \ ~A();
+protected:
+\ \ \ \ \ //\ ...
+private:
+\ \ \ \ \ //\ ...
+};
+
+void\ fun(int\ a)
+{
+\ \ \ \ \ switch\ (a)
+\ \ \ \ \ {
+\ \ \ \ \ //\ ...
+\ \ \ \ \ default:
+\ \ \ \ \ \ \ \ \ \ exit(0);
+\ \ \ \ \ }
+}
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T005 Keywords break and continue should be immediately followed by a
+semicolon
+.PP
+The \f[C]break\f[] and \f[C]continue\f[] keywords should be immediately
+followed by a semicolon, with no other tokens in between:
+.IP
+.nf
+\f[C]
+while\ (...)
+{
+\ \ \ \ \ if\ (...)
+\ \ \ \ \ {
+\ \ \ \ \ \ \ \ \ \ break;
+\ \ \ \ \ }
+\ \ \ \ \ if\ (...)
+\ \ \ \ \ {
+\ \ \ \ \ \ \ \ \ \ continue;
+\ \ \ \ \ }
+\ \ \ \ \ //\ ...
+}
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T006 Keywords return and throw should be immediately followed by a
+semicolon or a single space
+.PP
+The \f[C]return\f[] and \f[C]throw\f[] keywords should be immediately
+followed by a semicolon or a single space:
+.IP
+.nf
+\f[C]
+void\ fun()
+{
+\ \ \ \ \ if\ (...)
+\ \ \ \ \ {
+\ \ \ \ \ \ \ \ \ \ return;
+\ \ \ \ \ }
+\ \ \ \ \ //\ ...
+}
+
+int\ add(int\ a,\ int\ b)
+{
+\ \ \ \ \ return\ a\ +\ b;
+}
+\f[]
+.fi
+.PP
+An exception to this rule is allowed for exeption specifications:
+.IP
+.nf
+\f[C]
+void\ fun()\ throw();
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T007 Semicolons should not be isolated by spaces or comments from
+the rest of the code
+.PP
+The semicolon should not stand isolated by whitespace or comments from
+the rest of the code.
+.IP
+.nf
+\f[C]
+int\ a\ ;\ \ \ \ \ //\ bad
+int\ b
+;\ \ \ \ \ \ \ \ \ \ \ //\ bad
+int\ c;\ \ \ \ \ \ //\ OK
+\f[]
+.fi
+.PP
+As an exception from this rule, semicolons surrounded by spaces are
+allowed in \f[C]for\f[] loops:
+.IP
+.nf
+\f[C]
+for\ (\ ;\ ;\ )\ //\ OK\ as\ an\ exception
+{
+\ \ \ \ //\ ...
+}
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T008 Keywords catch, for, if, switch and while should be followed by
+a single space
+.PP
+Keywords \f[C]catch\f[], \f[C]for\f[], \f[C]if\f[], \f[C]switch\f[] and
+\f[C]while\f[] should be followed by a single space and then an opening
+left parenthesis:
+.IP
+.nf
+\f[C]
+catch\ (...)
+{
+\ \ \ \ \ for\ (int\ i\ =\ 0;\ i\ !=\ 10;\ ++i)
+\ \ \ \ \ {
+\ \ \ \ \ \ \ \ \ \ if\ (foo(i))
+\ \ \ \ \ \ \ \ \ \ {
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ while\ (getline(cin,\ line))
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ switch\ (i\ %\ 3)
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ case\ 0:
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bar(line);
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ break;
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ //\ ...
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\ \ \ \ \ \ \ \ \ \ }
+\ \ \ \ \ }
+}
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T009 Comma should not be preceded by whitespace, but should be
+followed by one
+.PP
+A comma, whether used as operator or in various lists, should not be
+preceded by whitespace on its left side, but should be followed by
+whitespace on its right side:
+.IP
+.nf
+\f[C]
+void\ fun(int\ x,\ int\ y,\ int\ z);
+int\ a[]\ =\ {5,\ 6,\ 7};
+class\ A\ :\ public\ B,
+\ \ \ \ \ \ \ \ \ \ public\ C
+{
+\ \ \ \ \ //\ ...
+};
+\f[]
+.fi
+.PP
+An exception to this rule is allowed for \f[C]operator,\f[]:
+.IP
+.nf
+\f[C]
+struct\ A\ {};
+void\ operator,(const\ A\ &left,\ const\ A\ &right);
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T010 Identifiers should not be composed of \[aq]l\[aq] and
+\[aq]O\[aq] characters only
+.PP
+The characters \[aq]l\[aq] (which is lowercase \[aq]L\[aq]) and
+\[aq]O\[aq] (which is uppercase \[aq]o\[aq]) should not be the only
+characters used in the identifier, because this would make them visually
+similar to numeric literals.
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T011 Curly brackets from the same pair should be either in the same
+line or in the same column
+.PP
+Corresponding curly brackets should be either in the same line or in the
+same column.
+This promotes clarity by emphasising scopes, but allows concise style of
+one\-line definitions and empty blocks:
+.IP
+.nf
+\f[C]
+class\ MyException\ {};
+
+struct\ MyPair
+{
+\ \ \ \ int\ a;
+\ \ \ \ int\ b;
+};
+
+enum\ state\ {\ close,\ open\ };
+
+enum\ colors
+{
+\ \ \ \ black,
+\ \ \ \ red,
+\ \ \ \ green,
+\ \ \ \ blue,
+\ \ \ \ white
+};
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T012 Negation operator should not be used in its short form
+.PP
+The negation operator (exclamation mark) reduces readability of the code
+due to its terseness.
+Prefer explicit logical comparisons or alternative tokens for increased
+readability:
+.IP
+.nf
+\f[C]
+if\ (!cond)\ \ \ \ \ \ \ \ \ //\ error\-prone
+if\ (cond\ ==\ false)\ //\ better
+if\ (not\ cond)\ \ \ \ \ \ //\ better\ (alternative\ keyword)
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SS T013 Source files should contain the copyright notice
+.PP
+The copyright notice is required by man coding standards and guidelines.
+In some countries every written artwork has some copyright, even if
+implicit.
+Prefer explicit notice to avoid any later confusion.
+.PP
+This rule verifies that at least one comment in the source file contains
+the "copyright" word.
+.PP
+\f[B]Compliance:\f[] Boost
+.SS T014 Source files should refer the Boost Software License
+.PP
+The Boost Software License should be referenced in the source code.
+.PP
+This rule verifies that at least one comment in the source file contains
+the "Boost Software License" phrase.
+.PP
+Note that this rule is very specific to the Boost libraries and those
+project that choose to use the Boost license.
+It is therefore not part of the default profile.
+.PP
+\f[B]Compliance:\f[] Boost
+.SS T015 HTML links in comments and string literals should be correct
+.PP
+The links embedded in comments and string literals should have correct
+form and should reference existing files.
+.PP
+\f[B]Compliance:\f[] Boost
+.SS T016 Calls to min/max should be protected against accidental macro
+substitution
+.PP
+The calls to min and max functions should be protected against
+accidental macro substitution.
+.IP
+.nf
+\f[C]
+x\ =\ max(y,\ z);\ //\ wrong,\ vulnerable\ to\ accidental\ macro\ substitution
+
+x\ =\ (max)(y,\ z);\ //\ OK
+
+x\ =\ max\ BOOST_PREVENT_MACRO_SUBSTITUTION\ (y,\ z);\ //\ OK
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Boost
+.SS T017 Unnamed namespaces are not allowed in header files
+.PP
+Unnamed namespaces are not allowed in header files.
+.PP
+The typical use of unnamed namespace is to hide module\-internal names
+from the outside world.
+Header files are physically concatenated in a single translation unit,
+which logically merges all namespaces with the same name.
+Unnamed namespaces are also merged in this process, which effectively
+undermines their initial purpose.
+.PP
+Use named namespaces in header files.
+Unnamed namespaces are allowed in implementation files only.
+.PP
+\f[B]Compliance:\f[] Boost
+.SS T018 Using namespace is not allowed in header files
+.PP
+Using namespace directives are not allowed in header files.
+.PP
+The using namespace directive imports names from the given namespace and
+when used in a header file influences the global namespace of all the
+files that directly or indirectly include this header file.
+.PP
+It is imaginable to use the using namespace directive in a limited scope
+in a header file (for example in a template or inline function
+definition), but for the sake of consistency this is also discouraged.
+.PP
+\f[B]Compliance:\f[] C++ Coding Standards
+.SS T019 Control structures should have complete curly\-braced block of
+code
+.PP
+Control structures managed by for, if and while constructs can be
+associated with a single instruction or with a complex block of code.
+Standardizing on the curly\-braced blocks in all cases allows to avoid
+common pitfalls and makes the code visually more uniform.
+.IP
+.nf
+\f[C]
+if\ (x)\ foo();\ \ \ \ \ //\ bad\ style
+if\ (x)\ {\ foo();\ }\ //\ OK
+
+if\ (x)
+\ \ \ \ foo();\ \ \ \ \ \ \ \ //\ again\ bad\ style
+
+if\ (x)
+{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ //\ OK
+\ \ \ \ foo();
+}
+
+if\ (x)
+\ \ \ \ while\ (y)\ \ \ \ \ //\ bad\ style
+\ \ \ \ \ \ \ \ foo();\ \ \ \ //\ bad\ style
+
+if\ (x)
+{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ //\ OK
+\ \ \ \ while\ (y)
+\ \ \ \ {\ \ \ \ \ \ \ \ \ \ \ \ \ //\ OK
+\ \ \ \ \ \ \ \ foo();
+\ \ \ \ }
+}
+
+for\ (int\ i\ =\ 0;\ i\ =\ 10;\ ++i);\ \ //\ oops!
+\ \ \ \ cout\ <<\ "Hello\\n";
+
+for\ (int\ i\ =\ 0;\ i\ =\ 10;\ ++i)\ \ \ //\ OK
+{
+\ \ \ \ cout\ <<\ "Hello\\n";
+}
+\f[]
+.fi
+.PP
+\f[B]Compliance:\f[] Inspirel
+.SH Transformations
+.SS move_includes Change prefix of #include paths
+.PP
+This transformation allows to modify the prefix of file paths in
+#include directives.
+.PP
+The motivation for this transformation is to help move whole libraries
+from one file tree to another.
+.PP
+Please use this transformation as a boilerplate for your own customized
+version.
+.PP
+For example, the following file:
+.IP
+.nf
+\f[C]
+#include\ "boost/shared_ptr.hpp"
+#include\ "boost/bind.hpp"
+\f[]
+.fi
+.PP
+will be transformed into:
+.IP
+.nf
+\f[C]
+#include\ "boom/shared_ptr.hpp"
+#include\ "boom/bind.hpp"
+\f[]
+.fi
+.PP
+Note: The transformation is performed in place, which means that the
+source files are modified.
+.SS move_macros Change prefix in macros
+.PP
+This transformation allows to modify the prefix of macros.
+.PP
+The motivation for this transformation is to help move whole libraries
+or source sets from one naming conventioin to another.
+.PP
+Please use this transformation as a boilerplate for your own customized
+version.
+.PP
+For example, the following file:
+.IP
+.nf
+\f[C]
+#define\ BOOST_SOME_MACRO\ 1
+//\ ...
+#ifdef\ BOOST_SOME_MACRO
+//\ ...
+#endif
+\f[]
+.fi
+.PP
+will be transformed into:
+.IP
+.nf
+\f[C]
+#define\ BOOM_SOME_MACRO\ 1
+//\ ...
+#ifdef\ BOOM_SOME_MACRO
+//\ ...
+#endif
+\f[]
+.fi
+.PP
+Note: This transformation actually does not check whether the given
+identifier is indeed a macro name and the prefix replacement is
+performed systematically on all identifiers that match.
+.PP
+Note: The transformation is performed in place, which means that the
+source files are modified.
+.SS move_namespace Change namespace name
+.PP
+This transformation allows to consistently change the namespace name.
+.PP
+The motivation for this transformation is to help move whole libraries
+or source sets from one namespace to another, for example to allow the
+coexistence of two different version of the same library.
+.PP
+Please use this transformation as a boilerplate for your own customized
+version.
+.PP
+For example, the following file:
+.IP
+.nf
+\f[C]
+namespace\ boost
+{
+void\ foo();
+}
+
+void\ boost::foo()\ {/*\ ...\ */}
+\f[]
+.fi
+.PP
+will be transformed into:
+.IP
+.nf
+\f[C]
+namespace\ boom
+{
+void\ foo();
+}
+
+void\ boom::foo()\ {/*\ ...\ */}
+\f[]
+.fi
+.PP
+Note: This transformation actually does not check whether the given
+identifier is indeed a namespace name and the replacement is performed
+systematically on all identifiers that match.
+Do not use it on code that overloads namespace names for other purposes.
+.PP
+Note: The transformation is performed in place, which means that the
+source files are modified.
+.SS to_lower Change identifier naming convention from CamelCase to
+standard_lowercase
+.PP
+This transformation allows to modify the naming convention of all
+identifiers from CamelCase to standard_lowercase, as used by the
+standard library or Boost.
+.PP
+For example, the following code:
+.IP
+.nf
+\f[C]
+namespace\ MyTools
+{
+
+class\ MyClass
+{
+public:
+\ \ \ \ void\ myFunction();
+};
+
+}
+\f[]
+.fi
+.PP
+will be transformed into this:
+.IP
+.nf
+\f[C]
+namespace\ my_tools
+{
+
+class\ my_class
+{
+public:
+\ \ \ \ void\ my_function();
+};
+
+}
+\f[]
+.fi
+.PP
+Note: The transformation is performed in place, which means that the
+source files are modified.
+.PP
+Note: This transformation does not modify comments and string literals.
+.SS to_xml Transform C++ code into XML
+.PP
+This transformation generates a XML tree where nodes relate to C++
+source code tokens.
+.PP
+For example, the following file (file.cpp):
+.IP
+.nf
+\f[C]
+#include\ <iostream>
+
+int\ main()
+{
+\ \ \ \ std::cout\ <<\ "Hello\ World\\n";
+}
+\f[]
+.fi
+.PP
+will be transformed into new file named file.cpp.xml:
+.IP
+.nf
+\f[C]
+<?xml\ version="1.0"\ encoding="ISO\-8859\-1"?>
+<cpp\-source\ file\-name="test.cpp">
+\ \ \ \ <token\ name="pp_hheader"\ line="1"\ column="0">#include\ &lt;iostream&gt;</token>
+\ \ \ \ <token\ name="newline"\ line="1"\ column="19">![CDATA[
+]]</token>
+\ \ \ \ <token\ name="newline"\ line="2"\ column="0">![CDATA[
+]]</token>
+\ \ \ \ <token\ name="int"\ line="3"\ column="0">int</token>
+\ \ \ \ <token\ name="space"\ line="3"\ column="3">\ </token>
+\ \ \ \ <token\ name="identifier"\ line="3"\ column="4">main</token>
+\ \ \ \ <token\ name="leftparen"\ line="3"\ column="8">(</token>
+\ \ \ \ <token\ name="rightparen"\ line="3"\ column="9">)</token>
+\ \ \ \ <token\ name="newline"\ line="3"\ column="10">![CDATA[
+]]</token>
+\ \ \ \ <token\ name="leftbrace"\ line="4"\ column="0">{</token>
+\ \ \ \ <token\ name="newline"\ line="4"\ column="1">![CDATA[
+]]</token>
+\ \ \ \ <token\ name="space"\ line="5"\ column="0">\ \ \ \ </token>
+\ \ \ \ <token\ name="identifier"\ line="5"\ column="4">std</token>
+\ \ \ \ <token\ name="colon_colon"\ line="5"\ column="7">::</token>
+\ \ \ \ <token\ name="identifier"\ line="5"\ column="9">cout</token>
+\ \ \ \ <token\ name="space"\ line="5"\ column="13">\ </token>
+\ \ \ \ <token\ name="shiftleft"\ line="5"\ column="14">&lt;&lt;</token>
+\ \ \ \ <token\ name="space"\ line="5"\ column="16">\ </token>
+\ \ \ \ <token\ name="stringlit"\ line="5"\ column="17">"Hello\ World\\n"</token>
+\ \ \ \ <token\ name="semicolon"\ line="5"\ column="32">;</token>
+\ \ \ \ <token\ name="newline"\ line="5"\ column="33">![CDATA[
+]]</token>
+\ \ \ \ <token\ name="rightbrace"\ line="6"\ column="0">}</token>
+\ \ \ \ <token\ name="newline"\ line="6"\ column="1">![CDATA[
+]]</token>
+\ \ \ \ <token\ name="eof"\ line="7"\ column="0"></token>
+</cpp\-source>
+\f[]
+.fi
+.PP
+Note: If the source code does not use line splicing, then concatenation
+of all XML node values is equivalent to the original C++ code.
+.SS to_xml2 Transform C++ code into XML (another variant)
+.PP
+This transformation generates a XML tree where nodes relate to C++
+source code tokens.
+.PP
+The difference between this version and the one named to_xml is that
+here nodes have names related to token types, which can make it easier
+for some further XML transformations.
+.PP
+For example, the following file (file.cpp):
+.IP
+.nf
+\f[C]
+#include\ <iostream>
+
+int\ main()
+{
+\ \ \ \ std::cout\ <<\ "Hello\ World\\n";
+}
+\f[]
+.fi
+.PP
+will be transformed into new file named file.cpp.xml:
+.IP
+.nf
+\f[C]
+<?xml\ version="1.0"\ encoding="ISO\-8859\-1"?>
+<cpp\-source\ file\-name="test.cpp">
+\ \ \ \ <pp_hheader\ line="1"\ column="0">#include\ &lt;iostream&gt;</pp_hheader>
+\ \ \ \ <newline\ line="1"\ column="19">![CDATA[
+]]</newline>
+\ \ \ \ <newline\ line="2"\ column="0">![CDATA[
+]]</newline>
+\ \ \ \ <int\ line="3"\ column="0">int</int>
+\ \ \ \ <space\ line="3"\ column="3">\ </space>
+\ \ \ \ <identifier\ line="3"\ column="4">main</identifier>
+\ \ \ \ <leftparen\ line="3"\ column="8">(</leftparen>
+\ \ \ \ <rightparen\ line="3"\ column="9">)</rightparen>
+\ \ \ \ <newline\ line="3"\ column="10">![CDATA[
+]]</newline>
+\ \ \ \ <leftbrace\ line="4"\ column="0">{</leftbrace>
+\ \ \ \ <newline\ line="4"\ column="1">![CDATA[
+]]</newline>
+\ \ \ \ <space\ line="5"\ column="0">\ \ \ \ </space>
+\ \ \ \ <identifier\ line="5"\ column="4">std</identifier>
+\ \ \ \ <colon_colon\ line="5"\ column="7">::</colon_colon>
+\ \ \ \ <identifier\ line="5"\ column="9">cout</identifier>
+\ \ \ \ <space\ line="5"\ column="13">\ </space>
+\ \ \ \ <shiftleft\ line="5"\ column="14">&lt;&lt;</shiftleft>
+\ \ \ \ <space\ line="5"\ column="16">\ </space>
+\ \ \ \ <stringlit\ line="5"\ column="17">"Hello\ World\\n"</stringlit>
+\ \ \ \ <semicolon\ line="5"\ column="32">;</semicolon>
+\ \ \ \ <newline\ line="5"\ column="33">![CDATA[
+]]</newline>
+\ \ \ \ <rightbrace\ line="6"\ column="0">}</rightbrace>
+\ \ \ \ <newline\ line="6"\ column="1">![CDATA[
+]]</newline>
+\ \ \ \ <eof\ line="7"\ column="0"></eof>
+</cpp\-source>
+\f[]
+.fi
+.PP
+Note: If the source code does not use line splicing, then concatenation
+of all XML node values is equivalent to the original C++ code.
+.SS trim_right Remove trailing white space
+.PP
+This transformation removes the trailing whitespace from each line of
+code.
+.PP
+It can be treated as a quick remedy for problems reported by rule L001.
+.PP
+Note: The transformation is performed in place, which means that the
+source files are modified.
+.SH Script API
+.PP
+The scripts (rules and transformations) are written in Tcl and are
+executed by the embedded interpreter that has access to relevant state
+of the program.
+A set of commands is provided to enable easy read\-only operation on the
+information that was gathered by parsing given source files.
+.PP
+The following Tcl commands are provided:
+.IP \[bu] 2
+\f[B]\f[C]getSourceFileNames\f[]\f[] \- returns the list of file names
+that were provided to Vera++ as program parameters.
+.IP \[bu] 2
+\f[B]\f[C]getLineCount\ fileName\f[]\f[] \- returns the number of lines
+in the given source file.
+.IP \[bu] 2
+\f[B]\f[C]getAllLines\ fileName\f[]\f[] \- returns the list of lines, in
+their natural order, that form a give source file.
+.IP \[bu] 2
+\f[B]\f[C]getLine\ fileName\ lineNumber\f[]\f[] \- returns the selected
+line; line numbers are counted from 1.
+.IP \[bu] 2
+\f[B]\f[C]getTokens\ fileName\ fromLine\ fromColumn\ toLine\ toColumn\ filter\f[]\f[]
+\- returns the list of tokens, in their natural order, from the given
+source file and that match the given selection criteria.
+.RS 2
+.PP
+The meaning of arguments for selecting tokens is:
+.IP \[bu] 2
+\f[B]\f[C]fromLine\f[]\f[] \- the lowest line number (counted from 1),
+inclusive
+.IP \[bu] 2
+\f[B]\f[C]fromColumn\f[]\f[] \- the lowest column number (counted from
+0), inclusive
+.IP \[bu] 2
+\f[B]\f[C]toLine\f[]\f[] \- the highest line number, inclusive; \-1
+means that the selected range spans to the end of the file
+.IP \[bu] 2
+\f[B]\f[C]toColumn\f[]\f[] \- the highest column number, exclusive; \-1
+means that the selected range spans to the end of the line defined by
+\f[C]toLine\f[].
+.IP \[bu] 2
+\f[B]\f[C]filter\f[]\f[] \- the list of selected token types, the
+recognized token types are listed below; if this list is empty, then all
+token types are allowed.
+.PP
+The \f[C]getTokens\f[] command returns a list of lists \- the nested
+lists have the following elements:
+.IP \[bu] 2
+\f[I]value\f[] \- the literal text of the token
+.IP \[bu] 2
+\f[I]lineNumber\f[] \- the line number (from 1) where the token appears
+.IP \[bu] 2
+\f[I]columnNumber\f[] \- the column number (from 0) where the token
+appears
+.IP \[bu] 2
+\f[I]name\f[] \- the name or type of the token; see below for the list
+of recognized token types
+.RE
+.IP \[bu] 2
+\f[B]\f[C]getParameter\ name\ defaultValue\f[]\f[] \- returns the value
+of the given parameter or the provided default value if no such
+parameter is defined.
+.IP \[bu] 2
+\f[B]\f[C]report\ fileName\ lineNumber\ message\f[]\f[] \- registers a
+report for the given file and line; this report is printed at the end of
+the program execution, sorted by file and line number.
+Use this command to generate output that is compatible with the
+warning/error output format of popular compilers.
+.SS Examples:
+.PP
+To process all lines from all source files, use the following code
+pattern:
+.IP
+.nf
+\f[C]
+foreach\ fileName\ [getSourceFileNames]\ {
+\ \ \ \ foreach\ line\ [getAllLines\ $fileName]\ {
+\ \ \ \ \ \ \ \ #\ ...
+\ \ \ \ }
+}
+\f[]
+.fi
+.PP
+To process all tokens from all source files, use:
+.IP
+.nf
+\f[C]
+foreach\ fileName\ [getSourceFileNames]\ {
+\ \ \ \ foreach\ token\ [getTokens\ $fileName\ 1\ 0\ \-1\ \-1\ {}]\ {
+\ \ \ \ \ \ \ \ set\ tokenValue\ [lindex\ $token\ 0]
+\ \ \ \ \ \ \ \ set\ lineNumber\ [lindex\ $token\ 1]
+\ \ \ \ \ \ \ \ set\ columnNumber\ [lindex\ $token\ 2]
+\ \ \ \ \ \ \ \ set\ tokenType\ [lindex\ $token\ 3]
+\ \ \ \ \ \ \ \ #\ ...
+\ \ \ \ }
+}
+\f[]
+.fi
+.PP
+To process only curly braces from the given source file, use:
+.IP
+.nf
+\f[C]
+foreach\ token\ [getTokens\ $fileName\ 1\ 0\ \-1\ \-1\ {leftbrace\ rightbrace}]\ {
+\ \ \ \ #\ ...
+}
+\f[]
+.fi
+.PP
+The complete rule script for verifying that the lines are no longer than
+some limit (the limit can be provided as a parameter, but the default
+value is defined in by the script itself):
+.IP
+.nf
+\f[C]
+#\ Line\ cannot\ be\ too\ long
+
+set\ maxLength\ [getParameter\ "max\-line\-length"\ 100]
+
+foreach\ f\ [getSourceFileNames]\ {
+\ \ \ \ set\ lineNumber\ 1
+\ \ \ \ foreach\ line\ [getAllLines\ $f]\ {
+\ \ \ \ \ \ \ \ if\ {[string\ length\ $line]\ >\ $maxLength}\ {
+\ \ \ \ \ \ \ \ \ \ \ \ report\ $f\ $lineNumber\ "line\ is\ longer\ than\ ${maxLength}\ characters"
+\ \ \ \ \ \ \ \ }
+\ \ \ \ \ \ \ \ incr\ lineNumber
+\ \ \ \ }
+}
+\f[]
+.fi
+.PP
+The above script is actually the implementation of rule L004.
+.SS Notes about line splicing
+.PP
+As required by the C++ ISO standard, the line splicing (with the
+backslash at the end of the line) is performed before tokenizing.
+This means that the lists of tokens might not strictly fit the list of
+lines.
+.PP
+Due to the internal mechanisms of the parser, the line splicing freezes
+the line counter and forces the column counter to continue until the
+last line in the spliced block.
+This means that there might be physical non\-empty lines that apparently
+don\[aq]t have any tokens, as well as tokens that have column numbers
+not matching the physical source line lengths.
+.SS Recognized token types
+.PP
+The following token types are recognized by the parser and can be used
+for filter selection in the \f[C]getTokens\f[] command (some of these
+token types are related to compiler extensions):
+.IP
+.nf
+\f[C]
+and
+andand
+andassign
+any
+arrow
+arrowstar
+asm
+assign
+auto
+bool
+break
+case
+catch
+ccomment
+char
+charlit
+class
+colon
+colon_colon
+comma
+compl
+const
+constcast
+continue
+contline
+cppcomment
+decimalint
+default
+delete
+divide
+divideassign
+do
+dot
+dotstar
+double
+dynamiccast
+ellipsis
+else
+enum
+eof
+eoi
+equal
+explicit
+export
+extern
+false
+float
+floatlit
+for
+friend
+goto
+greater
+greaterequal
+hexaint
+identifier
+if
+inline
+int
+intlit
+leftbrace
+leftbracket
+leftparen
+less
+lessequal
+long
+longintlit
+minus
+minusassign
+minusminus
+msext_asm
+msext_based
+msext_cdecl
+msext_declspec
+msext_endregion
+msext_except
+msext_fastcall
+msext_finally
+msext_inline
+msext_int16
+msext_int32
+msext_int64
+msext_int8
+msext_leave
+msext_region
+msext_stdcall
+msext_try
+mutable
+namespace
+new
+newline
+not
+notequal
+octalint
+operator
+or
+orassign
+oror
+percent
+percentassign
+plus
+plusassign
+plusplus
+pound
+pound_pound
+pp_define
+pp_elif
+pp_else
+pp_endif
+pp_error
+pp_hheader
+pp_if
+pp_ifdef
+pp_ifndef
+pp_include
+pp_line
+pp_number
+pp_pragma
+pp_qheader
+pp_undef
+pp_warning
+private
+protected
+public
+question_mark
+register
+reinterpretcast
+return
+rightbrace
+rightbracket
+rightparen
+semicolon
+shiftleft
+shiftleftassign
+shiftright
+shiftrightassign
+short
+signed
+sizeof
+space
+space2
+star
+starassign
+static
+staticcast
+stringlit
+struct
+switch
+template
+this
+throw
+true
+try
+typedef
+typeid
+typename
+union
+unsigned
+using
+virtual
+void
+volatile
+wchart
+while
+xor
+xorassign
+\f[]
+.fi
+.SS Note
+.PP
+There is a predefined rule named \f[C]DUMP\f[] that prints on the screen
+all tokens with their types and position.
+This rule can be helpful as a guideline for creating custom filtering
+criteria:
+.IP
+.nf
+\f[C]
+vera++\ \-\-rule\ DUMP\ myfile.cpp
+\f[]
+.fi
+.SH Changes
+.SS Vera++ 1.2.1
+.PP
+Vera++ 1.2.1 differs from 1.2.0 in the following ways:
+.IP \[bu] 2
+BUGFIX: fix \f[C]\-\-inputs\f[] in order to be able to read the inputs
+from a file
+.SS Vera++ 1.2.0
+.PP
+Vera++ 1.2.0 differs from 1.1.2 in the following ways:
+.IP \[bu] 2
+Full Tcl stack printed when a rule fail.
+.IP \[bu] 2
+New command line interface that support long and short options.
+The old style command line is still usable for backward compatibility.
+.IP \[bu] 2
+Produce output to standard output by default so the output can easily be
+piped to another program.
+The options \f[C]\-\-warning\f[] and \f[C]\-\-error\f[] make vera++
+produce its output on the error output.
+.IP \[bu] 2
+CMake macros to easily run vera++ in any CMake project.
+.IP \[bu] 2
+Easier integration in a test chain by return an error code when at least
+one report is produced and the \f[C]\-\-error\f[] option is used.
+\f[C]\-\-quiet\f[] and \f[C]\-\-summary\f[] can also help to better
+integrate vera++ in the test chain.
+.IP \[bu] 2
+The standard output format match gcc\[aq]s output format for a better
+integration in a build chain.
+.IP \[bu] 2
+Can read the list of files to check from one or more files.
+.IP \[bu] 2
+Can read the source code to check from the standard input.
+.IP \[bu] 2
+Can write the several reports in differents formats and in different
+places.
+.IP \[bu] 2
+Added \f[C]\-\-root\f[] option to point the the vera root directory from
+the command line and ease the usage of custom rules.
+.IP \[bu] 2
+Reports can be produced in
+checkstyle (http://checkstyle.sourceforge.net/) XML format.
+.IP \[bu] 2
+Vera++ no more impose the extension of the source files to check.
+.IP \[bu] 2
+Several exclusion files can be used.
+.IP \[bu] 2
+Several parameter files can be used.
+.IP \[bu] 2
+Build system now uses CMake.
+.IP \[bu] 2
+Builds with TCL 8.6.
+.IP \[bu] 2
+Don\[aq]t require Boost sources to build.
+.IP \[bu] 2
+New documentation generation process to unify the wiki, the html doc and
+the manpage.
+.IP \[bu] 2
+Binary packages for MS Windows and Mac OS X (and others).
+.IP \[bu] 2
+Nightly tests to avoid regressions.
+.IP \[bu] 2
+New website.
+.IP \[bu] 2
+BUGFIX: the rule T019 now works properly with \f[C]do\ ...\ while\f[]
+blocks.
+.SS Vera++ 1.1.2
+.PP
+Vera++ 1.1.2 differs from 1.1.1 in the following ways:
+.IP \[bu] 2
+Added \f[C]\-xmlreport\f[] option.
+.SS Vera++ 1.1.1
+.PP
+Vera++ 1.1.1 differs from 1.1.0 in the following ways:
+.IP \[bu] 2
+Added \f[C]\-help\f[] option.
+.IP \[bu] 2
+Updated code for compatibility with newer versions of Boost.
+The reference version of the Boost library is now 1.35 or 1.36.
+.IP \[bu] 2
+BUGFIX: Corrected handling of current directory when neither
+\f[C]HOME\f[] nor \f[C]VERA_ROOT\f[] is specified (this affects Windows
+users only).
+.SS Vera++ 1.1.0
+.PP
+Vera++ 1.1.0 differs from 1.0.0 in the following ways:
+.IP \[bu] 2
+Updated rules:
+.RS 2
+.IP \[bu] 2
+T002: additionally recognizes redefinition (\f[C]#define\f[]) of
+keywords
+.IP \[bu] 2
+T009: recognizes comment adjacent to colon as an exception to the rule
+.RE
+.IP \[bu] 2
+Added rules:
+.RS 2
+.IP \[bu] 2
+F001: Source files should not use the \f[C]\\r\f[] (CR) character
+.IP \[bu] 2
+F002: File names should be well\-formed Note: F002 is not part of the
+default profile.
+.IP \[bu] 2
+T012: Negation operator should not be used in its short form
+.IP \[bu] 2
+T013: Source files should contain the copyright notice
+.IP \[bu] 2
+T014: Source files should refer the Boost Software License Note: T014 is
+not part of the default profile.
+.IP \[bu] 2
+T015: HTML links in comments and string literals should be correct
+.IP \[bu] 2
+T016: Calls to \f[C]min\f[]/\f[C]max\f[] should be protected against
+accidental macro substitution
+.IP \[bu] 2
+T017: Unnamed namespaces are not allowed in header files
+.IP \[bu] 2
+T018: Using namespace is not allowed in header files
+.IP \[bu] 2
+T019: Control structures should have complete curly\-braced block of
+code
+.RE
+.IP \[bu] 2
+Added predefined boost profile to emulate the original Boost inspect
+tool.
+.IP \[bu] 2
+Added transformations:
+.RS 2
+.IP \[bu] 2
+move_namespace: Changes the given identifier, useful for moving the
+whole project from one namespace to another.
+.IP \[bu] 2
+move_macros: Changes the given prefix in all identifiers, useful for
+moving the whole set of macros that have common prefix.
+.IP \[bu] 2
+move_includes: Changes the given part of \f[C]#include\ "..."\f[]
+directives, useful for moving libraries and whole sets of header files.
+.RE
+.IP \[bu] 2
+Added documentation for all available transformations.
+.IP \[bu] 2
+Makefiles modified to better support Windows make users.
+.IP \[bu] 2
+Extension \f[C]\&.ipp\f[] added to the list of recognized source file
+extensions.
+.IP \[bu] 2
+New option \f[C]\-showrules\f[] includes name of rules in each report
+line.
+.IP \[bu] 2
+Changed the profile definition to be an active Tcl script instead of
+passive text file.
+.IP \[bu] 2
+Added the possibility to define exclusions to rule checks.
+.IP \[bu] 2
+BUGFIX: Corrected handling of newline tokens.
+.SH AUTHORS
+Maciej Sobczak; Vincent Hobeïka; Gaëtan Lehmann.
