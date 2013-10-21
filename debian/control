@@ -3,7 +3,7 @@ Section: devel
 Priority: extra
 Maintainer: Vincent Hobeïka <vincent.hobeika@gmail.com>
 Build-Depends: debhelper (>= 9), libboost-dev (>= 1.42), tcl-dev (>= 8), libboost-wave-dev (>= 1.42), libboost-thread-dev (>= 1.42), libboost-system-dev (>= 1.42), cmake, pandoc
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: https://bitbucket.org/verateam/vera/wiki/Home
 Vcs-Git: https://bitbucket.org/verateam/vera.git
 Vcs-Browser: https://bitbucket.org/verateam/vera/src
