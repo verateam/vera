@@ -1,9 +1,0 @@
-Document: vera++
-Title: Vera++ Community Edition - manual
-Author: Maciej Sobczak
-Abstract: This is the official vera++ manual.
-Section: Programming
-
-Format: HTML
-Index: /usr/share/doc/vera++/doc/manual.html
-Files: /usr/share/doc/vera++/doc/*.html
