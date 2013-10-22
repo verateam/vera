@@ -995,8 +995,8 @@ code
 .PP
 Control structures managed by for, if and while constructs can be
 associated with a single instruction or with a complex block of code.
-Standardizing on the curly\-braced blocks in all cases allows to avoid
-common pitfalls and makes the code visually more uniform.
+Standardizing on the curly\-braced blocks in all cases allows one to
+avoid common pitfalls and makes the code visually more uniform.
 .IP
 .nf
 \f[C]
@@ -1037,7 +1037,7 @@ for\ (int\ i\ =\ 0;\ i\ =\ 10;\ ++i)\ \ \ //\ OK
 .SH Transformations
 .SS move_includes Change prefix of #include paths
 .PP
-This transformation allows to modify the prefix of file paths in
+This transformation allows one to modify the prefix of file paths in
 #include directives.
 .PP
 The motivation for this transformation is to help move whole libraries
@@ -1068,7 +1068,7 @@ Note: The transformation is performed in place, which means that the
 source files are modified.
 .SS move_macros Change prefix in macros
 .PP
-This transformation allows to modify the prefix of macros.
+This transformation allows one to modify the prefix of macros.
 .PP
 The motivation for this transformation is to help move whole libraries
 or source sets from one naming conventioin to another.
@@ -1108,7 +1108,8 @@ Note: The transformation is performed in place, which means that the
 source files are modified.
 .SS move_namespace Change namespace name
 .PP
-This transformation allows to consistently change the namespace name.
+This transformation allows one to consistently change the namespace
+name.
 .PP
 The motivation for this transformation is to help move whole libraries
 or source sets from one namespace to another, for example to allow the
@@ -1153,7 +1154,7 @@ source files are modified.
 .SS to_lower Change identifier naming convention from CamelCase to
 standard_lowercase
 .PP
-This transformation allows to modify the naming convention of all
+This transformation allows one to modify the naming convention of all
 identifiers from CamelCase to standard_lowercase, as used by the
 standard library or Boost.
 .PP
