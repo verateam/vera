@@ -1,4 +1,0 @@
-#!/bin/sh
-#DEBHELPER#
-set -e
-chmod +x profiles/boost profiles/default profiles/full
