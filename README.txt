@@ -9,10 +9,17 @@ collections - the scripts are actually performing the requested tasks.
 License
 -------
 
-Boost Software License
+Boost Software License 
+
+License exceptions
+------------------
+
+vera.ctest : Licensed under the Apache License, Version 2.0 (see
+	     inside the file for the complete license and copyright)
 
 Origins
 -------
 
 Vera++ was initially hosted at:
 http://www.inspirel.com/vera
+
