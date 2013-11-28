@@ -31,7 +31,7 @@ foreach fileName [getSourceFileNames] {
         }
 
         if {[string first "." $dir] != -1} {
-            report $fileName 1 "directory name should not contain the dot"
+            report $fileName 1 "directory name should not contain a dot"
             break
         }
     }
