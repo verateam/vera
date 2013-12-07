@@ -17,6 +17,7 @@
 #include <iterator>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #ifdef VERA_PYTHON
 #include <boost/python.hpp>
@@ -161,7 +162,11 @@ void Interpreter::execute(const DirectoryName & root,
     }
 
     // first look at tcl rules
-    std::string tclFileName = fileName + name + ".tcl";
+    std::string tclFileName = fileName + name;
+    if (boost::algorithm::ends_with(tclFileName, ".tcl") == false)
+    {
+      tclFileName += ".tcl";
+    }
     if (boost::filesystem::exists(tclFileName))
     {
         executeTcl(root, type, tclFileName);
@@ -169,7 +174,11 @@ void Interpreter::execute(const DirectoryName & root,
     }
 #ifdef VERA_PYTHON
     // then python
-    std::string pyFileName = fileName + name + ".py";
+    std::string pyFileName = fileName + name;
+    if (boost::algorithm::ends_with(tclFileName, ".py") == false)
+    {
+      tclFileName += ".py";
+    }
     if (boost::filesystem::exists(pyFileName))
     {
         executePython(root, type, pyFileName);
@@ -244,8 +253,45 @@ std::vector<std::string> pyGetSourceFileNames()
     return res;
 }
 
+// vector_indexing_suite is not doing all the job - we have to do the conversion
+// from the python sequence by hand
+template<typename T>
+struct py_seq_to_std_vector
+{
+  py_seq_to_std_vector()
+  {
+    py::converter::registry::push_back(
+      &convertible,
+      &construct,
+      py::type_id<std::vector<T> >());
+  }
+  static void* convertible(PyObject* object)
+  {
+    if (PySequence_Check(object))
+    {
+      return object;
+    }
+    return NULL;
+  }
+  static void construct(PyObject* object, py::converter::rvalue_from_python_stage1_data* data)
+  {
+    typedef py::converter::rvalue_from_python_storage< std::vector<T> > storage_type;
+    void* storage = reinterpret_cast<storage_type*>(data)->storage.bytes;
+    std::vector<T>& v = *(new (storage) std::vector<T>());
+    int length = PySequence_Size(object);
+    v.reserve(length);
+    for (int i = 0; i < length; i++)
+    {
+      v.push_back(py::extract<T>(PySequence_GetItem(object, i)));
+    }
+    data->convertible = storage;
+  }
+};
+
 BOOST_PYTHON_MODULE(vera)
 {
+  py_seq_to_std_vector<std::string>();
+
   py::class_<Structures::Token>("Token")
     .def(py::init<>())
     .def(py::init<std::string, int, int, std::string>())
@@ -253,7 +299,7 @@ BOOST_PYTHON_MODULE(vera)
     .add_property("value", &Structures::Token::value_)
     .add_property("line", &Structures::Token::line_)
     .add_property("column", &Structures::Token::column_)
-    .add_property("name", &Structures::Token::name_);
+    .add_property("type", &Structures::Token::name_);
 
   py::class_<Structures::Tokens::TokenSequence>("TokenVector")
         .def(py::vector_indexing_suite<Structures::Tokens::TokenSequence>());

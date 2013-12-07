@@ -609,3 +609,7 @@ vera_add_test(ErrorReport
   --root "${CMAKE_CURRENT_SOURCE_DIR}/errorReport"
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 )
+
+if(VERA_PYTHON)
+  add_subdirectory(python)
+endif()
