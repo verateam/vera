@@ -34,6 +34,12 @@ public:
 
     static void execute(const DirectoryName & root,
         ScriptType type, const ScriptName & name);
+    static void executeTcl(const DirectoryName & root,
+        ScriptType type, const ScriptName & name);
+#ifdef VERA_PYTHON
+    static void executePython(const DirectoryName & root,
+        ScriptType type, const ScriptName & name);
+#endif
 };
 
 } // namespace Plugins

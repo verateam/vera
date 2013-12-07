@@ -484,7 +484,7 @@ Tokens::TokenSequence Tokens::getTokens(const SourceFiles::FileName & fileName,
                     value = token.getTokenValue(fileName);
                 }
 
-                ret.push_back(SingleToken(value, line, column, tokenName));
+                ret.push_back(Token(value, line, column, tokenName));
             }
         }
     }
