@@ -17,6 +17,12 @@ License exceptions
 vera.ctest : Licensed under the Apache License, Version 2.0 (see
 	     inside the file for the complete license and copyright)
 
+Homepage
+--------
+
+Vera++ is hosted at http://bitbucket.org/verateam/vera and daily
+replicated at http://github.com/verateam/vera
+
 Origins
 -------
 
