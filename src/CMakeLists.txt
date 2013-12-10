@@ -9,7 +9,7 @@ link_directories(${TCL_LIBRARY_DIRS})
 
 option(VERA_PYTHON "Build Python rules support" OFF)
 if(VERA_PYTHON)
-  find_package(PythonLibs REQUIRED)
+  find_package(PythonLibs 2.7 REQUIRED)
   include_directories(${PYTHON_INCLUDE_DIRS})
   link_directories(${PYTHON_LIBRARIES})
   set(boost_python python)
