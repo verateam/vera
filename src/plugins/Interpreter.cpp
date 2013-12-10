@@ -175,9 +175,9 @@ void Interpreter::execute(const DirectoryName & root,
 #ifdef VERA_PYTHON
     // then python
     std::string pyFileName = fileName + name;
-    if (boost::algorithm::ends_with(tclFileName, ".py") == false)
+    if (boost::algorithm::ends_with(pyFileName, ".py") == false)
     {
-      tclFileName += ".py";
+      pyFileName += ".py";
     }
     if (boost::filesystem::exists(pyFileName))
     {
