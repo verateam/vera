@@ -9,7 +9,8 @@ link_directories(${TCL_LIBRARY_DIRS})
 
 option(VERA_PYTHON "Build Python rules support" OFF)
 if(VERA_PYTHON)
-  find_package(PythonLibs REQUIRED)
+  # use a version number to force cmake to find a python 2 version
+  find_package(PythonLibs 2.0 REQUIRED)
   include_directories(${PYTHON_INCLUDE_DIRS})
   set(boost_python python)
   add_definitions(-DVERA_PYTHON)
