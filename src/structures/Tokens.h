@@ -11,7 +11,37 @@
 #include "SourceFiles.h"
 #include <string>
 #include <vector>
+#include <boost/wave/token_ids.hpp>
 
+namespace underlyImpl
+{
+
+struct TokenRef
+{
+    TokenRef(boost::wave::token_id id, int line, int column, int length);
+
+    TokenRef(boost::wave::token_id id, int line, int column, int length, const std::string & value);
+
+    std::string getTokenValue(const Vera::Structures::SourceFiles::FileName & fileName) const;
+
+    boost::wave::token_id id_;
+    int line_;
+    int column_;
+    int length_;
+
+    // if >= 0, it is the index into the physicalTokens collection,
+    // used only for line continuation
+    // and when line_ and column_ do not reflect the physical layout:
+    int index_;
+};
+
+extern "C"
+{
+  typedef std::vector<TokenRef> TokenCollection;
+  TokenCollection::const_iterator getBeginOfTokenCollection(std::string fileName);
+  TokenCollection::const_iterator getEndOfTokenCollection(std::string fileName);
+}
+}
 
 namespace Vera
 {
@@ -63,6 +93,13 @@ public:
     static TokenSequence getTokens(const SourceFiles::FileName & name,
         int fromLine, int fromColumn, int toLine, int toColumn,
         const FilterSequence & filter);
+
+     /**
+      * @brief Gets every token contained in the specified file.
+      * @param fileName The name of the file to be parsed.
+      * @return The token collection obtained from the specified file.
+      */
+    static TokenSequence getEachTokenFromFile(const std::string& fileName);
 };
 
 } // namespace Structures

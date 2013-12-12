@@ -20,67 +20,62 @@
 #include <sstream>
 #include <cctype>
 
-
-namespace // unnamed
+namespace underlyImpl
 {
-
 typedef std::vector<std::string> PhysicalTokenCollection;
 PhysicalTokenCollection physicalTokens;
 
-struct TokenRef
+TokenRef::TokenRef(boost::wave::token_id id, int line, int column, int length)
+: id_(id), line_(line), column_(column), length_(length), index_(-1)
+{}
+
+TokenRef::TokenRef(boost::wave::token_id id, int line, int column, int length, const std::string & value)
+: id_(id), line_(line), column_(column), length_(length)
 {
-    TokenRef(boost::wave::token_id id, int line, int column, int length)
-        : id_(id), line_(line), column_(column), length_(length), index_(-1) {}
+    // newline is optimized as the most common case
 
-    TokenRef(boost::wave::token_id id, int line, int column, int length, const std::string & value)
-        : id_(id), line_(line), column_(column), length_(length)
+    if (id_ != boost::wave::T_NEWLINE)
     {
-        // newline is optimized as the most common case
+        // value of the token is stored in physicalTokens collection
+        // (because it has no physical representation in the source code)
 
-        if (id_ != boost::wave::T_NEWLINE)
-        {
-            // value of the token is stored in physicalTokens collection
-            // (because it has no physical representation in the source code)
-
-            index_ = static_cast<int>(physicalTokens.size());
-            physicalTokens.push_back(value);
-        }
+        index_ = static_cast<int>(physicalTokens.size());
+        physicalTokens.push_back(value);
     }
+}
 
-    std::string getTokenValue(const Vera::Structures::SourceFiles::FileName & fileName) const
+std::string
+TokenRef::getTokenValue(const Vera::Structures::SourceFiles::FileName & fileName) const
+{
+    if (id_ == boost::wave::T_NEWLINE)
     {
-        if (id_ == boost::wave::T_NEWLINE)
-        {
-            return "\n";
-        }
-        else if (index_ >= 0)
-        {
-            // token value stored in the physicalTokens structure
-            // (this is used with line continuation and other cases
-            // where the token has no representation in physical lines)
-
-            return physicalTokens[static_cast<size_t>(index_)];
-        }
-        else
-        {
-            // token value has to be retrieved from the physical line collection
-
-            return Vera::Structures::SourceLines::getLine(fileName, line_).substr(column_, length_);
-        }
+        return "\n";
     }
+    else if (index_ >= 0)
+    {
+        // token value stored in the physicalTokens structure
+        // (this is used with line continuation and other cases
+        // where the token has no representation in physical lines)
 
-    boost::wave::token_id id_;
-    int line_;
-    int column_;
-    int length_;
+        return physicalTokens[static_cast<size_t>(index_)];
+    }
+    else
+    {
+        // token value has to be retrieved from the physical line collection
 
-    // if >= 0, it is the index into the physicalTokens collection,
-    // used only for line continuation
-    // and when line_ and column_ do not reflect the physical layout:
-    int index_;
-};
+        return Vera::Structures::SourceLines::getLine(fileName, line_).substr(column_, length_);
+    }
+}
+
 
 typedef std::vector<TokenRef> TokenCollection;
+
+}
+
+using namespace underlyImpl;
+
+namespace //unname
+{
 
 typedef std::map<Vera::Structures::SourceFiles::FileName, TokenCollection> FileTokenCollection;
 
@@ -350,7 +345,62 @@ void findRange(const TokenCollection & tokens, int fromLine, int toLine,
     }
 }
 
-} // unnamed namespace
+bool
+isTokenEof(TokenCollection::const_iterator& it)
+{
+  const struct TokenRef& token = *it;
+
+  return token.id_ == boost::wave::T_EOF;
+}
+
+
+} // unname namespace
+
+
+namespace underlyImpl
+{
+
+TokenCollection::const_iterator getBeginOfTokenCollection(std::string fileName)
+{
+  FileTokenCollection::iterator  it = fileTokens_.find(fileName);
+  FileTokenCollection::iterator  end = fileTokens_.end();
+  if (it == end)
+  {
+    Vera::Structures::SourceLines::loadFile(fileName);
+
+    if (fileTokens_[fileName].begin() == fileTokens_[fileName].end())
+    {
+      std::ostringstream ss;
+      ss << fileName <<" isn't contained in the collection"<<std::endl;
+      throw Vera::Structures::TokensError(ss.str());
+    }
+  }
+
+  return fileTokens_[fileName].begin();
+}
+
+TokenCollection::const_iterator getEndOfTokenCollection(std::string fileName)
+{
+  FileTokenCollection::iterator  it = fileTokens_.find(fileName);
+  FileTokenCollection::iterator  end = fileTokens_.end();
+  if (it == end)
+  {
+    Vera::Structures::SourceLines::loadFile(fileName);
+
+    if (fileTokens_[fileName].begin() == fileTokens_[fileName].end())
+    {
+      std::ostringstream ss;
+      ss << fileName <<" isn't contained in the collection"<<std::endl;
+      throw Vera::Structures::TokensError(ss.str());
+    }
+  }
+
+  return fileTokens_[fileName].end();
+}
+
+
+}
+
 
 namespace Vera
 {
@@ -490,6 +540,38 @@ Tokens::TokenSequence Tokens::getTokens(const SourceFiles::FileName & fileName,
     }
 
     return ret;
+}
+
+Token getToken(std::string fileName, TokenCollection::const_iterator& it)
+{
+  const struct TokenRef& token = *it;
+  const int line = token.line_;
+  const int column = token.column_;
+  std::string tokenName = boost::wave::get_token_name(token.id_).c_str();
+  boost::algorithm::to_lower(tokenName);
+  std::string value;
+
+  if (isTokenEof(it) == false)
+  {
+    value = token.getTokenValue(fileName);
+  }
+
+  return Token(value,line,column,tokenName);
+}
+
+Tokens::TokenSequence Tokens::getEachTokenFromFile(const std::string & fileName)
+{
+  underlyImpl::TokenCollection::const_iterator it = underlyImpl::getBeginOfTokenCollection(fileName);
+  underlyImpl::TokenCollection::const_iterator end = underlyImpl::getEndOfTokenCollection(fileName);
+  Tokens::TokenSequence response;
+
+  for (;it != end; ++it)
+  {
+    if (isTokenEof(it) == false)
+      response.push_back(getToken(fileName, it));
+  }
+
+  return response;
 }
 
 }

@@ -12,6 +12,7 @@
 #include "../structures/SourceFiles.h"
 #include "../structures/SourceLines.h"
 #include "../structures/Tokens.h"
+#include "../structures/Statements.h"
 #include "cpptcl-1.1.4/cpptcl.h"
 #include <fstream>
 #include <iterator>
@@ -301,11 +302,30 @@ BOOST_PYTHON_MODULE(vera)
     .add_property("column", &Structures::Token::column_)
     .add_property("type", &Structures::Token::name_);
 
+  py::class_<Structures::Statement>("Statement")
+    //.def(py::init<Structures::Tokens::TokenSequence, Structures::Statement::StatementSequence>())
+    .def(py::init<>())
+    // .def("__repr__", &Token::toString)
+    .add_property("tokens", &Structures::Statement::tokenSequence_)
+    .add_property("statements", &Structures::Statement::statementSequence_);
+
+
+
   py::class_<Structures::Tokens::TokenSequence>("TokenVector")
         .def(py::vector_indexing_suite<Structures::Tokens::TokenSequence>());
 
+  py::class_<Structures::Statement::StatementSequence>("StatementVector")
+        .def(py::vector_indexing_suite<Structures::Statement::StatementSequence>());
+
+//  py::class_<Structures::Scope::ScopeSequence>("ScopeVector")
+//        .def(py::vector_indexing_suite<Structures::Scope::ScopeSequence>());
+
   py::class_<Structures::SourceLines::LineCollection>("StringVector")
           .def(py::vector_indexing_suite<Structures::SourceLines::LineCollection>());
+
+
+  py::def("getEachTokenFromFile", &Structures::Tokens::getEachTokenFromFile);
+  py::def("getTokensOfStatement", &Structures::Statements::getTokensOfStament);
 
   py::def("getTokens", &Structures::Tokens::getTokens);
 
