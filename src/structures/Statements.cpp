@@ -6,7 +6,7 @@
 //
 
 #include "Statements.h"
-#include "SourceLines.h"
+//#include "SourceLines.h"
 #include <functional>
 #include <boost/wave.hpp>
 #include <boost/wave/cpplexer/cpp_lex_token.hpp>
@@ -367,14 +367,7 @@ void recursiveParseStatement(Statement& response, TokenSequenceConstIterator& it
     }
 
 
-    if (id == boost::wave::T_LEFTPAREN)
-    {
-      response.tokenSequence_.push_back(*it);
-      ++it;
-      recursiveParseStatement(response,it,end);
-      //continue;
-    }
-    else if (id == boost::wave::T_LEFTBRACE)
+    if (id == boost::wave::T_LEFTPAREN || id == boost::wave::T_LEFTBRACE)
     {
       response.tokenSequence_.push_back(*it);
       ++it;

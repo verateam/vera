@@ -8,12 +8,13 @@ include_directories(SYSTEM ${TCL_INCLUDE_PATH})
 link_directories(${TCL_LIBRARY_DIRS})
 
 option(VERA_PYTHON "Build Python rules support" OFF)
+option(TESTING_ENABLED        "Enables unit test build." OFF)
 if(VERA_PYTHON)
-  find_package(PythonLibs 2.7 REQUIRED)
+  find_package(PythonLibs 2.0 REQUIRED)
   include_directories(${PYTHON_INCLUDE_DIRS})
   link_directories(${PYTHON_LIBRARIES})
   set(boost_python python)
-  add_definitions(-DVERA_PYTHON)
+  add_definitions(-DVERA_PYTHON -g)
 endif()
 
 if(WIN32)
@@ -54,6 +55,35 @@ target_link_libraries(vera
   ${Boost_LIBRARIES})
 if(VERA_PYTHON)
   target_link_libraries(vera ${PYTHON_LIBRARIES})
+
+#Build tests
+IF (TESTING_ENABLED)
+  SET (PROJECT_TEST_NAME test-vera++)
+  FILE (GLOB_RECURSE TEST_SRC_FILES ../unitTests/*.cpp structures/Statements.cpp)
+  MESSAGE("TEST_SRC_FILES ${TEST_SRC_FILES}")
+
+  FIND_PACKAGE (GTest)
+  FIND_PACKAGE (Threads REQUIRED)
+  #FIND_PACKAGE (GoogleMocks)
+
+  INCLUDE_DIRECTORIES (SYSTEM ${GTEST_INCLUDE_DIR})
+  INCLUDE_DIRECTORIES (SYSTEM -I./)
+  #INCLUDE_DIRECTORIES (SYSTEM ${GOOGLE_MOCKS_INCLUDE_DIRS})
+
+  ADD_EXECUTABLE (${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
+  TARGET_LINK_LIBRARIES (${PROJECT_TEST_NAME}
+ ${GTEST_MAIN_LIBRARY} 
+ ${GTEST_BOTH_LIBRARIES}
+ ${PYTHON_LIBRARIES}
+ ${TCL_LIBRARY}
+ ${Boost_LIBRARIES}
+ ${CMAKE_THREAD_LIBS_INIT}
+ ${GTEST_LIBRARY})
+#${GOOGLE_MOCKS_LIBRARIES})
+
+  GTEST_ADD_TESTS (${PROJECT_TEST_NAME} "" ${TEST_SRC_FILES})
+ENDIF ()
+
 endif()
 
 if(WIN32)
@@ -92,3 +122,5 @@ include(../cmake/use_vera++.cmake)
 add_vera_targets(*.h *.cpp
   RECURSE
   ROOT "${CMAKE_SOURCE_DIR}")
+
+
