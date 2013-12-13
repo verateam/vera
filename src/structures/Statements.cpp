@@ -33,7 +33,8 @@ namespace //unname
 {
 
 /**
- *  @brief Binary function object class whose call returns whether a item is equal to the given token.
+ *  @brief Binary function object class whose call returns whether a item is equal
+ *  to the given token.
  */
 class IsTokenEqual
 : public std::unary_function<const Token, bool>
@@ -74,7 +75,9 @@ class IsTokenEqual
   boost::algorithm::to_lower(tokenName);\
    \
   if (tokenName.compare(NAME) == 0) \
+  { \
     return boost::wave::T_##TOKEN; \
+  }\
 }
 
 /**
@@ -322,8 +325,9 @@ typedef Tokens::TokenSequence::const_iterator TokenSequenceConstIterator;
  * initial element of the statement.
  * @param end the of the list to be analyzed.
  */
-void parseStatement(Statement& response, TokenSequenceConstIterator& it, TokenSequenceConstIterator& end);
-
+void parseStatement(Statement& response,
+  TokenSequenceConstIterator& it,
+  TokenSequenceConstIterator& end);
 
 /**
  * @brief Parses recursively the statements from the
@@ -335,7 +339,9 @@ void parseStatement(Statement& response, TokenSequenceConstIterator& it, TokenSe
  * initial element of the statement.
  * @param end the of the list to be analyzed.
  */
-void recursiveParseStatement(Statement& response, TokenSequenceConstIterator& it, TokenSequenceConstIterator& end)
+void recursiveParseStatement(Statement& response,
+  TokenSequenceConstIterator& it,
+  TokenSequenceConstIterator& end)
 {
   while (it != end)
   {
@@ -361,7 +367,7 @@ void recursiveParseStatement(Statement& response, TokenSequenceConstIterator& it
       current.tokenSequence_.push_back(*it);
 
       ++it;
-      parseStatement(current, it ,end);
+      parseStatement(current, it, end);
       ++it; //TODO require continue
       continue;
     }
@@ -371,7 +377,7 @@ void recursiveParseStatement(Statement& response, TokenSequenceConstIterator& it
     {
       response.tokenSequence_.push_back(*it);
       ++it;
-      recursiveParseStatement(response,it,end);
+      recursiveParseStatement(response, it, end);
       //continue;
     }
     else
@@ -398,7 +404,9 @@ void recursiveParseStatement(Statement& response, TokenSequenceConstIterator& it
   }
 }
 
-void parseStatement(Statement& response, TokenSequenceConstIterator& it, TokenSequenceConstIterator& end)
+void parseStatement(Statement& response,
+  TokenSequenceConstIterator& it,
+  TokenSequenceConstIterator& end)
 {
   response.tokenSequence_.push_back(*it);
 
@@ -421,7 +429,7 @@ void parseStatement(Statement& response, TokenSequenceConstIterator& it, TokenSe
       current.tokenSequence_.push_back(*it);
 
       ++it;
-      recursiveParseStatement(current, it ,end);
+      recursiveParseStatement(current, it, end);
     }
 
     if (id == boost::wave::T_LEFTBRACE)
@@ -436,6 +444,7 @@ void parseStatement(Statement& response, TokenSequenceConstIterator& it, TokenSe
 
     if (id == boost::wave::T_SEMICOLON)
     {
+      response.tokenSequence_.push_back(*it);
       break;
     }
 
@@ -450,11 +459,15 @@ bool
 Statement::operator==(Statement const& statement) const
 {
 
-  bool isEqual = std::equal(tokenSequence_.begin(), tokenSequence_.end(), statement.tokenSequence_.begin());
+  bool isEqual = std::equal(tokenSequence_.begin(),
+    tokenSequence_.end(),
+    statement.tokenSequence_.begin());
 
   if (isEqual)
   {
-    isEqual = std::equal(statementSequence_.begin(), statementSequence_.end(), statement.statementSequence_.begin());
+    isEqual = std::equal(statementSequence_.begin(),
+      statementSequence_.end(),
+      statement.statementSequence_.begin());
   }
 
   return isEqual;
@@ -484,4 +497,3 @@ Statements::getTokensOfStament(Token token, Tokens::TokenSequence& tokenCollecti
 
 }
 }
-

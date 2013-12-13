@@ -29,7 +29,11 @@ TokenRef::TokenRef(boost::wave::token_id id, int line, int column, int length)
 : id_(id), line_(line), column_(column), length_(length), index_(-1)
 {}
 
-TokenRef::TokenRef(boost::wave::token_id id, int line, int column, int length, const std::string & value)
+TokenRef::TokenRef(boost::wave::token_id id,
+  int line,
+  int column,
+  int length,
+  const std::string & value)
 : id_(id), line_(line), column_(column), length_(length)
 {
     // newline is optimized as the most common case
@@ -556,19 +560,23 @@ Token getToken(std::string fileName, TokenCollection::const_iterator& it)
     value = token.getTokenValue(fileName);
   }
 
-  return Token(value,line,column,tokenName);
+  return Token(value, line, column, tokenName);
 }
+
+using namespace underlyImpl;
 
 Tokens::TokenSequence Tokens::getEachTokenFromFile(const std::string & fileName)
 {
-  underlyImpl::TokenCollection::const_iterator it = underlyImpl::getBeginOfTokenCollection(fileName);
-  underlyImpl::TokenCollection::const_iterator end = underlyImpl::getEndOfTokenCollection(fileName);
+  TokenCollection::const_iterator it = getBeginOfTokenCollection(fileName);
+  TokenCollection::const_iterator end = getEndOfTokenCollection(fileName);
   Tokens::TokenSequence response;
 
   for (;it != end; ++it)
   {
     if (isTokenEof(it) == false)
+    {
       response.push_back(getToken(fileName, it));
+    }
   }
 
   return response;

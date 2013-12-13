@@ -60,7 +60,6 @@ if(VERA_PYTHON)
 IF (TESTING_ENABLED)
   SET (PROJECT_TEST_NAME test-vera++)
   FILE (GLOB_RECURSE TEST_SRC_FILES ../unitTests/*.cpp structures/Statements.cpp)
-  MESSAGE("TEST_SRC_FILES ${TEST_SRC_FILES}")
 
   FIND_PACKAGE (GTest)
   FIND_PACKAGE (Threads REQUIRED)
