@@ -35,15 +35,15 @@ TEST_F(FixtureWithFullDocument, getTokensOfStament_givenTheStartingElementInexis
 TEST_F(FixtureForDefineStaments, getTokensOfStament_givenTheStartingElementDefineType_returnCollection)
 {
   //Arrange
-  int offset = 6;
-  int size = 5;
+  int offset = 1;
+  int size = 12;
   Tokens::TokenSequence::const_iterator it = collection_.begin() + offset;
   Tokens::TokenSequence::const_iterator end = collection_.begin() + (offset+size);
-  Token intitialToken("#define", 7, 0, "pp_define");
+  Token intitialToken("#define", 2, 0, "pp_define");
 
   //Act
   Statement response = Statements::getTokensOfStament(intitialToken, collection_);
-  std::cout<<it->name_ << " "<<response.tokenSequence_.size()<<std::endl;
+
   //Asserts
   EXPECT_EQ(size, response.tokenSequence_.size());
   ASSERT_TRUE(std::equal(it, end, response.tokenSequence_.begin()));
