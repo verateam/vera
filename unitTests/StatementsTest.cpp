@@ -1,5 +1,6 @@
 #include "FixtureOfDefineStaments.h"
 #include "FixtureWithFullDocument.h"
+#include "FixtureOfIfStatements.h"
 
 using namespace Vera::Structures;
 
@@ -49,7 +50,7 @@ TEST_F(FixtureWithFullDocument, getStament_givenTheStartingElementInexistent_ret
 }
 
 
-TEST_F(FixtureOfDefineStaments, getStament_givenTheStartingElementDefineType_returnCollection)
+TEST_F(FixtureOfDefineStaments, getStament_givenTheStartingElementDefineType_returnAssociatedStatement)
 {
   //Arrange
   int offset = 2;
@@ -68,25 +69,5 @@ TEST_F(FixtureOfDefineStaments, getStament_givenTheStartingElementDefineType_ret
   EXPECT_EQ(intitialToken, response.tokenSequence_.front());
   ASSERT_TRUE(first.tokenSequence_ == expectedCollection);
 }
-
-//TEST_F(FixtureForDefineStaments, getTokensOfStament_givenTheStartingElementDefineType_returnCollection)
-//{
-//  //Arrange
-//  int offset = 2;
-//  int size = 4;
-//
-//  Tokens::TokenSequence expectedCollection = getSubCollection(offset, size, collection_);
-//
-//  Token intitialToken("#define", 2, 0, "pp_define");
-//
-//  //Act
-//  Statement response = StatementsBuilder::create(intitialToken, collection_);
-//  Statement& first = response.statementSequence_.front();
-//
-//  //Asserts
-//  EXPECT_EQ(1, response.tokenSequence_.size());
-//  EXPECT_EQ(intitialToken, response.tokenSequence_.front());
-//  ASSERT_TRUE(first.tokenSequence_ == expectedCollection);
-//}
 
 } // Testing namespace
