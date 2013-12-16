@@ -7,7 +7,6 @@ set(VERA_BUILD 1)
 set(VERA_VERSION "${VERA_MAJOR}.${VERA_MINOR}.${VERA_BUILD}")
 
 add_subdirectory(src)
-add_subdirectory(doc)
 add_subdirectory(scripts)
 add_subdirectory(profiles)
 add_subdirectory(packages)

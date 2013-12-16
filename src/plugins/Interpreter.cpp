@@ -325,7 +325,7 @@ BOOST_PYTHON_MODULE(vera)
 
 
   py::def("getEachTokenFromFile", &Structures::Tokens::getEachTokenFromFile);
-  py::def("getTokensOfStatement", &Structures::Statements::getTokensOfStament);
+  py::def("getStatement", &Structures::StatementsBuilder::create);
 
   py::def("getTokens", &Structures::Tokens::getTokens);
 

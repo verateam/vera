@@ -35,16 +35,12 @@ struct TokenRef
     int index_;
 };
 
-extern "C"
-{
-  typedef std::vector<TokenRef> TokenCollection;
-  TokenCollection::const_iterator getBeginOfTokenCollection(std::string fileName);
-  TokenCollection::const_iterator getEndOfTokenCollection(std::string fileName);
-}
-}
+} // underlyImpl namespace
+
 
 namespace Vera
 {
+
 namespace Structures
 {
 
@@ -101,6 +97,11 @@ public:
       */
     static TokenSequence getEachTokenFromFile(const std::string& fileName);
 };
+
+/**
+ * @brief Const iterator type for the token collection.
+ */
+typedef Tokens::TokenSequence::const_iterator TokenSequenceConstIterator;
 
 } // namespace Structures
 

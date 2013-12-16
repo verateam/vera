@@ -7,6 +7,7 @@
 
 #include "Statements.h"
 //#include "SourceLines.h"
+#include "StatementOfIf.h"
 #include <functional>
 #include <boost/wave.hpp>
 #include <boost/wave/cpplexer/cpp_lex_token.hpp>
@@ -31,6 +32,14 @@ using namespace underlyImpl;
 
 namespace //unname
 {
+
+/**
+ * @brief Gets the enumerator id associated to the token.
+ * @param token The reference to the token instance.
+ * @return The id assigned to the token.
+ */
+static boost::wave::token_id
+getTokenId(const Token& token);
 
 /**
  *  @brief Binary function object class whose call returns whether a item is equal
@@ -69,6 +78,42 @@ class IsTokenEqual
 };
 
 
+/**
+ *  @brief Binary function object class whose call returns whether a item with id given.
+ */
+class IsTokenWithId
+: public std::unary_function<const Token, bool>
+{
+  public:
+
+    /**
+     * @brief Initializes a new instance of the IsTokenEqual class.
+     * @param id The lexer id desired.
+     */
+    IsTokenWithId(boost::wave::token_id id)
+    : id_(id)
+    {
+    }
+
+    /**
+     * @brief Member function that returns true if the element is equal to the given token.
+     *
+     * @param token The token to be compare
+     *
+     * @return True if the item is equal to the given token, otherwise, false.
+     */
+    result_type operator()(argument_type item) const
+    {
+      return getTokenId(item) == id_;
+    }
+
+  private:
+
+    boost::wave::token_id id_;
+
+};
+
+
 #define returnIdWheterTokenMatch(TOKEN, NAME) \
 { \
   std::string tokenName = #TOKEN; \
@@ -80,11 +125,6 @@ class IsTokenEqual
   }\
 }
 
-/**
- * @brief Gets the enumerator id associated to the token.
- * @param token The reference to the token instance.
- * @return The id assigned to the token.
- */
 static boost::wave::token_id
 getTokenId(const Token& token)
 {
@@ -308,13 +348,6 @@ getTokenId(const Token& token)
   return boost::wave::T_UNKNOWN;
 }
 
-
-/**
- * @brief Const iterator type for the token collection.
- */
-typedef Tokens::TokenSequence::const_iterator TokenSequenceConstIterator;
-
-
 /**
  * @brief Parses the statements from the token list
  * and retrieves the related list of tokens.
@@ -328,6 +361,32 @@ typedef Tokens::TokenSequence::const_iterator TokenSequenceConstIterator;
 void parseStatement(Statement& response,
   TokenSequenceConstIterator& it,
   TokenSequenceConstIterator& end);
+
+/**
+ * @brief Parses the statements from the token list
+ * and retrieves the related list of tokens.
+ * @param response [out] the reference to the statement
+ * used to return the response.
+ * @param collection token list to be analyzed.
+ */
+void parseStatement(Statement& response, Tokens::TokenSequence& collection);
+
+/**
+ * @brief TODO
+ * @param response
+ * @param it
+ * @param end
+ */
+void parseStatementDefineType(Statement& response,
+  TokenSequenceConstIterator& it,
+  TokenSequenceConstIterator& end);
+
+/**
+ * @brief TODO
+ */
+Tokens::TokenSequence
+extractTokens(TokenSequenceConstIterator& begin,
+    TokenSequenceConstIterator& end, boost::wave::token_id id);
 
 /**
  * @brief Parses recursively the statements from the
@@ -353,6 +412,14 @@ void recursiveParseStatement(Statement& response,
       break;
     }
 
+    if (id == boost::wave::T_IF)
+    {
+      //response.statementSequence_.push_back(Statement());
+      //Statement& current = response.statementSequence_.back();
+      StatementOfIf ifStatement(response, it, end);
+      ++it;
+    }
+
     if (id == boost::wave::T_IF
         || id == boost::wave::T_ELSE
         || id == boost::wave::T_WHILE
@@ -371,7 +438,6 @@ void recursiveParseStatement(Statement& response,
       ++it; //TODO require continue
       continue;
     }
-
 
     if (id == boost::wave::T_LEFTPAREN || id == boost::wave::T_LEFTBRACE)
     {
@@ -400,19 +466,67 @@ void recursiveParseStatement(Statement& response,
       break;
     }
 
+    if (id == boost::wave::T_PP_DEFINE)
+    {
+      parseStatementDefineType(response, it, end);
+    }
+
     ++it;
   }
 }
+
+void parseStatementDefineType(Statement& response,
+  TokenSequenceConstIterator& it,
+  TokenSequenceConstIterator& end)
+{
+  response.tokenSequence_.push_back(*it);
+  ++it;
+
+  response.statementSequence_.push_back(Statement());
+  Statement& current = response.statementSequence_.back();
+
+  Tokens::TokenSequence subCollection = extractTokens(it, end, boost::wave::T_NEWLINE);
+
+  parseStatement(current, subCollection);
+}
+
+Tokens::TokenSequence
+extractTokens(TokenSequenceConstIterator& begin,
+    TokenSequenceConstIterator& end, boost::wave::token_id id)
+{
+  Tokens::TokenSequence response;
+
+  TokenSequenceConstIterator itMatched = std::find_if(begin, end, IsTokenWithId(id));
+
+  if (itMatched != end && itMatched != begin)
+  {
+    std::copy(begin,
+      itMatched,
+      std::back_inserter<Vera::Structures::Tokens::TokenSequence>(response));
+  }
+
+  return response;
+}
+
+
+void parseStatement(Statement& response, Tokens::TokenSequence& collection)
+{
+  TokenSequenceConstIterator it = collection.begin();
+  TokenSequenceConstIterator end = collection.end();
+
+
+  parseStatement(response, it, end);
+}
+
 
 void parseStatement(Statement& response,
   TokenSequenceConstIterator& it,
   TokenSequenceConstIterator& end)
 {
-  response.tokenSequence_.push_back(*it);
-
+  //response.tokenSequence_.push_back(*it);
+  //++it;
   while (it != end)
   {
-    ++it;
     const struct Token& token = *it;
 
     boost::wave::token_id id = getTokenId(token);
@@ -420,6 +534,15 @@ void parseStatement(Statement& response,
     if (id == boost::wave::T_EOF)
     {
       break;
+    }
+
+    if (id == boost::wave::T_IF)
+    {
+      //response.statementSequence_.push_back(Statement());
+      //Statement& current = response.statementSequence_.back();
+      StatementOfIf ifStatement(response, it, end);
+      ++it;
+      continue;
     }
 
     if (id == boost::wave::T_LEFTBRACE || id == boost::wave::T_LEFTPAREN)
@@ -430,6 +553,7 @@ void parseStatement(Statement& response,
 
       ++it;
       recursiveParseStatement(current, it, end);
+      ++it;
     }
 
     if (id == boost::wave::T_LEFTBRACE)
@@ -437,9 +561,15 @@ void parseStatement(Statement& response,
       break;
     }
 
-    if (id == boost::wave::T_LEFTPAREN)
+    if (id == boost::wave::T_LEFTBRACE)
     {
-      continue;
+      break;
+    }
+
+    if (id == boost::wave::T_RIGHTPAREN)
+    {
+      response.tokenSequence_.push_back(*it);
+      break;
     }
 
     if (id == boost::wave::T_SEMICOLON)
@@ -448,7 +578,14 @@ void parseStatement(Statement& response,
       break;
     }
 
+    if (id == boost::wave::T_PP_DEFINE)
+    {
+      parseStatementDefineType(response, it, end);
+      break;
+    }
+
     response.tokenSequence_.push_back(*it);
+    ++it;
   }
 }
 
@@ -475,9 +612,10 @@ Statement::operator==(Statement const& statement) const
 
 
 Statement
-Statements::getTokensOfStament(Token token, Tokens::TokenSequence& tokenCollection)
+StatementsBuilder::create(Token token, Tokens::TokenSequence& tokenCollection)
 {
-  Statement global;
+  Statement response;
+  StatementsBuilder concreteBuilder(response);
 
   Tokens::TokenSequence::const_iterator it = tokenCollection.begin();
   Tokens::TokenSequence::const_iterator end = tokenCollection.end();
@@ -486,13 +624,51 @@ Statements::getTokensOfStament(Token token, Tokens::TokenSequence& tokenCollecti
 
   if (it != end)
   {
-    parseStatement(global, it, end);
+    concreteBuilder.builder(response, it, end);
   }
   else
   {
   }
 
-  return global;
+  return response;
+}
+
+Statement&
+StatementsBuilder::getCurrentStatement()
+{
+  return statement_;
+}
+
+void
+StatementsBuilder::setCurrentStatement(Statement& current)
+{
+  statement_ = current;
+}
+
+Statement&
+StatementsBuilder::add()
+{
+  statement_.statementSequence_.push_back(Statement());
+  Statement& current = statement_.statementSequence_.back();
+
+  return current;
+}
+
+void
+StatementsBuilder::builder(Statement& response, Tokens::TokenSequence::const_iterator& it, Tokens::TokenSequence::const_iterator& end)
+{
+  if (it == end)
+  {
+    throw StatementsError("Token Collection is empty.");
+  }
+
+  parseStatement(response, it, end);
+}
+
+
+StatementsBuilder::StatementsBuilder(Statement& statement)
+: statement_(statement)
+{
 }
 
 }

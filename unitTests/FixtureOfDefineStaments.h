@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FIXTUREFORDEFINESTAMENTS_H_INCLUDED
-#define FIXTUREFORDEFINESTAMENTS_H_INCLUDED
+#ifndef FIXTUREOFDEFINESTAMENTS_H_INCLUDED
+#define FIXTUREOFDEFINESTAMENTS_H_INCLUDED
 
 #include <gtest/gtest.h>
 #include <structures/Statements.h>
@@ -14,7 +14,7 @@
 /**
  * @brief Fixture for the statements of pp_define type.
  */
-class FixtureForDefineStaments : public ::testing::Test
+class FixtureOfDefineStaments : public ::testing::Test
 {
   protected:
 
@@ -32,4 +32,4 @@ class FixtureForDefineStaments : public ::testing::Test
     Vera::Structures::Tokens::TokenSequence collection_;
 };
 
-#endif // FIXTUREFORDEFINESTAMENTS_H_INCLUDED
+#endif // FIXTUREOFDEFINESTAMENTS_H_INCLUDED
