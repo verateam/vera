@@ -62,7 +62,7 @@ class IsValidTokenForStatement
     /**
      * @brief Initializes a new instance of the IsValidTokenForStatement class.
      */
-    IsValidTokenForStatement(){}
+    IsValidTokenForStatement(bool show = false): show_(show) {}
 
     /**
      * @brief Member function that returns true if the token is valid to build statement.
@@ -73,16 +73,35 @@ class IsValidTokenForStatement
      */
     result_type operator()(argument_type item) const
     {
-      return name_.compare("space") != 0 &&
-        name_.compare("space2") != 0 &&
-        name_.compare("newline") != 0 &&
-        name_.compare("ccomment") != 0 &&
-        name_.compare("cppcomment") != 0;
+      if (show_)
+        std::cout<< item.name_ << " "<<item.line_ << " "<<item.column_<<std::endl;
+
+      if (item.name_.compare("space") == 0)
+      {
+        return false;
+      }
+      else if (item.name_.compare("space2") == 0)
+      {
+        return false;
+      }
+      else if (item.name_.compare("newline") == 0)
+      {
+        return false;
+      }
+      else if (item.name_.compare("ccomment") == 0)
+      {
+        return false;
+      }
+      else if (item.name_.compare("cppcomment") == 0)
+      {
+        return false;
+      }
+
+      return true;
     }
 
   private:
-
-    std::string name_;
+    bool show_;
 };
 
 } // Strutures namespace

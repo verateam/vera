@@ -7,26 +7,12 @@ using namespace Vera::Structures;
 namespace Testing
 {
 
-Vera::Structures::Tokens::TokenSequence
-getSubCollection(unsigned offset, unsigned size, const Vera::Structures::Tokens::TokenSequence& collection)
-{
-  Tokens::TokenSequence response;
-
-  if (collection.size()<offset+size)
-    throw std::runtime_error("Error out of range.");
-
-  Tokens::TokenSequence::const_iterator it = collection.begin() + offset;
-  Tokens::TokenSequence::const_iterator end = collection.begin() + (offset+size);
-  std::copy(it, end ,std::back_inserter<Vera::Structures::Tokens::TokenSequence>(response));
-  return response;
-}
-
 TEST_F(FixtureWithFullDocument, getStament_givenTokenCollectionAndTheStartingElement_returnAssociatedStatement)
 {
   //Arrange
   int offset = 204;
   int size = 8;
-  Tokens::TokenSequence expectedCollection = getSubCollection(offset, size, collection_);
+  Tokens::TokenSequence expectedCollection = Utilities().getSubCollection(offset, size, collection_);
 
   Token intitialToken("int", 34, 4, "int");
 

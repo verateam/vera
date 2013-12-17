@@ -10,11 +10,14 @@
 
 #include <gtest/gtest.h>
 #include <structures/Statements.h>
+#include "Utilities.h"
 
 /**
  * @brief Fixture for the statements of pp_define type.
  */
-class FixtureOfDefineStaments : public ::testing::Test
+class FixtureOfDefineStaments
+: public ::testing::Test
+, public Testing::Utilities
 {
   protected:
 

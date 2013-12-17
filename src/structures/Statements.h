@@ -57,7 +57,8 @@ struct Statement
   Tokens::TokenSequence tokenSequence_;
 };
 
-class StatementOfIf;
+//class StatementOfIf;
+//class FixtureOfIfStatements;
 
 /**
  * @brief Class that creates statement sequences relative to a specified token.
@@ -65,6 +66,7 @@ class StatementOfIf;
 class StatementsBuilder : public boost::noncopyable_::noncopyable
 {
   friend class StatementOfIf;
+  friend class FixtureOfIfStatements;
   public:
 
     /**

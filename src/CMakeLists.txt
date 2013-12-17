@@ -14,7 +14,7 @@ if(VERA_PYTHON)
   include_directories(${PYTHON_INCLUDE_DIRS})
   link_directories(${PYTHON_LIBRARIES})
   set(boost_python python)
-  add_definitions(-DVERA_PYTHON -g)
+  add_definitions(-DVERA_PYTHON)
 endif()
 
 if(WIN32)
@@ -57,20 +57,20 @@ if(VERA_PYTHON)
   target_link_libraries(vera ${PYTHON_LIBRARIES})
 
 #Build tests
-IF (TESTING_ENABLED)
-  SET (PROJECT_TEST_NAME test-vera++)
-  FILE (GLOB_RECURSE TEST_SRC_FILES ../unitTests/*.cpp structures/Statement*.cpp)
+if (TESTING_ENABLED)
+  set (PROJECT_TEST_NAME test-vera++)
+  file (GLOB_RECURSE TEST_SRC_FILES ../unitTests/*.cpp structures/Statement*.cpp)
 
-  FIND_PACKAGE (GTest)
-  FIND_PACKAGE (Threads REQUIRED)
-  #FIND_PACKAGE (GoogleMocks)
+  find_package (GTest)
+  find_package (Threads REQUIRED)
+  #find_package (GoogleMocks)
 
-  INCLUDE_DIRECTORIES (SYSTEM ${GTEST_INCLUDE_DIR})
-  INCLUDE_DIRECTORIES (SYSTEM -I./)
-  #INCLUDE_DIRECTORIES (SYSTEM ${GOOGLE_MOCKS_INCLUDE_DIRS})
+  include_directories (SYSTEM ${GTEST_INCLUDE_DIR})
+  include_directories (SYSTEM -I./)
+  #include_directories (SYSTEM ${GOOGLE_MOCKS_INCLUDE_DIRS})
 
-  ADD_EXECUTABLE (${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
-  TARGET_LINK_LIBRARIES (${PROJECT_TEST_NAME}
+  add_executable (${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
+  target_link_libraries (${PROJECT_TEST_NAME}
  ${GTEST_MAIN_LIBRARY} 
  ${GTEST_BOTH_LIBRARIES}
  ${PYTHON_LIBRARIES}
@@ -80,8 +80,8 @@ IF (TESTING_ENABLED)
  ${GTEST_LIBRARY})
 #${GOOGLE_MOCKS_LIBRARIES})
 
-  GTEST_ADD_TESTS (${PROJECT_TEST_NAME} "" ${TEST_SRC_FILES})
-ENDIF ()
+  gtest_add_tests (${PROJECT_TEST_NAME} "" ${TEST_SRC_FILES})
+endif ()
 
 endif()
 

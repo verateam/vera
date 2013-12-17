@@ -414,8 +414,6 @@ void recursiveParseStatement(Statement& response,
 
     if (id == boost::wave::T_IF)
     {
-      //response.statementSequence_.push_back(Statement());
-      //Statement& current = response.statementSequence_.back();
       StatementOfIf ifStatement(response, it, end);
       ++it;
     }
@@ -518,13 +516,10 @@ void parseStatement(Statement& response, Tokens::TokenSequence& collection)
   parseStatement(response, it, end);
 }
 
-
 void parseStatement(Statement& response,
   TokenSequenceConstIterator& it,
   TokenSequenceConstIterator& end)
 {
-  //response.tokenSequence_.push_back(*it);
-  //++it;
   while (it != end)
   {
     const struct Token& token = *it;
@@ -538,8 +533,6 @@ void parseStatement(Statement& response,
 
     if (id == boost::wave::T_IF)
     {
-      //response.statementSequence_.push_back(Statement());
-      //Statement& current = response.statementSequence_.back();
       StatementOfIf ifStatement(response, it, end);
       ++it;
       continue;
@@ -552,16 +545,15 @@ void parseStatement(Statement& response,
       current.tokenSequence_.push_back(*it);
 
       ++it;
+
       recursiveParseStatement(current, it, end);
+
       ++it;
+
+      continue;
     }
 
-    if (id == boost::wave::T_LEFTBRACE)
-    {
-      break;
-    }
-
-    if (id == boost::wave::T_LEFTBRACE)
+    if (id == boost::wave::T_LEFTBRACE || id == boost::wave::T_LEFTPAREN)
     {
       break;
     }
@@ -591,25 +583,28 @@ void parseStatement(Statement& response,
 
 } //unname namespace
 
-
 bool
-Statement::operator==(Statement const& statement) const
+Statement::operator==(const Statement& statement) const
 {
 
-  bool isEqual = std::equal(tokenSequence_.begin(),
-    tokenSequence_.end(),
-    statement.tokenSequence_.begin());
+  bool isEqual = tokenSequence_.size() == statement.tokenSequence_.size();
 
   if (isEqual)
   {
+    isEqual = std::equal(tokenSequence_.begin(),
+      tokenSequence_.end(),
+      statement.tokenSequence_.begin());
+  }
+
+  if (isEqual && statementSequence_.size() == statement.statementSequence_.size())
+  {
     isEqual = std::equal(statementSequence_.begin(),
-      statementSequence_.end(),
+        statementSequence_.end(),
       statement.statementSequence_.begin());
   }
 
   return isEqual;
 }
-
 
 Statement
 StatementsBuilder::create(Token token, Tokens::TokenSequence& tokenCollection)
@@ -625,9 +620,6 @@ StatementsBuilder::create(Token token, Tokens::TokenSequence& tokenCollection)
   if (it != end)
   {
     concreteBuilder.builder(response, it, end);
-  }
-  else
-  {
   }
 
   return response;
@@ -664,7 +656,6 @@ StatementsBuilder::builder(Statement& response, Tokens::TokenSequence::const_ite
 
   parseStatement(response, it, end);
 }
-
 
 StatementsBuilder::StatementsBuilder(Statement& statement)
 : statement_(statement)

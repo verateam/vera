@@ -19,7 +19,7 @@ namespace Structures
 {
 
 /**
- * @brief
+ * @brief TODO
  */
 class StatementOfIf
 : public StatementsBuilder
@@ -30,17 +30,27 @@ class StatementOfIf
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
+    const Tokens::TokenSequence& getIfTokens();
+    const Statement& getArgumentStatementFromConditionalSentence();
+    const Statement& getStatementIfScope();
+    const Statement& getStatementElseScope();
+
+  private:
+
+    void initialize(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
     void parseArguments(Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
     void parseScope(Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
-  private:
-
     bool isElse(Tokens::TokenSequence::const_iterator& it);
 
-    Statement& statement_;
+    void addEachInvalidToken(Tokens::TokenSequence::const_iterator& it,
+      Tokens::TokenSequence::const_iterator& end,
+      Tokens::TokenSequence& current);
 };
 
 } // namespace Structures

@@ -10,11 +10,14 @@
 
 #include <gtest/gtest.h>
 #include <structures/Statements.h>
+#include "Utilities.h"
 
 /**
- * @brief Fixture for the statements of loops type.
+ * @brief Fixture for the statements of if sentences type.
  */
-class FixtureOfIfStatements : public ::testing::Test
+class FixtureOfIfStatements
+: public ::testing::Test
+, public Testing::Utilities
 {
   protected:
 
@@ -30,6 +33,9 @@ class FixtureOfIfStatements : public ::testing::Test
   protected:
 
     Vera::Structures::Tokens::TokenSequence collection_;
+    Vera::Structures::Tokens::TokenSequence ifTokens_;
+    Vera::Structures::Statement ifScope_;
+    Vera::Structures::Statement elseScope_;
 };
 
 #endif // FIXTUREOFIFSTATEMENTS_H_INCLUDED
