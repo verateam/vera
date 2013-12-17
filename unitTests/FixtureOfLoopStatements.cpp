@@ -109,6 +109,56 @@ FixtureOfLoopStatements::SetUp()
   collectionTokensOfLoopFor_.push_back(Token("\n", 7, 9, "newline"));
   collectionTokensOfLoopFor_.push_back(Token("}", 8, 0, "rightbrace"));
   collectionTokensOfLoopFor_.push_back(Token("\n", 8, 1, "newline"));
+
+
+
+  argumentsOfForLoop_.tokenSequence_.push_back(Token("(", 1, 4, "leftparen"));
+
+  {
+    argumentsOfForLoop_.statementSequence_.push_back(Statement());
+    Statement& current = argumentsOfForLoop_.statementSequence_.back();
+
+    current.tokenSequence_.push_back(Token("int", 1, 5, "int"));
+    current.tokenSequence_.push_back(Token(" ", 1, 8, "space"));
+    current.tokenSequence_.push_back(Token("i", 1, 9, "identifier"));
+    current.tokenSequence_.push_back(Token(" ", 1, 10, "space"));
+    current.tokenSequence_.push_back(Token("=", 1, 11, "assign"));
+    current.tokenSequence_.push_back(Token(" ", 1, 12, "space"));
+    current.tokenSequence_.push_back(Token("0", 1, 13, "intlit"));
+    current.tokenSequence_.push_back(Token(";", 1, 14, "semicolon"));
+  }
+
+  {
+    argumentsOfForLoop_.statementSequence_.push_back(Statement());
+    Statement& current = argumentsOfForLoop_.statementSequence_.back();
+
+    current.tokenSequence_.push_back(Token(" ", 1, 15, "space"));
+    current.tokenSequence_.push_back(Token("i", 1, 16, "identifier"));
+    current.tokenSequence_.push_back(Token("<", 1, 17, "less"));
+    current.tokenSequence_.push_back(Token("104", 1, 18, "intlit"));
+    current.tokenSequence_.push_back(Token(" ", 1, 21, "space"));
+    current.tokenSequence_.push_back(Token("&&", 1, 22, "andand"));
+    current.tokenSequence_.push_back(Token(" ", 1, 24, "space"));
+    current.tokenSequence_.push_back(Token("j", 1, 25, "identifier"));
+    current.tokenSequence_.push_back(Token("%", 1, 26, "percent"));
+    current.tokenSequence_.push_back(Token("i", 1, 27, "identifier"));
+    current.tokenSequence_.push_back(Token(" ", 1, 28, "space"));
+    current.tokenSequence_.push_back(Token("==", 1, 29, "equal"));
+    current.tokenSequence_.push_back(Token(" ", 1, 31, "space"));
+    current.tokenSequence_.push_back(Token("0", 1, 32, "intlit"));
+    current.tokenSequence_.push_back(Token(";", 1, 33, "semicolon"));
+  }
+
+  {
+    argumentsOfForLoop_.statementSequence_.push_back(Statement());
+    Statement& current = argumentsOfForLoop_.statementSequence_.back();
+
+    current.tokenSequence_.push_back(Token(" ", 1, 34, "space"));
+    current.tokenSequence_.push_back(Token("i", 1, 35, "identifier"));
+    current.tokenSequence_.push_back(Token("++", 1, 36, "plusplus"));
+    current.tokenSequence_.push_back(Token(" ", 1, 38, "space"));
+  }
+  argumentsOfForLoop_.tokenSequence_.push_back(Token(")", 1, 39, "rightparen"));
 }
 
 void

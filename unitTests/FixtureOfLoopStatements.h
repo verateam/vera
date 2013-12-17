@@ -10,11 +10,14 @@
 
 #include <gtest/gtest.h>
 #include <structures/Statements.h>
+#include "Utilities.h"
 
 /**
  * @brief Fixture for the loop type statements.
  */
-class FixtureOfLoopStatements : public ::testing::Test
+class FixtureOfLoopStatements
+: public ::testing::Test
+, public Testing::Utilities
 {
   protected:
 
@@ -32,6 +35,7 @@ class FixtureOfLoopStatements : public ::testing::Test
     Vera::Structures::Tokens::TokenSequence collectionTokensOfLoopFor_;
     Vera::Structures::Tokens::TokenSequence collectionTokensOfLoopWhile_;
     Vera::Structures::Tokens::TokenSequence collectionTokensOfLoopDo_;
+    Vera::Structures::Statement argumentsOfForLoop_;
 };
 
 #endif // FIXTUREOFLOOPSTAMENTS_H_INCLUDED

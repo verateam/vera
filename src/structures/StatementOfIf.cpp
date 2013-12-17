@@ -18,6 +18,7 @@
 #define WITHOUT_STATEMENT_ELSE_SCOPE "The 'else' statement not contain a scope associated."
 #define TOKEN_NAME  "if"
 #define LEFTPAREN_TOKEN_NAME  "leftparen"
+#define RIGHTPAREN_TOKEN_NAME  "rightparen"
 #define LEFTBRACE_TOKEN_NAME  "leftbrace"
 #define RIGHTBRACE_TOKEN_NAME  "rightbrace"
 #define ELSE_TOKEN_NAME  "else"
@@ -55,26 +56,15 @@ void
 StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it + 1,
-    end,
-    IsValidTokenForStatement());
+  Tokens::TokenSequence::const_iterator itMatched = end;
 
-  IS_EQUAL_RETURN(itMatched, end);
+  getCurrentStatement().tokenSequence_.push_back(*it);
+  ++it;
 
-  if (IsTokenWithName(LEFTPAREN_TOKEN_NAME)(*itMatched) == false)
+  if (parseArguments(it, end) == false)
   {
     return;
   }
-
-  std::copy(it,
-    itMatched,
-    std::back_inserter<Tokens::TokenSequence>(getCurrentStatement().tokenSequence_));
-
-  it += std::distance(it, itMatched)-1;
-
-  IS_EQUAL_RETURN(it, end);
-
-  parseArguments(it, end);
 
   ++it;
   IS_EQUAL_RETURN(it, end);
@@ -89,7 +79,7 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
 
   if (isElse(itMatched))
   {
-    addEachInvalidToken(it,end, getCurrentStatement().tokenSequence_);
+    addEachInvalidToken(it, end, getCurrentStatement().tokenSequence_);
 
     getCurrentStatement().tokenSequence_.push_back(*it);
     ++it;
@@ -104,77 +94,6 @@ StatementOfIf::isElse(Tokens::TokenSequence::const_iterator& it)
   const Token& token = *it;
 
   return token.name_.compare(ELSE_TOKEN_NAME) == 0;
-}
-
-void
-StatementOfIf::parseArguments(Tokens::TokenSequence::const_iterator& it,
-  Tokens::TokenSequence::const_iterator& end)
-{
-  Statement& current = add();
-
-  ++it;
-  current.tokenSequence_.push_back(*it);
-  ++it;
-
-  builder(current, it, end);
-}
-
-void
-StatementOfIf::parseScope(Tokens::TokenSequence::const_iterator& it,
-  Tokens::TokenSequence::const_iterator& end)
-{
-  Statement& current = add();
-
-  addEachInvalidToken(it, end, current.tokenSequence_);
-
-  if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*it) == true)
-  {
-    current.tokenSequence_.push_back(*it);
-
-    for (++it; it != end; ++it)
-    {
-
-      addEachInvalidToken(it, end, current.tokenSequence_);
-
-      if (it == end)
-      {
-        break;
-      }
-
-      if (IsTokenWithName(RIGHTBRACE_TOKEN_NAME)(*it) == true)
-      {
-        current.tokenSequence_.push_back(*it);
-        ++it;
-        break;
-      }
-
-      builder(current, it, end);
-
-      if (it == end)
-      {
-        break;
-      }
-    }
-  }
-  else
-  {
-    builder(current, it, end);
-  }
-}
-
-void
-StatementOfIf::addEachInvalidToken(Tokens::TokenSequence::const_iterator& it,
-  Tokens::TokenSequence::const_iterator& end,
-  Tokens::TokenSequence& current)
-{
-  IsValidTokenForStatement isValid(false);
-
-  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
-    end,
-    IsValidTokenForStatement(false));
-
-  std::copy(it, itMatched, std::back_inserter<Vera::Structures::Tokens::TokenSequence>(current));
-  it += std::distance(it, itMatched);
 }
 
 const Tokens::TokenSequence&

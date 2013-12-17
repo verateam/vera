@@ -6,22 +6,16 @@
 //
 
 #include "Statements.h"
-//#include "SourceLines.h"
 #include "StatementOfIf.h"
+#include "StatementOfForLoop.h"
+#include "IsTokenWithName.h"
 #include <functional>
-#include <boost/wave.hpp>
-#include <boost/wave/cpplexer/cpp_lex_token.hpp>
-#include <boost/wave/cpplexer/cpp_lex_iterator.hpp>
-#include <boost/wave/cpplexer/cpplexer_exceptions.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <vector>
 #include <map>
 #include <algorithm>
 #include <sstream>
 #include <cctype>
-
 
 namespace Vera
 {
@@ -418,6 +412,13 @@ void recursiveParseStatement(Statement& response,
       ++it;
     }
 
+    if (id == boost::wave::T_FOR)
+    {
+      StatementOfForLoop  forLoopStatement(response, it, end);
+      ++it;
+      continue;
+    }
+
     if (id == boost::wave::T_IF
         || id == boost::wave::T_ELSE
         || id == boost::wave::T_WHILE
@@ -534,6 +535,13 @@ void parseStatement(Statement& response,
     if (id == boost::wave::T_IF)
     {
       StatementOfIf ifStatement(response, it, end);
+      ++it;
+      continue;
+    }
+
+    if (id == boost::wave::T_FOR)
+    {
+      StatementOfForLoop  forLoopStatement(response, it, end);
       ++it;
       continue;
     }
@@ -660,6 +668,104 @@ StatementsBuilder::builder(Statement& response, Tokens::TokenSequence::const_ite
 StatementsBuilder::StatementsBuilder(Statement& statement)
 : statement_(statement)
 {
+}
+
+void
+StatementsBuilder::addEachInvalidToken(Tokens::TokenSequence::const_iterator& it,
+  Tokens::TokenSequence::const_iterator& end,
+  Tokens::TokenSequence& current)
+{
+  IsValidTokenForStatement isValid(false);
+
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
+    end,
+    IsValidTokenForStatement(false));
+
+  std::copy(it, itMatched, std::back_inserter<Vera::Structures::Tokens::TokenSequence>(current));
+  it += std::distance(it, itMatched);
+}
+
+bool
+StatementsBuilder::parseArguments(Tokens::TokenSequence::const_iterator& it,
+  Tokens::TokenSequence::const_iterator& end)
+{
+  if(it == end)
+  {
+    return false;
+  }
+
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
+     end,
+     IsValidTokenForStatement());
+
+  if(itMatched == end)
+  {
+      return false;
+  }
+
+  if (IsTokenWithId(boost::wave::T_LEFTPAREN)(*itMatched) == false)
+  {
+    return false;
+  }
+
+  addEachInvalidToken(it, end, getCurrentStatement().tokenSequence_);
+
+  Statement& current = add();
+
+  current.tokenSequence_.push_back(*it);
+  ++it;
+
+  builder(current, it, end);
+
+  if (IsTokenWithId(boost::wave::T_RIGHTPAREN)(*it) == false)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+void
+StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
+  Tokens::TokenSequence::const_iterator& end)
+{
+  Statement& current = add();
+
+  addEachInvalidToken(it, end, current.tokenSequence_);
+
+  if (IsTokenWithId(boost::wave::T_LEFTBRACE)(*it) == true)
+  {
+    current.tokenSequence_.push_back(*it);
+
+    for (++it; it != end; ++it)
+    {
+
+      addEachInvalidToken(it, end, current.tokenSequence_);
+
+      if (it == end)
+      {
+        break;
+      }
+
+      if (IsTokenWithId(boost::wave::T_RIGHTBRACE)(*it) == true)
+      {
+        current.tokenSequence_.push_back(*it);
+        ++it;
+        break;
+      }
+
+      builder(current, it, end);
+
+      if (it == end)
+      {
+        break;
+      }
+    }
+  }
+  else
+  {
+    builder(current, it, end);
+  }
 }
 
 }

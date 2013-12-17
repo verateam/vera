@@ -66,6 +66,7 @@ struct Statement
 class StatementsBuilder : public boost::noncopyable_::noncopyable
 {
   friend class StatementOfIf;
+  friend class StatementOfForLoop;
   friend class FixtureOfIfStatements;
   public:
 
@@ -119,6 +120,22 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @param statement The reference to the parent statement.
      */
     StatementsBuilder(Statement& statement);
+
+    void addEachInvalidToken(Tokens::TokenSequence::const_iterator& it,
+      Tokens::TokenSequence::const_iterator& end,
+      Tokens::TokenSequence& current);
+
+    /**
+     * @brief Parses all the parameters on the given sentence.
+     * Where the given sentence is determined by a start and end point.
+     * @param it Defines the starting point of the statement.
+     * @param end Defines the ending point of the statement.
+     */
+    bool parseArguments(Tokens::TokenSequence::const_iterator& it,
+      Tokens::TokenSequence::const_iterator& end);
+
+    void parseScope(Tokens::TokenSequence::const_iterator& it,
+      Tokens::TokenSequence::const_iterator& end);
 
   private:
 

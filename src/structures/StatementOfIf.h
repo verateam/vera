@@ -19,7 +19,8 @@ namespace Structures
 {
 
 /**
- * @brief TODO
+ * @brief Classes that implements a decorator dedicated to the construction
+ * of Statements of type "for loop".
  */
 class StatementOfIf
 : public StatementsBuilder
@@ -31,8 +32,29 @@ class StatementOfIf
       Tokens::TokenSequence::const_iterator& end);
 
     const Tokens::TokenSequence& getIfTokens();
+
+    /**
+     * @brief Gets the arguments of the current sentence.
+     *
+     * @return The const reference to the Statement structure
+     * which contains the associated tokens.
+     */
     const Statement& getArgumentStatementFromConditionalSentence();
+
+    /**
+     * @brief Gets the scope of the 'if' sentence.
+     *
+     * @return The const reference to the Statement structure
+     * which contains the associated tokens.
+     */
     const Statement& getStatementIfScope();
+
+    /**
+     * @brief Gets the scope of the 'else' sentence.
+     *
+     * @return The const reference to the Statement structure
+     * which contains the associated tokens.
+     */
     const Statement& getStatementElseScope();
 
   private:
@@ -40,17 +62,8 @@ class StatementOfIf
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
-    void parseArguments(Tokens::TokenSequence::const_iterator& it,
-      Tokens::TokenSequence::const_iterator& end);
-
-    void parseScope(Tokens::TokenSequence::const_iterator& it,
-      Tokens::TokenSequence::const_iterator& end);
-
     bool isElse(Tokens::TokenSequence::const_iterator& it);
 
-    void addEachInvalidToken(Tokens::TokenSequence::const_iterator& it,
-      Tokens::TokenSequence::const_iterator& end,
-      Tokens::TokenSequence& current);
 };
 
 } // namespace Structures
