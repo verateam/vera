@@ -457,6 +457,49 @@ FixtureWithFullDocument::SetUp()
   collection_.push_back(Token("\n", 64, 34, "newline"));
   collection_.push_back(Token("}", 65, 0, "rightbrace"));
   collection_.push_back(Token("\n", 65, 1, "newline"));
+
+
+
+  functionDeclaration_.tokenSequence_.push_back(Token("int", 13, 0, "int"));
+  functionDeclaration_.tokenSequence_.push_back(Token(" ", 13, 3, "space"));
+  functionDeclaration_.tokenSequence_.push_back(Token("legacy_main", 13, 4, "identifier"));
+
+  {
+    functionDeclaration_.statementSequence_.push_back(Statement());
+    Statement& signature = functionDeclaration_.statementSequence_.back();
+
+    signature.tokenSequence_.push_back(Token("(", 13, 15, "leftparen"));
+    signature.tokenSequence_.push_back(Token("int", 13, 16, "int"));
+    signature.tokenSequence_.push_back(Token(" ", 13, 19, "space"));
+    signature.tokenSequence_.push_back(Token("argc", 13, 20, "identifier"));
+    signature.tokenSequence_.push_back(Token(",", 13, 24, "comma"));
+    signature.tokenSequence_.push_back(Token(" ", 13, 25, "space"));
+    signature.tokenSequence_.push_back(Token("char", 13, 26, "char"));
+    signature.tokenSequence_.push_back(Token(" ", 13, 30, "space"));
+    signature.tokenSequence_.push_back(Token("*", 13, 31, "star"));
+    signature.tokenSequence_.push_back(Token(" ", 13, 32, "space"));
+    signature.tokenSequence_.push_back(Token("argv", 13, 33, "identifier"));
+
+    {
+      signature.statementSequence_.push_back(Statement());
+      Statement& braces = signature.statementSequence_.back();
+      braces.tokenSequence_.push_back(Token("[", 13, 37, "leftbracket"));
+      braces.tokenSequence_.push_back(Token("]", 13, 38, "rightbracket"));
+    }
+
+    signature.tokenSequence_.push_back(Token(",", 13, 39, "comma"));
+    signature.tokenSequence_.push_back(Token(" ", 13, 40, "space"));
+    signature.tokenSequence_.push_back(Token("bool", 13, 41, "bool"));
+    signature.tokenSequence_.push_back(Token(" ", 13, 45, "space"));
+    signature.tokenSequence_.push_back(Token("silent", 13, 46, "identifier"));
+    signature.tokenSequence_.push_back(Token(" ", 13, 52, "space"));
+    signature.tokenSequence_.push_back(Token("=", 13, 53, "assign"));
+    signature.tokenSequence_.push_back(Token(" ", 13, 54, "space"));
+    signature.tokenSequence_.push_back(Token("false", 13, 55, "false"));
+    signature.tokenSequence_.push_back(Token(")", 13, 60, "rightparen"));
+  }
+
+  functionDeclaration_.tokenSequence_.push_back(Token(";", 13, 61, "semicolon"));
 }
 
 

@@ -32,6 +32,7 @@ class FixtureWithFullDocument : public ::testing::Test
   protected:
 
     Vera::Structures::Tokens::TokenSequence collection_;
+    Vera::Structures::Statement functionDeclaration_;
 };
 
 #endif // FIXTUREWITHFULLDOCUMENT_H_INCLUDED

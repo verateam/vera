@@ -372,7 +372,7 @@ getTokenId(const Token& token)
  * @param current
  * @return The reference to the new statement.
  */
-static Statement&
+Statement&
 add(Statement& current)
 {
   current.statementSequence_.push_back(Statement());
@@ -487,11 +487,14 @@ void recursiveParseStatement(Statement& response,
       continue;
     }
 
-    if (id == boost::wave::T_LEFTPAREN || id == boost::wave::T_LEFTBRACE)
+    if (id == boost::wave::T_LEFTPAREN ||
+      id == boost::wave::T_LEFTBRACE ||
+      id == boost::wave::T_LEFTBRACKET)
     {
-      response.tokenSequence_.push_back(*it);
+      Statement& current = add(response);
+      current.tokenSequence_.push_back(*it);
       ++it;
-      recursiveParseStatement(response, it, end);
+      recursiveParseStatement(current, it, end);
       IS_EQUAL_BREAK(it, end);
       //continue;
     }
@@ -511,6 +514,11 @@ void recursiveParseStatement(Statement& response,
     }
 
     if (id == boost::wave::T_RIGHTBRACE)
+    {
+      break;
+    }
+
+    if (id == boost::wave::T_RIGHTBRACKET)
     {
       break;
     }
@@ -604,10 +612,12 @@ void parseStatement(Statement& response,
       break;
     }
 
-    if (id == boost::wave::T_LEFTBRACE || id == boost::wave::T_LEFTPAREN)
+    if (id == boost::wave::T_LEFTBRACE||
+      id == boost::wave::T_LEFTPAREN ||
+      id == boost::wave::T_LEFTBRACKET)
     {
-      response.statementSequence_.push_back(Statement());
-      Statement& current = response.statementSequence_.back();
+      Statement& current = add(response);
+
       current.tokenSequence_.push_back(*it);
 
       ++it;
@@ -619,7 +629,9 @@ void parseStatement(Statement& response,
       continue;
     }
 
-    if (id == boost::wave::T_LEFTBRACE || id == boost::wave::T_LEFTPAREN)
+    if (id == boost::wave::T_LEFTBRACE ||
+      id == boost::wave::T_LEFTPAREN ||
+      id == boost::wave::T_LEFTBRACKET)
     {
       break;
     }
@@ -629,6 +641,13 @@ void parseStatement(Statement& response,
       response.tokenSequence_.push_back(*it);
       break;
     }
+
+    if (id == boost::wave::T_RIGHTBRACKET)
+    {
+      response.tokenSequence_.push_back(*it);
+      break;
+    }
+
 
     if (id == boost::wave::T_SEMICOLON)
     {
@@ -685,7 +704,7 @@ StatementsBuilder::create(Token token, Tokens::TokenSequence& tokenCollection)
 
   if (it != end)
   {
-    concreteBuilder.builder(response, it, end);
+    parseStatement(response, it, end);
   }
 
   return response;
@@ -722,7 +741,22 @@ StatementsBuilder::builder(Statement& response,
     throw StatementsError("Token Collection is empty.");
   }
 
-  parseStatement(response, it, end);
+
+  boost::wave::token_id id = getTokenId(*it);
+
+  if (id != boost::wave::T_IF &&
+      id != boost::wave::T_FOR &&
+      id != boost::wave::T_WHILE)
+  {
+    StatementsBuilder partial(response);
+
+    parseStatement(partial.add(), it, end);
+  }
+  else
+  {
+    parseStatement(response, it, end);
+  }
+
 }
 
 StatementsBuilder::StatementsBuilder(Statement& statement)
@@ -775,7 +809,7 @@ StatementsBuilder::parseArguments(Tokens::TokenSequence::const_iterator& it,
   current.tokenSequence_.push_back(*it);
   ++it;
 
-  builder(current, it, end);
+  parseStatement(current, it, end);
 
   if (IsTokenWithId(boost::wave::T_RIGHTPAREN)(*it) == false)
   {

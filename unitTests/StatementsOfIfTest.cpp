@@ -50,7 +50,6 @@ TEST_F(FixtureOfIfStatements, getStatementIfScope_givenCollectionWithValidSenten
 {
   //Arrange
   Tokens::TokenSequence inputCollection = getSubCollection(0, 21, collection_);
-  Tokens::TokenSequence tokensExpected = getSubCollection(5, 16, inputCollection);
 
   Statement response;
   Tokens::TokenSequence::const_iterator begin = inputCollection.begin();
@@ -61,7 +60,7 @@ TEST_F(FixtureOfIfStatements, getStatementIfScope_givenCollectionWithValidSenten
   const Statement& scope = ifSentence.getStatementIfScope();
 
   //Asserts
-  ASSERT_TRUE(ifScope_ == scope);
+  EXPECT_EQ(ifScope_, scope);
 }
 
 TEST_F(FixtureOfIfStatements, getStatementElseScope_givenCollectionWithValidSentenceElse_returnAssociatedScope)

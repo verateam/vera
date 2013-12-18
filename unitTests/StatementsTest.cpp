@@ -35,7 +35,6 @@ TEST_F(FixtureWithFullDocument, getStament_givenTheStartingElementInexistent_ret
   EXPECT_EQ(0, response.tokenSequence_.size());
 }
 
-
 TEST_F(FixtureOfDefineStaments, getStament_givenTheStartingElementDefineType_returnAssociatedStatement)
 {
   //Arrange
@@ -55,5 +54,24 @@ TEST_F(FixtureOfDefineStaments, getStament_givenTheStartingElementDefineType_ret
   EXPECT_EQ(intitialToken, response.tokenSequence_.front());
   ASSERT_TRUE(first.tokenSequence_ == expectedCollection);
 }
+
+TEST_F(FixtureWithFullDocument, getStament_givenTheStartingFucntionDeclaration_returnAssociatedStatement)
+{
+  //Arrange
+  int offset = 2;
+  int size = 4;
+
+  Tokens::TokenSequence expectedCollection = Utilities().getSubCollection(offset, size, collection_);
+
+  Token intitialToken("int", 13, 0, "int");
+
+  //Act
+  Statement response = StatementsBuilder::create(intitialToken, collection_);
+
+  //Asserts
+  EXPECT_EQ(functionDeclaration_, response);
+}
+
+
 
 } // Testing namespace

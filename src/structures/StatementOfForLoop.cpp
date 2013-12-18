@@ -126,9 +126,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
   current.tokenSequence_.push_back(*it);
   ++it;
 
-  StatementsBuilder partialBuilder(current);
-
-  if (extractOneStatementArgument(partialBuilder, it, end, SEMICOLON_TOKEN_NAME) == false)
+  if (extractOneStatementArgument(current, it, end, SEMICOLON_TOKEN_NAME) == false)
   {
     return false;
   }
@@ -136,7 +134,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
   ++it;
   IS_EQUAL_RETURN_FALSE(it, end);
 
-  if (extractOneStatementArgument(partialBuilder, it, end, SEMICOLON_TOKEN_NAME) == false)
+  if (extractOneStatementArgument(current, it, end, SEMICOLON_TOKEN_NAME) == false)
   {
     return false;
   }
@@ -144,7 +142,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
   ++it;
   IS_EQUAL_RETURN_FALSE(it, end);
 
-  if (extractOneStatementArgument(partialBuilder, it, end, RIGHTPAREN_TOKEN_NAME) == false)
+  if (extractOneStatementArgument(current, it, end, RIGHTPAREN_TOKEN_NAME) == false)
   {
     return false;
   }
@@ -158,15 +156,11 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
 }
 
 bool
-StatementOfForLoop::extractOneStatementArgument(StatementsBuilder& partialBuilder,
+StatementOfForLoop::extractOneStatementArgument(Statement& current,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end,
   std::string tokenName)
 {
-  Statement& current = partialBuilder.add();
-
-  //addEachInvalidToken(it, end, current.tokenSequence_);
-
   IS_EQUAL_RETURN_FALSE(it, end);
 
   builder(current, it, end);
