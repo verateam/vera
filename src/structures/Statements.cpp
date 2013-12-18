@@ -8,6 +8,7 @@
 #include "Statements.h"
 #include "StatementOfIf.h"
 #include "StatementOfForLoop.h"
+#include "StatementOfWhileLoop.h"
 #include "IsTokenWithName.h"
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -446,14 +447,23 @@ void recursiveParseStatement(Statement& response,
 
     if (id == boost::wave::T_IF)
     {
-      StatementOfIf ifStatement(add(response), it, end);
+      parseStatement(response, it, end);
       IS_EQUAL_BREAK(it, end);
       ++it;
+      continue;
+    }
+
+    if (id == boost::wave::T_WHILE)
+    {
+      parseStatement(response, it, end);
+      IS_EQUAL_BREAK(it, end);
+      ++it;
+      continue;
     }
 
     if (id == boost::wave::T_FOR)
     {
-      StatementOfForLoop  forLoopStatement(add(response), it, end);
+      parseStatement(response, it, end);
       IS_EQUAL_BREAK(it, end);
       ++it;
       continue;
@@ -577,16 +587,21 @@ void parseStatement(Statement& response,
     {
       StatementOfIf ifStatement(add(response), it, end);
       IS_EQUAL_BREAK(it, end);
-      ++it;
-      continue;
+      break;
+    }
+
+    if (id == boost::wave::T_WHILE)
+    {
+      StatementOfWhileLoop(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
+      break;
     }
 
     if (id == boost::wave::T_FOR)
     {
       StatementOfForLoop  forLoopStatement(add(response), it, end);
       IS_EQUAL_BREAK(it, end);
-      ++it;
-      continue;
+      break;
     }
 
     if (id == boost::wave::T_LEFTBRACE || id == boost::wave::T_LEFTPAREN)
@@ -774,6 +789,9 @@ void
 StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
+  if (it == end)
+    return;
+
   Statement& current = add();
 
   addEachInvalidToken(it, end, current.tokenSequence_);
@@ -795,7 +813,7 @@ StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
       if (IsTokenWithId(boost::wave::T_RIGHTBRACE)(*it) == true)
       {
         current.tokenSequence_.push_back(*it);
-        ++it;
+        //++it;
         break;
       }
 

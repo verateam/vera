@@ -61,7 +61,7 @@ TEST_F(FixtureOfLoopStatements, getStatementScope_givenCollectionWithValidSenten
   ASSERT_EQ(scopeOfForLoop_, scope);
 }
 
-TEST_F(FixtureOfLoopStatements, getStatementScope_givenCollectionWithComplexForLoop_returnStatement)
+TEST_F(FixtureOfLoopStatements, StatementOfForLoop_givenCollectionWithComplexForLoop_returnStatement)
 {
   //Arrange
   Tokens::TokenSequence inputCollection = getSubCollection(41, 62, collectionTokensOfLoopFor_);
@@ -78,7 +78,39 @@ TEST_F(FixtureOfLoopStatements, getStatementScope_givenCollectionWithComplexForL
 
   //Asserts
   EXPECT_EQ(argumentsOfForLoop_, arguments);
+
   ASSERT_EQ(scopeOfForLoop_, scope);
 }
 
+TEST_F(FixtureOfLoopStatements, getStatementScope_givenStatementWithScopeIncomplete_NonTrowsException)
+{
+  //Arrange
+  Tokens::TokenSequence inputCollection = getSubCollection(41, 55, collectionTokensOfLoopFor_);
+
+  Statement response;
+  Tokens::TokenSequence::const_iterator begin = inputCollection.begin();
+  Tokens::TokenSequence::const_iterator end = inputCollection.end();
+
+  //Act
+  StatementOfForLoop forLoop(response, begin, end);
+
+  //Asserts
+  EXPECT_NO_THROW(forLoop.getStatementScope());
+}
+
+TEST_F(FixtureOfLoopStatements, getStatementScope_givenStatementWithoutScope_trowsException)
+{
+  //Arrange
+  Tokens::TokenSequence inputCollection = getSubCollection(0, 31, collectionTokensOfLoopFor_);
+
+  Statement response;
+  Tokens::TokenSequence::const_iterator begin = inputCollection.begin();
+  Tokens::TokenSequence::const_iterator end = inputCollection.end();
+
+  //Act
+  StatementOfForLoop forLoop(response, begin, end);
+
+  //Asserts
+  EXPECT_THROW(forLoop.getStatementScope(), Vera::Structures::StatementsError);
+}
 } // Testing namespace

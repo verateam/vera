@@ -69,15 +69,18 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
   IS_EQUAL_RETURN(it, end);
 
   parseScope(it, end);
+  IS_EQUAL_RETURN(it, end);
+
 
   IS_EQUAL_RETURN(it, end);
 
-  itMatched = std::find_if(it, end, IsValidTokenForStatement());
+  itMatched = std::find_if(it+1, end, IsValidTokenForStatement());
 
   IS_EQUAL_RETURN(itMatched, end);
 
   if (isElse(itMatched))
   {
+    ++it;
     addEachInvalidToken(it, end, getCurrentStatement().tokenSequence_);
 
     getCurrentStatement().tokenSequence_.push_back(*it);
