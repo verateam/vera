@@ -30,12 +30,19 @@ class FixtureOfLoopStatements
      */
     virtual void TearDown();
 
+    void initializeSigleForLoop();
+
+    void initializeComplexForLoop();
+
   protected:
+
+
 
     Vera::Structures::Tokens::TokenSequence collectionTokensOfLoopFor_;
     Vera::Structures::Tokens::TokenSequence collectionTokensOfLoopWhile_;
     Vera::Structures::Tokens::TokenSequence collectionTokensOfLoopDo_;
     Vera::Structures::Statement argumentsOfForLoop_;
+    Vera::Structures::Statement scopeOfForLoop_;
 };
 
 #endif // FIXTUREOFLOOPSTAMENTS_H_INCLUDED

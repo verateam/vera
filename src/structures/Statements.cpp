@@ -16,6 +16,29 @@
 #include <algorithm>
 #include <sstream>
 #include <cctype>
+#define IS_EQUAL_BREAK(left, right) \
+  {\
+    if (left == right) \
+    { \
+      return;\
+    }\
+  }
+#define IS_EQUAL_RETURN(left, right) \
+  {\
+    if (left == right) \
+    { \
+      return;\
+    }\
+  }
+#define IS_EQUAL_RETURN_FALSE(left, right) \
+  {\
+    if (left == right) \
+    { \
+      return false;\
+    }\
+  }
+
+
 
 namespace Vera
 {
@@ -343,6 +366,21 @@ getTokenId(const Token& token)
 }
 
 /**
+ * @brief Adds a new statement to the statement collection associated to the parent statement.
+ *
+ * @param current
+ * @return The reference to the new statement.
+ */
+static Statement&
+add(Statement& current)
+{
+  current.statementSequence_.push_back(Statement());
+  Statement& next = current.statementSequence_.back();
+
+  return next;
+}
+
+/**
  * @brief Parses the statements from the token list
  * and retrieves the related list of tokens.
  *
@@ -408,23 +446,23 @@ void recursiveParseStatement(Statement& response,
 
     if (id == boost::wave::T_IF)
     {
-      StatementOfIf ifStatement(response, it, end);
+      StatementOfIf ifStatement(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
       ++it;
     }
 
     if (id == boost::wave::T_FOR)
     {
-      StatementOfForLoop  forLoopStatement(response, it, end);
+      StatementOfForLoop  forLoopStatement(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
       ++it;
       continue;
     }
 
-    if (id == boost::wave::T_IF
-        || id == boost::wave::T_ELSE
+    if (id == boost::wave::T_ELSE
         || id == boost::wave::T_WHILE
         || id == boost::wave::T_DO
         || id == boost::wave::T_EXTERN
-        || id == boost::wave::T_FOR
         || id == boost::wave::T_TRY
         || id == boost::wave::T_CATCH)
     {
@@ -434,7 +472,8 @@ void recursiveParseStatement(Statement& response,
 
       ++it;
       parseStatement(current, it, end);
-      ++it; //TODO require continue
+      IS_EQUAL_BREAK(it, end);
+      ++it; //TODO require continue?
       continue;
     }
 
@@ -443,6 +482,7 @@ void recursiveParseStatement(Statement& response,
       response.tokenSequence_.push_back(*it);
       ++it;
       recursiveParseStatement(response, it, end);
+      IS_EQUAL_BREAK(it, end);
       //continue;
     }
     else
@@ -468,6 +508,7 @@ void recursiveParseStatement(Statement& response,
     if (id == boost::wave::T_PP_DEFINE)
     {
       parseStatementDefineType(response, it, end);
+      IS_EQUAL_BREAK(it, end);
     }
 
     ++it;
@@ -534,14 +575,16 @@ void parseStatement(Statement& response,
 
     if (id == boost::wave::T_IF)
     {
-      StatementOfIf ifStatement(response, it, end);
+      StatementOfIf ifStatement(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
       ++it;
       continue;
     }
 
     if (id == boost::wave::T_FOR)
     {
-      StatementOfForLoop  forLoopStatement(response, it, end);
+      StatementOfForLoop  forLoopStatement(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
       ++it;
       continue;
     }
@@ -555,7 +598,7 @@ void parseStatement(Statement& response,
       ++it;
 
       recursiveParseStatement(current, it, end);
-
+      IS_EQUAL_BREAK(it, end);
       ++it;
 
       continue;
@@ -655,7 +698,9 @@ StatementsBuilder::add()
 }
 
 void
-StatementsBuilder::builder(Statement& response, Tokens::TokenSequence::const_iterator& it, Tokens::TokenSequence::const_iterator& end)
+StatementsBuilder::builder(Statement& response,
+  Tokens::TokenSequence::const_iterator& it,
+  Tokens::TokenSequence::const_iterator& end)
 {
   if (it == end)
   {
@@ -689,7 +734,7 @@ bool
 StatementsBuilder::parseArguments(Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
-  if(it == end)
+  if (it == end)
   {
     return false;
   }
@@ -698,7 +743,7 @@ StatementsBuilder::parseArguments(Tokens::TokenSequence::const_iterator& it,
      end,
      IsValidTokenForStatement());
 
-  if(itMatched == end)
+  if (itMatched == end)
   {
       return false;
   }

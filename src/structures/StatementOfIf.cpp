@@ -47,7 +47,6 @@ StatementOfIf::StatementOfIf(Statement& statement,
     throw StatementsError(IS_NOT_TOKEN);
   }
 
-  setCurrentStatement(add());
 
   initialize(it, end);
 }

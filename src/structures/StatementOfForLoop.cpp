@@ -62,7 +62,6 @@ StatementOfForLoop::StatementOfForLoop(Statement& statement,
   {
     throw StatementsError(IS_NOT_TOKEN);
   }
-  setCurrentStatement(add());
 
   initialize(it, end);
 }
@@ -79,7 +78,6 @@ StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
     return;
   }
 
-  ++it;
   IS_EQUAL_RETURN(it, end);
 
   parseScope(it, end);
@@ -154,8 +152,8 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
   Statement& argument = current.statementSequence_.back();
   Token token = argument.tokenSequence_.back();
   argument.tokenSequence_.pop_back();
-  getCurrentStatement().tokenSequence_.push_back(token);
-
+  current.tokenSequence_.push_back(token);
+  ++it;
   return true;
 }
 

@@ -63,7 +63,6 @@ class StatementOfIf
         Tokens::TokenSequence::const_iterator& end);
 
     bool isElse(Tokens::TokenSequence::const_iterator& it);
-
 };
 
 } // namespace Structures
