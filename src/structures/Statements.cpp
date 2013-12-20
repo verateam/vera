@@ -12,6 +12,8 @@
 #include "StatementOfWhileLoop.h"
 #include "StatementOfTryCatches.h"
 #include "StatementOfDoWhileLoop.h"
+#include "StatementOfSwitch.h"
+#include "StatementOfCases.h"
 #include "IsTokenWithName.h"
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -41,8 +43,6 @@
       return false;\
     }\
   }
-
-
 
 namespace Vera
 {
@@ -454,6 +454,9 @@ void recursiveParseStatement(Statement& response,
         id == boost::wave::T_DO ||
         id == boost::wave::T_WHILE ||
         id == boost::wave::T_TRY ||
+        id == boost::wave::T_SWITCH ||
+        id == boost::wave::T_CASE ||
+        id == boost::wave::T_DEFAULT ||
         id == boost::wave::T_CATCH )
     {
       parseStatement(response, it, end);
@@ -596,6 +599,20 @@ void parseStatement(Statement& response,
     if (id == boost::wave::T_FOR)
     {
       StatementOfForLoop(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
+      break;
+    }
+
+    if (id == boost::wave::T_SWITCH)
+    {
+      StatementOfSwitch(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
+      break;
+    }
+
+    if (id == boost::wave::T_CASE || id == boost::wave::T_DEFAULT)
+    {
+      StatementOfCases(add(response), it, end);
       IS_EQUAL_BREAK(it, end);
       break;
     }
@@ -766,6 +783,9 @@ StatementsBuilder::builder(Statement& response,
       id != boost::wave::T_DO &&
       id != boost::wave::T_CATCH &&
       id != boost::wave::T_ELSE &&
+      id != boost::wave::T_CASE &&
+      id != boost::wave::T_DEFAULT &&
+      id != boost::wave::T_SWITCH &&
       id != boost::wave::T_WHILE)
   {
     StatementsBuilder partial(response);

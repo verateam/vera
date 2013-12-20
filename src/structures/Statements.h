@@ -73,6 +73,8 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfDoWhileLoop;
   friend class StatementOfElse;
   friend class FixtureOfIfStatements;
+  friend class StatementOfSwitch;
+  friend class StatementOfCases;
 
   public:
 
