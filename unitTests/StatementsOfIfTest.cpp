@@ -72,10 +72,11 @@ TEST_F(FixtureOfIfStatements, getStatementElseScope_givenCollectionWithValidSent
 
   //Act
   StatementOfIf ifSentence(response, begin, end);
-  const Statement& scope = ifSentence.getStatementElseScope();
+  const Statement& scope = ifSentence.getStatementElse();
+  StatementOfElse elseSentence(scope);
 
   //Asserts
-  ASSERT_TRUE(elseScope_ == scope);
+  ASSERT_TRUE(elseScope_ == elseSentence.getStatementScope());
 }
 
 TEST_F(FixtureOfIfStatements, getIfTokens_givenCollectionWithValidSentenceIfAndElse_returnStatementWithAssociatedTokens)

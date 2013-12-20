@@ -78,8 +78,8 @@ StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
     return;
   }
 
-  IS_EQUAL_RETURN(it, end);
 
+  IS_EQUAL_RETURN(it, end);
   parseScope(it, end);
 }
 
@@ -152,6 +152,8 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
   argument.tokenSequence_.pop_back();
   current.tokenSequence_.push_back(token);
   ++it;
+  IS_EQUAL_RETURN_FALSE(it, end);
+
   return true;
 }
 

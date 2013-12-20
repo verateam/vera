@@ -34,6 +34,7 @@ class FixtureOfIfStatements
 
     Vera::Structures::Tokens::TokenSequence collection_;
     Vera::Structures::Tokens::TokenSequence ifTokens_;
+    Vera::Structures::Tokens::TokenSequence elseTokens_;
     Vera::Structures::Statement ifScope_;
     Vera::Structures::Statement elseScope_;
 };

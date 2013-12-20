@@ -67,7 +67,13 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
 {
   friend class StatementOfIf;
   friend class StatementOfForLoop;
+  //friend class FixtureOfIfStatements;
+  friend class StatementOfTryCatches;
+  friend class StatementOfCatch;
+  friend class StatementOfDoWhileLoop;
+  friend class StatementOfElse;
   friend class FixtureOfIfStatements;
+
   public:
 
     /**
@@ -100,6 +106,13 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @return The reference to the new statement.
      */
     Statement& add();
+
+    /**
+     * @brief Gets the tokens of the current sentence.
+     *
+     * @return The const reference to the token collection.
+     */
+    const Tokens::TokenSequence& getTokens();
 
   protected:
 

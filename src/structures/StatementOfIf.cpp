@@ -8,6 +8,7 @@
 #include "StatementOfIf.h"
 #include "IsTokenWithName.h"
 
+
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -56,8 +57,9 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
   Tokens::TokenSequence::const_iterator itMatched = end;
+  Statement& current = getCurrentStatement();
 
-  getCurrentStatement().tokenSequence_.push_back(*it);
+  current.tokenSequence_.push_back(*it);
   ++it;
 
   if (parseArguments(it, end) == false)
@@ -81,12 +83,9 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
   if (isElse(itMatched))
   {
     ++it;
-    addEachInvalidToken(it, end, getCurrentStatement().tokenSequence_);
+    addEachInvalidToken(it, end, current.tokenSequence_);
 
-    getCurrentStatement().tokenSequence_.push_back(*it);
-    ++it;
-
-    parseScope(it, end);
+    StatementOfElse(add(), it, end);
   }
 }
 
@@ -96,12 +95,6 @@ StatementOfIf::isElse(Tokens::TokenSequence::const_iterator& it)
   const Token& token = *it;
 
   return token.name_.compare(ELSE_TOKEN_NAME) == 0;
-}
-
-const Tokens::TokenSequence&
-StatementOfIf::getIfTokens()
-{
-  return getCurrentStatement().tokenSequence_;
 }
 
 const Statement&
@@ -127,7 +120,7 @@ StatementOfIf::getStatementIfScope()
 }
 
 const Statement&
-StatementOfIf::getStatementElseScope()
+StatementOfIf::getStatementElse()
 {
   if (getCurrentStatement().statementSequence_.size() < 3)
   {

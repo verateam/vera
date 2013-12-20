@@ -78,28 +78,27 @@ FixtureOfIfStatements::SetUp()
   ifTokens_.push_back(Token("if", 1, 0, "if"));
   ifTokens_.push_back(Token(" ", 1, 2, "space"));
   ifTokens_.push_back(Token(" ", 1, 73, "space"));
-  ifTokens_.push_back(Token("else", 1, 74, "else"));
 
-  elseScope_.tokenSequence_.push_back(Token(" ", 1, 78, "space"));
+  elseTokens_.push_back(Token("else", 1, 74, "else"));
+
+  elseTokens_.push_back(Token(" ", 1, 78, "space"));
 
   {
-    elseScope_.statementSequence_.push_back(Statement());
-    Statement& returnSentence = elseScope_.statementSequence_.back();
-    returnSentence.tokenSequence_.push_back(Token("return", 1, 79, "return"));
-    returnSentence.tokenSequence_.push_back(Token(" ", 1, 85, "space"));
-    returnSentence.tokenSequence_.push_back(Token("toupper", 1, 86, "identifier"));
-    returnSentence.tokenSequence_.push_back(Token(" ", 1, 103, "space"));
+    elseScope_.tokenSequence_.push_back(Token("return", 1, 79, "return"));
+    elseScope_.tokenSequence_.push_back(Token(" ", 1, 85, "space"));
+    elseScope_.tokenSequence_.push_back(Token("toupper", 1, 86, "identifier"));
+    elseScope_.tokenSequence_.push_back(Token(" ", 1, 103, "space"));
 
     {
-      returnSentence.statementSequence_.push_back(Statement());
-      Statement& current = returnSentence.statementSequence_.back();
+      elseScope_.statementSequence_.push_back(Statement());
+      Statement& current = elseScope_.statementSequence_.back();
 
       current.tokenSequence_.push_back(Token("(", 1, 93, "leftparen"));
       current.tokenSequence_.push_back(Token("\"false\"", 1, 94, "stringlit"));
       current.tokenSequence_.push_back(Token(")", 1, 102, "rightparen"));
     }
 
-    returnSentence.tokenSequence_.push_back(Token(";", 1, 104, "semicolon"));
+    elseScope_.tokenSequence_.push_back(Token(";", 1, 104, "semicolon"));
   }
 
 }

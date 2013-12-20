@@ -5,14 +5,13 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STATEMENTOFIF_H_INCLUDED
-#define STATEMENTOFIF_H_INCLUDED
+#ifndef STATEMENTOFDOWHILELOOP_H_INCLUDED
+#define STATEMENTOFDOWHILELOOP_H_INCLUDED
 
 #include "Tokens.h"
 #include <string>
 #include <vector>
 #include "Statements.h"
-#include "StatementOfElse.h"
 
 namespace Vera
 {
@@ -21,14 +20,14 @@ namespace Structures
 
 /**
  * @brief Classes that implements a decorator dedicated to the construction
- * of Statements of type "for loop".
+ * of Statements of type "while loop".
  */
-class StatementOfIf
+class StatementOfDoWhileLoop
 : public StatementsBuilder
 {
   public:
 
-    StatementOfIf(Statement& statement,
+    StatementOfDoWhileLoop(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
@@ -41,31 +40,22 @@ class StatementOfIf
     const Statement& getArgumentStatementFromConditionalSentence();
 
     /**
-     * @brief Gets the scope of the 'if' sentence.
+     * @brief Gets the scope of the current sentence.
      *
      * @return The const reference to the Statement structure
      * which contains the associated tokens.
      */
-    const Statement& getStatementIfScope();
-
-    /**
-     * @brief Gets the scope of the 'else' sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementElse();
+    const Statement& getStatementScope();
 
   private:
 
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
-    bool isElse(Tokens::TokenSequence::const_iterator& it);
 };
 
 } // namespace Structures
 
 } // namespace Vera
 
-#endif // STATEMENTOFIF_H_INCLUDED
+#endif // STATEMENTOFDOWHILELOOP_H_INCLUDED

@@ -7,8 +7,11 @@
 
 #include "Statements.h"
 #include "StatementOfIf.h"
+#include "StatementOfElse.h"
 #include "StatementOfForLoop.h"
 #include "StatementOfWhileLoop.h"
+#include "StatementOfTryCatches.h"
+#include "StatementOfDoWhileLoop.h"
 #include "IsTokenWithName.h"
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -445,7 +448,13 @@ void recursiveParseStatement(Statement& response,
       break;
     }
 
-    if (id == boost::wave::T_IF)
+    if (id == boost::wave::T_IF ||
+        id == boost::wave::T_ELSE ||
+        id == boost::wave::T_FOR ||
+        id == boost::wave::T_DO ||
+        id == boost::wave::T_WHILE ||
+        id == boost::wave::T_TRY ||
+        id == boost::wave::T_CATCH )
     {
       parseStatement(response, it, end);
       IS_EQUAL_BREAK(it, end);
@@ -453,28 +462,7 @@ void recursiveParseStatement(Statement& response,
       continue;
     }
 
-    if (id == boost::wave::T_WHILE)
-    {
-      parseStatement(response, it, end);
-      IS_EQUAL_BREAK(it, end);
-      ++it;
-      continue;
-    }
-
-    if (id == boost::wave::T_FOR)
-    {
-      parseStatement(response, it, end);
-      IS_EQUAL_BREAK(it, end);
-      ++it;
-      continue;
-    }
-
-    if (id == boost::wave::T_ELSE
-        || id == boost::wave::T_WHILE
-        || id == boost::wave::T_DO
-        || id == boost::wave::T_EXTERN
-        || id == boost::wave::T_TRY
-        || id == boost::wave::T_CATCH)
+    if (id == boost::wave::T_EXTERN)
     {
       response.statementSequence_.push_back(Statement());
       Statement& current = response.statementSequence_.back();
@@ -593,7 +581,7 @@ void parseStatement(Statement& response,
 
     if (id == boost::wave::T_IF)
     {
-      StatementOfIf ifStatement(add(response), it, end);
+      StatementOfIf(add(response), it, end);
       IS_EQUAL_BREAK(it, end);
       break;
     }
@@ -607,7 +595,35 @@ void parseStatement(Statement& response,
 
     if (id == boost::wave::T_FOR)
     {
-      StatementOfForLoop  forLoopStatement(add(response), it, end);
+      StatementOfForLoop(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
+      break;
+    }
+
+    if (id == boost::wave::T_DO)
+    {
+      StatementOfDoWhileLoop(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
+      break;
+    }
+
+    if (id == boost::wave::T_TRY)
+    {
+      StatementOfTryCatches(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
+      break;
+    }
+
+    if (id == boost::wave::T_CATCH)
+    {
+      StatementOfCatch(add(response), it, end);
+      IS_EQUAL_BREAK(it, end);
+      break;
+    }
+
+    if (id == boost::wave::T_ELSE)
+    {
+      StatementOfElse(add(response), it, end);
       IS_EQUAL_BREAK(it, end);
       break;
     }
@@ -746,6 +762,10 @@ StatementsBuilder::builder(Statement& response,
 
   if (id != boost::wave::T_IF &&
       id != boost::wave::T_FOR &&
+      id != boost::wave::T_TRY &&
+      id != boost::wave::T_DO &&
+      id != boost::wave::T_CATCH &&
+      id != boost::wave::T_ELSE &&
       id != boost::wave::T_WHILE)
   {
     StatementsBuilder partial(response);
@@ -826,8 +846,8 @@ StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
   if (it == end)
     return;
 
-  Statement& current = add();
 
+  Statement& current = add();
   addEachInvalidToken(it, end, current.tokenSequence_);
 
   if (IsTokenWithId(boost::wave::T_LEFTBRACE)(*it) == true)
@@ -836,7 +856,6 @@ StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
 
     for (++it; it != end; ++it)
     {
-
       addEachInvalidToken(it, end, current.tokenSequence_);
 
       if (it == end)
@@ -861,8 +880,16 @@ StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
   }
   else
   {
-    builder(current, it, end);
+    //builder(current, it, end);
+    parseStatement(current, it, end);
   }
+}
+
+const
+Tokens::TokenSequence&
+StatementsBuilder::getTokens()
+{
+  return statement_.tokenSequence_;
 }
 
 }

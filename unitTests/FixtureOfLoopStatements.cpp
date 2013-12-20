@@ -166,20 +166,18 @@ FixtureOfLoopStatements::initializeSigleForLoop()
 
   scopeOfForLoop_.tokenSequence_.push_back(Token("\n", 1, 40, "newline"));
   scopeOfForLoop_.tokenSequence_.push_back(Token("  ", 2, 0, "space"));
+
+  scopeOfForLoop_.tokenSequence_.push_back(Token("printf", 2, 2, "identifier"));
   {
     scopeOfForLoop_.statementSequence_.push_back(Statement());
-    Statement& printOK = scopeOfForLoop_.statementSequence_.back();
-    printOK.tokenSequence_.push_back(Token("printf", 2, 2, "identifier"));
-    {
-      printOK.statementSequence_.push_back(Statement());
-      Statement& current = printOK.statementSequence_.back();
-      current.tokenSequence_.push_back(Token("(", 2, 8, "leftparen"));
-      current.tokenSequence_.push_back(Token("\"ok\"", 2, 9, "stringlit"));
-      current.tokenSequence_.push_back(Token(")", 2, 13, "rightparen"));
-    }
-
-    printOK.tokenSequence_.push_back(Token(";", 2, 14, "semicolon"));
+    Statement& current = scopeOfForLoop_.statementSequence_.back();
+    current.tokenSequence_.push_back(Token("(", 2, 8, "leftparen"));
+    current.tokenSequence_.push_back(Token("\"ok\"", 2, 9, "stringlit"));
+    current.tokenSequence_.push_back(Token(")", 2, 13, "rightparen"));
   }
+
+  scopeOfForLoop_.tokenSequence_.push_back(Token(";", 2, 14, "semicolon"));
+
 }
 
 void
@@ -272,13 +270,9 @@ FixtureOfLoopStatements::initializeComplexForLoop()
       Statement& currentScope = current.statementSequence_.back();
       currentScope.tokenSequence_.push_back(Token("\n", 6, 18, "newline"));
       currentScope.tokenSequence_.push_back(Token("     ", 7, 0, "space"));
-      {
-        currentScope.statementSequence_.push_back(Statement());
-        Statement& jPlusPlus = currentScope.statementSequence_.back();
-        jPlusPlus.tokenSequence_.push_back(Token("j", 7, 5, "identifier"));
-        jPlusPlus.tokenSequence_.push_back(Token("++", 7, 6, "plusplus"));
-        jPlusPlus.tokenSequence_.push_back(Token(";", 7, 8, "semicolon"));
-      }
+      currentScope.tokenSequence_.push_back(Token("j", 7, 5, "identifier"));
+      currentScope.tokenSequence_.push_back(Token("++", 7, 6, "plusplus"));
+      currentScope.tokenSequence_.push_back(Token(";", 7, 8, "semicolon"));
     }
   }
   scopeOfForLoop_.tokenSequence_.push_back(Token("\n", 7, 9, "newline"));
