@@ -14,6 +14,7 @@
 #include "plugins/Parameters.h"
 #include "plugins/Reports.h"
 #include "plugins/RootDirectory.h"
+#include "structures/Tokens.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -114,6 +115,7 @@ int boost_main(int argc, char * argv[])
 
     std::string profile = "default";
     std::string transform;
+    std::string preprocessingConfigFile;
     std::vector<std::string> rules;
     std::vector<std::string> parameters;
     std::vector<std::string> parameterFiles;
@@ -161,6 +163,8 @@ int boost_main(int argc, char * argv[])
         ("inputs,i", po::value(&inputFiles), "the inputs are read from that file (note: one file"
             " per line. can be used many times.)")
         ("root,r", po::value(&veraRoot), "use the given directory as the vera root directory")
+        ("config-file-preprocessing,r", po::value(&preprocessingConfigFile),"Specifies a config file which contains the"
+         "\"include\" directories of the project and the system. This file also contains the predefined macros list.")
         ("help,h", "show this help message and exit")
         ("version", "show vera++'s version and exit");
 
@@ -232,6 +236,9 @@ int boost_main(int argc, char * argv[])
             Vera::Plugins::Parameters::ParamAssoc assoc(p);
             Vera::Plugins::Parameters::set(assoc);
         }
+
+        Vera::Structures::Tokens::readConfigFile(preprocessingConfigFile);
+
         if (vm.count("__input__"))
         {
             foreach (const std::string & i, inputs)

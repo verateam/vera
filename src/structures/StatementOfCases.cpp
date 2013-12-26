@@ -99,13 +99,13 @@ StatementOfCases::initialize(Tokens::TokenSequence::const_iterator& it,
 {
   Statement& current = getCurrentStatement();
 
-  current.tokenSequence_.push_back(*it);
+  current.push(*it);
   ++it;
   IS_EQUAL_RETURN(it, end);
 
   if (isDefault_ == false) //TODO ugly conditional create factory method
   {
-    addEachInvalidToken(it, end, current.tokenSequence_);
+    addEachInvalidToken(current, it, end);
     IS_EQUAL_RETURN(it, end);
 
     if (it->name_.compare(INTLIT_TOKEN_NAME) != 0 &&
@@ -118,27 +118,27 @@ StatementOfCases::initialize(Tokens::TokenSequence::const_iterator& it,
       return;
     }
 
-    current.tokenSequence_.push_back(*it);
+    current.push(*it);
     ++it;
     IS_EQUAL_RETURN(it, end);
   }
 
-  addEachInvalidToken(it, end, current.tokenSequence_);
+  addEachInvalidToken(current, it, end);
 
   if (it->name_.compare(COLON_TOKEN_NAME) != 0)
   {
     return;
   }
 
-  current.tokenSequence_.push_back(*it);
+  current.push(*it);
   ++it;
   IS_EQUAL_RETURN(it, end);
-  addEachInvalidToken(it ,end, current.tokenSequence_);
+  addEachInvalidToken(current, it ,end);
   Tokens::TokenSequence::const_iterator itMatched = end;
 
   while(it != end)
   {
-    addEachInvalidToken(it ,end, current.tokenSequence_);
+    addEachInvalidToken(current, it ,end);
     IS_EQUAL_BREAK(it, end);
 
     if (it->name_.compare(RIGHTBRACE_TOKEN_NAME) == 0 || canAdvance(it, end) == false)

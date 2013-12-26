@@ -71,12 +71,11 @@ void
 StatementOfTryCatches::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  getCurrentStatement().tokenSequence_.push_back(*it);
+  push(*it);
 
   ++it;
 
   IS_EQUAL_RETURN(it, end);
-
 
   parseScope(it, end);
   Tokens::TokenSequence::const_iterator   itMatched  = end;
@@ -91,7 +90,7 @@ StatementOfTryCatches::initialize(Tokens::TokenSequence::const_iterator& it,
     {
       Statement& current = add();
       ++it;
-      addEachInvalidToken(it ,end, current.tokenSequence_);
+      addEachInvalidToken(current, it ,end);
       StatementOfCatch partialBuilder(current, it, end);
 
       collection_.push_back(&partialBuilder.getCurrentStatement());

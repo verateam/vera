@@ -59,7 +59,7 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator itMatched = end;
   Statement& current = getCurrentStatement();
 
-  current.tokenSequence_.push_back(*it);
+  current.push(*it);
   ++it;
 
   if (parseArguments(it, end) == false)
@@ -83,7 +83,7 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
   if (isElse(itMatched))
   {
     ++it;
-    addEachInvalidToken(it, end, current.tokenSequence_);
+    addEachInvalidToken(current, it, end);
 
     StatementOfElse(add(), it, end);
   }

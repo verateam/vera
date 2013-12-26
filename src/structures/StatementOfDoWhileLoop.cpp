@@ -63,7 +63,7 @@ void
 StatementOfDoWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  getCurrentStatement().tokenSequence_.push_back(*it);
+  push(*it);
   ++it;
   IS_EQUAL_RETURN(it, end);
   parseScope(it, end);
@@ -83,15 +83,15 @@ StatementOfDoWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
   Statement& current = partial.getCurrentStatement();
 
   ++it;
-  addEachInvalidToken(it, end, getCurrentStatement().tokenSequence_);
+  addEachInvalidToken(getCurrentStatement(), it, end);
 
-  current.tokenSequence_.push_back(*it);
+  current.push(*it);
 
 
   IS_EQUAL_RETURN(it, end);
   ++it;
   IS_EQUAL_RETURN(it, end);
-  partial.addEachInvalidToken(it, end, current.tokenSequence_);
+  partial.addEachInvalidToken(current, it, end);
   IS_EQUAL_RETURN(it, end);
   if(partial.parseArguments(it, end) == false)
   {
@@ -101,12 +101,12 @@ StatementOfDoWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
   IS_EQUAL_RETURN(it, end);
   ++it;
   IS_EQUAL_RETURN(it, end);
-  partial.addEachInvalidToken(it, end, current.tokenSequence_);
+  partial.addEachInvalidToken(current, it, end);
   IS_EQUAL_RETURN(it, end);
 
   if (it->name_.compare(SEMICOLON_TOKEN_NAME) == 0)
   {
-    current.tokenSequence_.push_back(*it);
+    current.push(*it);
   }
 }
 

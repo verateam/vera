@@ -86,6 +86,13 @@ public:
 
     static void parse(const SourceFiles::FileName & name, const FileContent & src);
 
+    /**
+     * @brief Reads the config file which contains the "include" of the directories and the system.
+     * This file also contains the predefined macros list.
+     * @param fileName The file name.
+     */
+    static void readConfigFile(const std::string& fileName);
+
     static TokenSequence getTokens(const SourceFiles::FileName & name,
         int fromLine, int fromColumn, int toLine, int toColumn,
         const FilterSequence & filter);

@@ -73,7 +73,7 @@ void
 StatementOfSwitch::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  getCurrentStatement().tokenSequence_.push_back(*it);
+  push(*it);
   ++it;
 
   if (parseArguments(it, end) == false)
@@ -106,13 +106,13 @@ StatementOfSwitch::parseScope(Tokens::TokenSequence::const_iterator& it,
   }
 
   Statement& current = add();
-  addEachInvalidToken(it, end, current.tokenSequence_);
+  addEachInvalidToken(current, it, end);
 
-  current.tokenSequence_.push_back(*it);
+  current.push(*it);
 
   for (++it; it != end; ++it)
   {
-    addEachInvalidToken(it, end, current.tokenSequence_);
+    addEachInvalidToken(current, it, end);
 
     IS_EQUAL_BREAK(it, end)
 
@@ -121,18 +121,18 @@ StatementOfSwitch::parseScope(Tokens::TokenSequence::const_iterator& it,
       StatementsBuilder partial(current);
       StatementOfCases(partial.add(), it, end);
       IS_EQUAL_BREAK(it, end)
-      addEachInvalidToken(it, end, current.tokenSequence_);
+      addEachInvalidToken(current, it, end);
       IS_EQUAL_BREAK(it, end)
       continue;
     }
 
     IS_EQUAL_BREAK(it, end)
 
-    addEachInvalidToken(it, end, current.tokenSequence_);
+    addEachInvalidToken(current, it, end);
 
     if (IsTokenWithName(RIGHTBRACE_TOKEN_NAME)(*it) == true)
     {
-      current.tokenSequence_.push_back(*it);
+      current.push(*it);
       //++it;
       break;
     }

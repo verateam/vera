@@ -307,9 +307,13 @@ BOOST_PYTHON_MODULE(vera)
     .def(py::init<>())
     // .def("__repr__", &Token::toString)
     .add_property("tokens", &Structures::Statement::tokenSequence_)
-    .add_property("statements", &Structures::Statement::statementSequence_);
+    .add_property("statements", &Structures::Statement::statementSequence_)
+    .add_property("sequenceOfChilds", &Structures::Statement::childs_);
 
-
+  py::enum_<Structures::Statement::TypeItem>("TypeItem")
+        .value("TYPE_ITEM_TOKEN",Structures::Statement::TYPE_ITEM_TOKEN)
+        .value("TYPE_ITEM_STATEMENT", Structures::Statement::TYPE_ITEM_STATEMENT)
+        ;
 
   py::class_<Structures::Tokens::TokenSequence>("TokenVector")
         .def(py::vector_indexing_suite<Structures::Tokens::TokenSequence>());
@@ -322,6 +326,9 @@ BOOST_PYTHON_MODULE(vera)
 
   py::class_<Structures::SourceLines::LineCollection>("StringVector")
           .def(py::vector_indexing_suite<Structures::SourceLines::LineCollection>());
+
+  py::class_<Structures::Statement::Statement::SequenceOfChilds>("SequenceOfChilds")
+          .def(py::vector_indexing_suite<Structures::Statement::SequenceOfChilds>());
 
 
   py::def("getEachTokenFromFile", &Structures::Tokens::getEachTokenFromFile);

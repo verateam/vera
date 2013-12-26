@@ -61,7 +61,7 @@ void
 StatementOfWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  getCurrentStatement().tokenSequence_.push_back(*it);
+  push(*it);
   ++it;
 
   if (parseArguments(it, end) == false)

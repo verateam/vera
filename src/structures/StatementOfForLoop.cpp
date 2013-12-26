@@ -70,7 +70,7 @@ void
 StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  getCurrentStatement().tokenSequence_.push_back(*it);
+  push(*it);
   ++it;
 
   if (parseArguments(it, end) == false)
@@ -121,9 +121,9 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
   {
     return false;
   }
-  addEachInvalidToken(it, end, getCurrentStatement().tokenSequence_);
+  addEachInvalidToken(getCurrentStatement(), it, end);
   Statement& current = add();
-  current.tokenSequence_.push_back(*it);
+  current.push(*it);
   ++it;
 
   if (extractOneStatementArgument(current, it, end, SEMICOLON_TOKEN_NAME) == false)
@@ -150,7 +150,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
   Statement& argument = current.statementSequence_.back();
   Token token = argument.tokenSequence_.back();
   argument.tokenSequence_.pop_back();
-  current.tokenSequence_.push_back(token);
+  current.push(token);
   ++it;
   IS_EQUAL_RETURN_FALSE(it, end);
 

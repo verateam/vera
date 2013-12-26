@@ -30,6 +30,7 @@ find_package(Boost COMPONENTS
   filesystem
   program_options
   system
+  thread
   wave
   ${boost_python}
   REQUIRED)

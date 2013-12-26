@@ -37,12 +37,23 @@ public:
  */
 struct Statement
 {
+    enum TypeItem
+    {
+      TYPE_ITEM_TOKEN,
+      TYPE_ITEM_STATEMENT
+    };
+
     /**
      * @brief Statement collection type.
      */
     typedef std::vector<Statement> StatementSequence;
 
+    typedef std::vector<TypeItem> SequenceOfChilds;
+
     Statement(){}
+
+
+    void push(Token token);
 
     /**
      * @brief This is the comparison operator required
@@ -55,6 +66,7 @@ struct Statement
 
   StatementSequence statementSequence_;
   Tokens::TokenSequence tokenSequence_;
+  SequenceOfChilds childs_;
 };
 
 //class StatementOfIf;
@@ -67,14 +79,14 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
 {
   friend class StatementOfIf;
   friend class StatementOfForLoop;
-  //friend class FixtureOfIfStatements;
   friend class StatementOfTryCatches;
   friend class StatementOfCatch;
   friend class StatementOfDoWhileLoop;
   friend class StatementOfElse;
-  friend class FixtureOfIfStatements;
   friend class StatementOfSwitch;
   friend class StatementOfCases;
+  friend class StatementOfNamespace;
+  friend class StatementOfStruct;
 
   public:
 
@@ -104,12 +116,6 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
       Tokens::TokenSequence::const_iterator& end);
 
     /**
-     * @brief Adds a new statement to the statement collection associated to the parent statement.
-     * @return The reference to the new statement.
-     */
-    Statement& add();
-
-    /**
      * @brief Gets the tokens of the current sentence.
      *
      * @return The const reference to the token collection.
@@ -117,6 +123,15 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     const Tokens::TokenSequence& getTokens();
 
   protected:
+
+    /**
+     * @brief Adds a new statement to the statement collection associated to the parent statement.
+     * @return The reference to the new statement.
+     */
+    Statement& add();
+
+
+    void push(Token token);
 
     /**
      * @brief Gets the parent of the current statement.
@@ -136,9 +151,9 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      */
     StatementsBuilder(Statement& statement);
 
-    void addEachInvalidToken(Tokens::TokenSequence::const_iterator& it,
-      Tokens::TokenSequence::const_iterator& end,
-      Tokens::TokenSequence& current);
+    void addEachInvalidToken(Statement& current,
+      Tokens::TokenSequence::const_iterator& it,
+      Tokens::TokenSequence::const_iterator& end);
 
     /**
      * @brief Parses all the parameters on the given sentence.
@@ -151,6 +166,25 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
 
     void parseScope(Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
+
+    bool parseHeritage(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
+    bool paramentersWithLastToken(
+      Tokens::TokenSequence::const_iterator& it,
+      Tokens::TokenSequence::const_iterator& end,
+      boost::wave::token_id id_);
+
+    bool parseArgument(
+        Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
+   bool getVariableList(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
+    bool parseVariable(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end,
+        std::vector<boost::wave::token_id>& finishTypeList);
 
   private:
 
