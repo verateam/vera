@@ -179,10 +179,10 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
         Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
-   bool getVariableList(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    bool parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end, std::vector<boost::wave::token_id>& finishTypeList);
 
-    bool parseVariable(Tokens::TokenSequence::const_iterator& it,
+    bool parseVariableDeclaration(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end,
         std::vector<boost::wave::token_id>& finishTypeList);
 

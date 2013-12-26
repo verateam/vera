@@ -56,6 +56,7 @@ StatementOfStruct::StatementOfStruct(Statement& statement,
 , name_(NULL)
 , scope_(NULL)
 , hieritance_(NULL)
+, variables_(NULL)
 {
 
   const Token& token = *it;
@@ -197,7 +198,6 @@ StatementOfStruct::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
   return false;
 }
 
-
 bool StatementOfStruct::parseName(Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
@@ -231,6 +231,11 @@ bool StatementOfStruct::parseHeritage(Tokens::TokenSequence::const_iterator& it,
     successful = partial.parseHeritage(it, end);
   }
 
+  if (successful)
+  {
+    hieritance_ = &getCurrentStatement().statementSequence_.back();
+  }
+
   return successful;
 }
 
@@ -243,6 +248,7 @@ bool StatementOfStruct::parseScope(Tokens::TokenSequence::const_iterator& it,
   if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*it) == true )
   {
     StatementsBuilder::parseScope(it, end);
+    scope_ = &getCurrentStatement().statementSequence_.back();
 
     successful = true;
   }
@@ -250,6 +256,34 @@ bool StatementOfStruct::parseScope(Tokens::TokenSequence::const_iterator& it,
   return successful;
 }
 
+bool StatementOfStruct::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+  ++it;
+  IS_EQUAL_RETURN_FALSE(it, end);
+
+  std::vector<boost::wave::token_id> finishTypeList;
+  finishTypeList.push_back(boost::wave::T_SEMICOLON);
+  finishTypeList.push_back(boost::wave::T_COMMA);
+
+  successful = StatementsBuilder::parseVariablesFromScopeToSemicolon(it, end, finishTypeList);
+
+  if (successful == true)
+  {
+    variables_ = &getCurrentStatement().statementSequence_.back();
+  }
+
+  IS_EQUAL_RETURN_FALSE(it, end)
+  if (IsTokenWithName(SEMICOLON_TOKEN_NAME)(*it) == true && successful)
+  {
+      push(*it);
+  }
+  else
+    successful = false;
+
+  return successful;
+}
 
 } // Vera namespace
 } // Structures namespace

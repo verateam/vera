@@ -679,6 +679,8 @@ void parseStatement(Statement& response,
         builder.parseName(it, end);
         builder.parseHeritage(it, end);
         builder.parseScope(it, end);
+        builder.parseVariablesFromScopeToSemicolon(it, end);
+
         IS_EQUAL_BREAK(it, end);
         break;
       }
@@ -1155,16 +1157,15 @@ StatementsBuilder::parseArgument(
 
 
 bool
-StatementsBuilder::getVariableList(Tokens::TokenSequence::const_iterator& it,
-    Tokens::TokenSequence::const_iterator& end)
+StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end, std::vector<boost::wave::token_id>& finishTypeList)
 {
   IS_EQUAL_RETURN_FALSE(it, end)
 
   Statement& current = getCurrentStatement();
-  std::vector<boost::wave::token_id> finishTypeList;
-  finishTypeList.push_back(boost::wave::T_SEMICOLON);
-  finishTypeList.push_back(boost::wave::T_COMMA);
 
+  //push(*it);
+  //++it;
   do
   {
     IS_EQUAL_BREAK(it, end)
@@ -1172,21 +1173,33 @@ StatementsBuilder::getVariableList(Tokens::TokenSequence::const_iterator& it,
     IS_EQUAL_BREAK(it, end)
 
     boost::wave::token_id id = getTokenId(*it);
-    push(*it);
 
-    if (id == boost::wave::T_SEMICOLON)
+    if (id == boost::wave::T_COMMA)
     {
-      break;
-    }
+      push(*it);
+      ++it;
 
-    ++it;
+      IS_EQUAL_BREAK(it, end)
+      addEachInvalidToken(current, it, end);
+      IS_EQUAL_BREAK(it, end)
+
+      id = getTokenId(*it);
+    }
+    else
+    {
+      bool finish = std::find(finishTypeList.begin(), finishTypeList.end(), id) != finishTypeList.end();
+
+      if (finish)
+        break;
+    }
 
     IS_EQUAL_BREAK(it, end)
 
-    if (IsTokenWithId(boost::wave::T_IDENTIFIER)(*it) == true)
+    if (id != boost::wave::T_COMMA)
     {
       StatementsBuilder partial(add());
-      if (partial.parseVariable(it, end, finishTypeList) == false)
+
+      if (partial.parseVariableDeclaration(it, end, finishTypeList) == false)
       {
         return false;
       }
@@ -1194,20 +1207,29 @@ StatementsBuilder::getVariableList(Tokens::TokenSequence::const_iterator& it,
       IS_EQUAL_BREAK(it, end)
     }
 
+
   } while (IsTokenWithId(boost::wave::T_COMMA)(*it) == true);
 
   return true;
 }
 
+
+
 bool
-StatementsBuilder::parseVariable(Tokens::TokenSequence::const_iterator& it,
+StatementsBuilder::parseVariableDeclaration(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end,
     std::vector<boost::wave::token_id>& finishTypeList)
 {
   IS_EQUAL_RETURN_FALSE(it, end)
+  std::map<boost::wave::token_id, boost::wave::token_id> tokens;
 
-  push(*it);
-  ++it;
+  tokens[boost::wave::T_LEFTBRACE] = boost::wave::T_RIGHTBRACE;
+  tokens[boost::wave::T_LEFTPAREN] = boost::wave::T_RIGHTPAREN;
+  tokens[boost::wave::T_LEFTBRACKET] = boost::wave::T_RIGHTBRACKET;
+  tokens[boost::wave::T_LESS] = boost::wave::T_GREATER;
+
+  //push(*it);
+  //++it;
 
   while (it != end)
   {
@@ -1215,19 +1237,51 @@ StatementsBuilder::parseVariable(Tokens::TokenSequence::const_iterator& it,
 
     bool finish = std::find(finishTypeList.begin(), finishTypeList.end(), id) != finishTypeList.end();
 
-    if (IsTokenWithId(boost::wave::T_ASSIGN)(*it) == true)
+    if (finish)
+      break;
+
+    if (id == boost::wave::T_ASSIGN)
     {
       StatementsBuilder partial(add());
-      if (partial.parseVariable(it, end, finishTypeList) == false)
+
+      partial.push(*it);
+      ++it;
+      IS_EQUAL_BREAK(it, end)
+
+      if (partial.parseVariableDeclaration(it, end, finishTypeList) == false)
       {
         return false;
       }
 
-      IS_EQUAL_BREAK(it, end)
+      continue;
     }
 
-    if (finish)
-      break;
+    if (id == boost::wave::T_LEFTBRACE ||
+        id == boost::wave::T_LEFTPAREN ||
+        id == boost::wave::T_LESS      ||
+        id == boost::wave::T_LEFTBRACKET)
+    {
+      finishTypeList.push_back(tokens[id]);
+
+      StatementsBuilder partial(add());
+
+      partial.push(*it);
+      ++it;
+      IS_EQUAL_BREAK(it, end)
+
+      if (partial.parseVariablesFromScopeToSemicolon(it, end, finishTypeList) == false)
+      {
+        return false;
+      }
+
+      partial.push(*it);
+      finishTypeList.pop_back();
+
+      IS_EQUAL_BREAK(it, end)
+      ++it;
+
+      continue;
+    }
 
     push(*it);
     ++it;
@@ -1235,7 +1289,6 @@ StatementsBuilder::parseVariable(Tokens::TokenSequence::const_iterator& it,
 
   return true;
 }
-
 
 }
 }

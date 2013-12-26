@@ -57,12 +57,16 @@ class StatementOfStruct
     bool parseScope(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
+    bool parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
 
   private:
 
     const std::string* name_;
     Statement* scope_;
     Statement* hieritance_;
+    Statement* variables_;
 };
 
 } // namespace Structures
