@@ -130,5 +130,27 @@ StatementOfIf::getStatementElse()
   return getCurrentStatement().statementSequence_[2];
 }
 
+bool StatementOfIf::isValid(Tokens::TokenSequence::const_iterator it,
+    Tokens::TokenSequence::const_iterator end)
+{
+  return true;
+}
+
+bool
+StatementOfIf::create(Statement& statement,
+    Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  if (isValid(it, end) == true)
+  {
+    StatementOfIf builder(statement/*StatementsBuilder(statement).add()*/, it, end);
+    successful = true;
+  }
+
+  return successful;
+}
+
 } // Vera namespace
 } // Structures namespace

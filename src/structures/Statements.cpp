@@ -13,10 +13,15 @@
 #include "StatementOfTryCatches.h"
 #include "StatementOfDoWhileLoop.h"
 #include "StatementOfSwitch.h"
-#include "StatementOfCases.h"
+//#include "StatementOfCases.h"
+#include "StatementOfCase.h"
+#include "StatementOfCatch.h"
 #include "StatementOfNamespace.h"
 #include "StatementOfStruct.h"
 #include "IsTokenWithName.h"
+#include "StatementOfAccessModifiers.h"
+#include "StatementOfDefault.h"
+
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <vector>
@@ -46,6 +51,154 @@
     }\
   }
 
+namespace
+{
+/**
+ * @brief Selects the best strategy for the given token.
+ */
+class StrategySelector
+{
+  public:
+    /**
+     * @brief Factory method type.
+     */
+    typedef bool (*FactoryMethod)(Vera::Structures::Statement& statement,
+        Vera::Structures::Tokens::TokenSequence::const_iterator& it,
+        Vera::Structures::Tokens::TokenSequence::const_iterator& end);
+
+  public:
+    /**
+     * @brief Initializes all the supported strategies.
+     */
+    StrategySelector()
+    {
+      factories_[boost::wave::T_IF] = &Vera::Structures::StatementOfIf::create;
+      factories_[boost::wave::T_FOR] = &Vera::Structures::StatementOfForLoop::create;
+      factories_[boost::wave::T_TRY] = &Vera::Structures::StatementOfTryCatches::create;
+      factories_[boost::wave::T_DO] = &Vera::Structures::StatementOfDoWhileLoop::create;
+      factories_[boost::wave::T_CATCH]= &Vera::Structures::StatementOfCatch::create;
+      factories_[boost::wave::T_ELSE] = &Vera::Structures::StatementOfElse::create;
+      factories_[boost::wave::T_CASE] = &Vera::Structures::StatementOfCase::create;
+      factories_[boost::wave::T_DEFAULT] = &Vera::Structures::StatementOfDefault::create;
+      factories_[boost::wave::T_SWITCH] = &Vera::Structures::StatementOfSwitch::create;
+      factories_[boost::wave::T_WHILE] = &Vera::Structures::StatementOfWhileLoop::create;
+      factories_[boost::wave::T_NAMESPACE] = &Vera::Structures::StatementOfNamespace::create;
+      factories_[boost::wave::T_STRUCT] = &Vera::Structures::StatementOfStruct::create;
+      factories_[boost::wave::T_PUBLIC] = &Vera::Structures::StatementOfAccessModifiers::create;
+      factories_[boost::wave::T_PROTECTED] = &Vera::Structures::StatementOfAccessModifiers::create;
+      factories_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::create;
+    }
+
+    /**
+     * @brief Gets the adequate factory method for the given token.
+     *
+     * @param id Defines the identifier of the related token.
+     * @return The adequate factory method  for the given id.
+     */
+    FactoryMethod operator() (boost::wave::token_id id)
+    {
+      if (factories_.find(id) == factories_.end())
+        throw;
+
+      return *factories_[id];
+    }
+
+    /**
+     * @brief  Determines if there's a factory method for the given token.
+     *
+     * @param id Defines the identifier of the related token.
+     * @return True if there's a factory method. Otherwise false.
+     */
+    bool isHandled(boost::wave::token_id id)
+    {
+      return factories_.find(id) != factories_.end();
+    }
+
+  private:
+
+    /**
+      * @brief The factory methods map type.
+      */
+     typedef std::map<boost::wave::token_id, FactoryMethod> Factories;
+
+  private:
+     Factories factories_;
+} builders_;
+
+/**
+ * @brief Determines the most adequate method to verify the syntax of
+ * the given statements.
+ */
+class SelectorOfVerifiers
+{
+  public:
+    /**
+     * @brief IsValidMethod type.
+     */
+    typedef bool (*IsValidMethod)(Vera::Structures::Tokens::TokenSequence::const_iterator it,
+        Vera::Structures::Tokens::TokenSequence::const_iterator end);
+
+  public:
+    /**
+     * @brief Initializes the verifiers for the supported strategies.
+     */
+    SelectorOfVerifiers ()
+    {
+      verifiers_[boost::wave::T_IF] = &Vera::Structures::StatementOfIf::isValid;
+      verifiers_[boost::wave::T_FOR] = &Vera::Structures::StatementOfForLoop::isValid;
+      verifiers_[boost::wave::T_TRY] = &Vera::Structures::StatementOfTryCatches::isValid;
+      verifiers_[boost::wave::T_DO] = &Vera::Structures::StatementOfDoWhileLoop::isValid;
+      verifiers_[boost::wave::T_CATCH] = &Vera::Structures::StatementOfCatch::isValid;
+      verifiers_[boost::wave::T_ELSE] = &Vera::Structures::StatementOfElse::isValid;
+      verifiers_[boost::wave::T_CASE] = &Vera::Structures::StatementOfCase::isValid;
+      verifiers_[boost::wave::T_DEFAULT] = &Vera::Structures::StatementOfDefault::isValid;
+      verifiers_[boost::wave::T_SWITCH] = &Vera::Structures::StatementOfSwitch::isValid;
+      verifiers_[boost::wave::T_WHILE] = &Vera::Structures::StatementOfWhileLoop::isValid;
+      verifiers_[boost::wave::T_NAMESPACE] = &Vera::Structures::StatementOfNamespace::isValid;
+      verifiers_[boost::wave::T_STRUCT] = &Vera::Structures::StatementOfStruct::isValid;
+      verifiers_[boost::wave::T_PUBLIC] = &Vera::Structures::StatementOfAccessModifiers::isValid;
+      verifiers_[boost::wave::T_PROTECTED] = &Vera::Structures::StatementOfAccessModifiers::isValid;
+      verifiers_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::isValid;
+    }
+
+    /**
+     * @brief Gets the adequate verifier method for the given token.
+     *
+     * @param id Defines the identifier of the related token.
+     * @return The adequate verifier method for the given id.
+     */
+    IsValidMethod operator() (boost::wave::token_id id)
+    {
+      if (isHandled(id) == false)
+        throw;
+
+      return *verifiers_[id];
+    }
+
+    /**
+     * @brief Determines if there's a valid strategy for the given token.
+     *
+     * @param id Defines the identifier of the related token.
+     * @return True if there's a valid strategy. Otherwise false.
+     */
+    bool isHandled(boost::wave::token_id id)
+    {
+      return verifiers_.find(id) != verifiers_.end();
+    }
+
+  private:
+
+     /**
+       * @brief The isValid methods map type.
+       */
+      typedef std::map<boost::wave::token_id, IsValidMethod> IsValidMapType;
+
+  private:
+      IsValidMapType verifiers_;
+} isValid_;
+
+} /*unname namespace */
+
 namespace Vera
 {
 namespace Structures
@@ -58,6 +211,7 @@ namespace //unname
 
 /**
  * @brief Gets the enumerator id associated to the token.
+ *
  * @param token The reference to the token instance.
  * @return The id assigned to the token.
  */
@@ -445,18 +599,10 @@ void recursiveParseStatement(Statement& response,
     const struct Token& token = *it;
     boost::wave::token_id id = getTokenId(token);
 
-    IS_EQUAL_BREAK(id,boost::wave::T_EOF)
+    IS_EQUAL_BREAK(id, boost::wave::T_EOF)
 
-    if (id == boost::wave::T_IF ||
-        id == boost::wave::T_ELSE ||
-        id == boost::wave::T_FOR ||
-        id == boost::wave::T_DO ||
-        id == boost::wave::T_WHILE ||
-        id == boost::wave::T_TRY ||
-        id == boost::wave::T_SWITCH ||
-        id == boost::wave::T_CASE ||
-        id == boost::wave::T_DEFAULT ||
-        id == boost::wave::T_CATCH )
+
+    if (builders_.isHandled(id))
     {
       parseStatement(response, it, end);
       IS_EQUAL_BREAK(it, end);
@@ -464,40 +610,6 @@ void recursiveParseStatement(Statement& response,
       continue;
     }
 
-    if (id == boost::wave::T_STRUCT)
-    {
-      if (StatementOfStruct::isValid(it, end))
-      {
-        parseStatement(response, it, end);
-        IS_EQUAL_BREAK(it, end);
-        ++it;
-
-      }
-      else
-      {
-        response.push(*it);
-        ++it;
-      }
-
-      continue;
-    }
-
-    if (id == boost::wave::T_NAMESPACE)
-    {
-      if (StatementOfNamespace::isValid(it, end))
-      {
-        parseStatement(response, it, end);
-        IS_EQUAL_BREAK(it, end);
-        ++it;
-      }
-      else
-      {
-        response.push(*it);
-        ++it;
-      }
-
-      continue;
-    }
 
     if (id == boost::wave::T_EXTERN)
     {
@@ -614,106 +726,12 @@ void parseStatement(Statement& response,
       break;
     }
 
-    if (id == boost::wave::T_IF)
+
+    if (builders_.isHandled(id))
     {
-      StatementOfIf(addStatement(response), it, end);
+      builders_(id)(response, it, end);
       IS_EQUAL_BREAK(it, end);
-      break;
-    }
-
-    if (id == boost::wave::T_WHILE)
-    {
-      StatementOfWhileLoop(addStatement(response), it, end);
-      IS_EQUAL_BREAK(it, end);
-      break;
-    }
-
-    if (id == boost::wave::T_FOR)
-    {
-      StatementOfForLoop(addStatement(response), it, end);
-      IS_EQUAL_BREAK(it, end);
-      break;
-    }
-
-    if (id == boost::wave::T_SWITCH)
-    {
-      StatementOfSwitch(addStatement(response), it, end);
-      IS_EQUAL_BREAK(it, end);
-      break;
-    }
-
-    if (id == boost::wave::T_CASE || id == boost::wave::T_DEFAULT)
-    {
-      StatementOfCases(addStatement(response), it, end);
-      IS_EQUAL_BREAK(it, end);
-      break;
-    }
-
-    if (id == boost::wave::T_DO)
-    {
-      StatementOfDoWhileLoop(addStatement(response), it, end);
-      IS_EQUAL_BREAK(it, end);
-      break;
-    }
-
-    if (id == boost::wave::T_TRY)
-    {
-      StatementOfTryCatches(addStatement(response), it, end);
-      IS_EQUAL_BREAK(it, end);
-      break;
-    }
-
-    if (id == boost::wave::T_CATCH)
-    {
-      StatementOfCatch(addStatement(response), it, end);
-      IS_EQUAL_BREAK(it, end);
-      break;
-    }
-
-    if (id == boost::wave::T_STRUCT)
-    {
-      if (StatementOfStruct::isValid(it, end))
-      {
-        StatementOfStruct builder(addStatement(response), it, end);
-        builder.initialize(it, end);
-        builder.parseName(it, end);
-        builder.parseHeritage(it, end);
-        builder.parseScope(it, end);
-        builder.parseVariablesFromScopeToSemicolon(it, end);
-
-        IS_EQUAL_BREAK(it, end);
-        break;
-      }
-      else
-      {
-        response.push(*it);
-        ++it;
-      }
-
-      continue;
-    }
-
-    if (id == boost::wave::T_NAMESPACE)
-    {
-      if (StatementOfNamespace::isValid(it, end))
-      {
-        StatementOfNamespace(addStatement(response), it, end);
-        IS_EQUAL_BREAK(it, end);
-        break;
-      }
-      else
-      {
-        response.push(*it);
-        ++it;
-      }
-
-      continue;
-    }
-
-    if (id == boost::wave::T_ELSE)
-    {
-      StatementOfElse(addStatement(response), it, end);
-      IS_EQUAL_BREAK(it, end);
+      //++it;
       break;
     }
 
@@ -854,48 +872,24 @@ StatementsBuilder::builder(Statement& response,
   boost::wave::token_id id = getTokenId(*it);
   StatementsBuilder partial(response);
 
-  if (id == boost::wave::T_NAMESPACE)
-   {
-     if (StatementOfNamespace::isValid(it,end) == true)
-     {
-       parseStatement(response, it, end);
-     }
-     else
-     {
-       parseStatement(addStatement(response), it, end);
-     }
-   }
-   else if (id == boost::wave::T_STRUCT)
-   {
-     if (StatementOfStruct::isValid(it,end) == true)
-     {
-       parseStatement(response, it, end);
-     }
-     else
-     {
-       parseStatement(addStatement(response), it, end);
-     }
-   }
-   else if (id != boost::wave::T_IF &&
-      id != boost::wave::T_FOR &&
-      id != boost::wave::T_TRY &&
-      id != boost::wave::T_DO &&
-      id != boost::wave::T_CATCH &&
-      id != boost::wave::T_ELSE &&
-      id != boost::wave::T_CASE &&
-      id != boost::wave::T_DEFAULT &&
-      id != boost::wave::T_SWITCH &&
 
-      id != boost::wave::T_SWITCH &&
-      id != boost::wave::T_WHILE)
+  if (isValid_.isHandled(id) == true)
   {
-    parseStatement(addStatement(response), it, end);
+    if (isValid_(id)(it, end) == true)
+    {
+      //parseStatement(response, it, end);
+      parseStatement(addStatement(response), it, end);
+    }
+    else
+    {
+      parseStatement(response, it, end);
+      //parseStatement(addStatement(response), it, end);
+    }
   }
   else
   {
-    parseStatement(response, it, end);
+    parseStatement(addStatement(response), it, end);
   }
-
 }
 
 StatementsBuilder::StatementsBuilder(Statement& statement)
@@ -986,6 +980,12 @@ StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
       {
         current.push(*it);
         break;
+      }
+
+      if (IsTokenWithId(boost::wave::T_LEFTBRACE)(*it) == true)
+      {
+        StatementsBuilder(current).parseScope(it, end);
+        continue;
       }
 
       builder(current, it, end);
@@ -1187,10 +1187,14 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
     }
     else
     {
-      bool finish = std::find(finishTypeList.begin(), finishTypeList.end(), id) != finishTypeList.end();
+      bool finish = std::find(finishTypeList.begin(),
+        finishTypeList.end(),
+        id) != finishTypeList.end();
 
       if (finish)
+      {
         break;
+      }
     }
 
     IS_EQUAL_BREAK(it, end)
@@ -1206,7 +1210,6 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
 
       IS_EQUAL_BREAK(it, end)
     }
-
 
   } while (IsTokenWithId(boost::wave::T_COMMA)(*it) == true);
 

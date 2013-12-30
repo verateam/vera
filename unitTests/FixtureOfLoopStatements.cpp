@@ -152,11 +152,13 @@ FixtureOfLoopStatements::initializeSigleForLoop()
     current.tokenSequence_.push_back(Token(";", 1, 33, "semicolon"));
   }
 
+  argumentsOfForLoop_.tokenSequence_.push_back(Token(" ", 1, 34, "space"));
+
   {
     argumentsOfForLoop_.statementSequence_.push_back(Statement());
     Statement& current = argumentsOfForLoop_.statementSequence_.back();
 
-    current.tokenSequence_.push_back(Token(" ", 1, 34, "space"));
+    //current.tokenSequence_.
     current.tokenSequence_.push_back(Token("i", 1, 35, "identifier"));
     current.tokenSequence_.push_back(Token("++", 1, 36, "plusplus"));
     current.tokenSequence_.push_back(Token(" ", 1, 38, "space"));
@@ -226,10 +228,12 @@ FixtureOfLoopStatements::initializeComplexForLoop()
     current.tokenSequence_.push_back(Token(";", 4, 40, "semicolon"));
   }
 
+  argumentsOfForLoop_.tokenSequence_.push_back(Token(" ", 4, 41, "space"));
+
   {
     argumentsOfForLoop_.statementSequence_.push_back(Statement());
     Statement& current = argumentsOfForLoop_.statementSequence_.back();
-    current.tokenSequence_.push_back(Token(" ", 4, 41, "space"));
+
     current.tokenSequence_.push_back(Token("i", 4, 42, "identifier"));
     current.tokenSequence_.push_back(Token("++", 4, 43, "plusplus"));
     current.tokenSequence_.push_back(Token(" ", 4, 45, "space"));

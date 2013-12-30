@@ -57,7 +57,7 @@ struct Statement
 
     /**
      * @brief This is the comparison operator required
-     * by the indexing_suite of the boost python.
+     * for the indexing_suite of the boost python.
      *
      * @param statement Reference to the statement to be compared.
      * @return True if is equal. Otherwise false.
@@ -69,9 +69,6 @@ struct Statement
   SequenceOfChilds childs_;
 };
 
-//class StatementOfIf;
-//class FixtureOfIfStatements;
-
 /**
  * @brief Class that creates statement sequences relative to a specified token.
  */
@@ -79,23 +76,27 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
 {
   friend class StatementOfIf;
   friend class StatementOfForLoop;
+  friend class StatementOfWhileLoop;
   friend class StatementOfTryCatches;
   friend class StatementOfCatch;
   friend class StatementOfDoWhileLoop;
   friend class StatementOfElse;
   friend class StatementOfSwitch;
-  friend class StatementOfCases;
+  //friend class StatementOfCases;
   friend class StatementOfNamespace;
   friend class StatementOfStruct;
+  friend class StatementOfAccessModifiers;
+  friend class StatementOfDefault;
+  friend class StatementOfCase;
 
   public:
 
     /**
      * @brief Creates a statement for the given token.
      *
-     * @param token Is the start element of the declaration.
+     * @param item Is the initial element of the declaration.
      * @param tokenCollection Is the reference to the token
-     * collection to be analyzed.
+     * collection that needs to be analyzed.
      * @return An instance of the statement with the
      * related tokens.
      */
@@ -106,7 +107,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * from the first iterator. And ends at the end of the scope or when it comes to the
      * final iterator.
      *
-     * @param response is composed structure used to retrieve the related statements/tokens for
+     * @param response is a composed structure used to retrieve the related statements/tokens for
      * the given sentence.
      * @param it The const reference to the first iterator of the collection to be parsed.
      * @param end The const reference to the last iterator of the collection to be parsed.
@@ -150,7 +151,14 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @param statement The reference to the parent statement.
      */
     StatementsBuilder(Statement& statement);
-
+    
+    /**
+     * @brief Adds all the tokens that a statement can not contain.
+     *
+     * @param current The reference to the parent of the current statement.
+     * @param it The const reference to the first iterator of the collection to be parsed.
+     * @param end The const reference to the last iterator of the collection to be parsed.
+     */
     void addEachInvalidToken(Statement& current,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
@@ -158,23 +166,57 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     /**
      * @brief Parses all the parameters on the given sentence.
      * Where the given sentence is determined by a start and end point.
+     * 
      * @param it Defines the starting point of the statement.
      * @param end Defines the ending point of the statement.
+     * @return True if it found a valid argument. Otherwise false.
      */
     bool parseArguments(Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
+    /**
+     * @brief Parses the given list in order to determine all
+     * the valid tokens contained on its scope.
+     * 
+     * @param it Defines the starting point of the statement.
+     * @param end Defines the ending point of the statement.
+     */
     void parseScope(Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
+    /**
+     * @brief Parses the given list in order to determine the
+     * related heritage.
+     * 
+     * @param it Defines the starting point of the statement.
+     * @param end Defines the ending point of the statement.
+     * @return True if it has a valid heritage. Otherwise false.
+     */
     bool parseHeritage(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
+    /**
+     * @brief Parses the given list in order to determine if it
+     * contains the token with the given id.
+     * 
+     * @param it Defines the starting point of the statement.
+     * @param end Defines the ending point of the statement.
+     * @param id_ Defines the id of the last token.
+     * @return True if it contains the given last token. Otherwise false.
+     */
     bool paramentersWithLastToken(
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end,
       boost::wave::token_id id_);
-
+      
+    /**
+     * @brief Parses the parameter on the given sentence.
+     * Where the given sentence is determined by the start and end point.
+     * 
+     * @param it Defines the starting point of the statement.
+     * @param end Defines the ending point of the statement.
+     * @return True if it is a valid argument. Otherwise false.
+     */
     bool parseArgument(
         Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);

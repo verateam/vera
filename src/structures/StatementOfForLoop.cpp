@@ -78,7 +78,6 @@ StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
     return;
   }
 
-
   IS_EQUAL_RETURN(it, end);
   parseScope(it, end);
 }
@@ -139,21 +138,20 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
     return false;
   }
 
-  ++it;
-  IS_EQUAL_RETURN_FALSE(it, end);
-
-  if (extractOneStatementArgument(current, it, end, RIGHTPAREN_TOKEN_NAME) == false)
   {
-    return false;
+    IS_EQUAL_RETURN_FALSE(it, end);
+    ++it;
+    IS_EQUAL_RETURN_FALSE(it, end);
+    StatementsBuilder partial(current);
+
+    std::vector<boost::wave::token_id> finishTypeList;
+    finishTypeList.push_back(boost::wave::T_RIGHTPAREN);
+
+    partial.parseVariablesFromScopeToSemicolon(it, end, finishTypeList);
+
+    current.push(*it);
   }
-
-  Statement& argument = current.statementSequence_.back();
-  Token token = argument.tokenSequence_.back();
-  argument.tokenSequence_.pop_back();
-  current.push(token);
   ++it;
-  IS_EQUAL_RETURN_FALSE(it, end);
-
   return true;
 }
 
@@ -172,5 +170,29 @@ StatementOfForLoop::extractOneStatementArgument(Statement& current,
   return IsTokenWithName(tokenName)(*it);//hasTokenNameLastSentence(current, tokenName);
 }
 
-} // Vera namespace
+bool
+StatementOfForLoop::isValid(Tokens::TokenSequence::const_iterator it,
+  Tokens::TokenSequence::const_iterator end)
+{
+ return true;
+}
+
+bool
+StatementOfForLoop::create(Statement& statement,
+    Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  if (isValid(it, end) == true)
+  {
+    StatementOfForLoop builder(StatementsBuilder(statement).add(), it, end);
+    successful = true;
+  }
+
+  return successful;
+}
+
 } // Structures namespace
+} // Vera namespace
+

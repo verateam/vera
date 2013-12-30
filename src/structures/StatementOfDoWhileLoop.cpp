@@ -132,5 +132,28 @@ StatementOfDoWhileLoop::getStatementScope()
   return getCurrentStatement().statementSequence_[0];
 }
 
+bool
+StatementOfDoWhileLoop::isValid(Tokens::TokenSequence::const_iterator it,
+    Tokens::TokenSequence::const_iterator end)
+{
+ return true;
+}
+
+bool
+StatementOfDoWhileLoop::create(Statement& statement,
+    Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  if (isValid(it, end) == true)
+  {
+    StatementOfDoWhileLoop builder(StatementsBuilder(statement).add(), it, end);
+    successful = true;
+  }
+
+  return successful;
+}
+
 } // Vera namespace
 } // Structures namespace

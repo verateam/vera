@@ -97,5 +97,28 @@ StatementOfWhileLoop::getStatementScope()
   return getCurrentStatement().statementSequence_[1];
 }
 
+bool
+StatementOfWhileLoop::isValid(Tokens::TokenSequence::const_iterator it,
+  Tokens::TokenSequence::const_iterator end)
+{
+  return true;
+}
+
+bool
+StatementOfWhileLoop::create(Statement& statement,
+    Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  if (isValid(it, end) == true)
+  {
+    StatementOfWhileLoop builder(StatementsBuilder(statement).add(), it, end);
+    successful = true;
+  }
+
+  return successful;
+}
+
 } // Vera namespace
 } // Structures namespace

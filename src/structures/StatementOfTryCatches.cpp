@@ -129,5 +129,27 @@ StatementOfTryCatches::getStatementScope()
   return getCurrentStatement().statementSequence_[1];
 }
 
+bool StatementOfTryCatches::isValid(Tokens::TokenSequence::const_iterator it,
+    Tokens::TokenSequence::const_iterator end)
+{
+ return true;
+}
+
+bool
+StatementOfTryCatches::create(Statement& statement,
+    Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  if (isValid(it, end) == true)
+  {
+    StatementOfTryCatches builder(StatementsBuilder(statement).add(), it, end);
+    successful = true;
+  }
+
+  return successful;
+}
+
 } // Vera namespace
 } // Structures namespace

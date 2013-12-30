@@ -45,21 +45,19 @@ class StatementOfStruct
     static bool isValidWithoutName(Tokens::TokenSequence::const_iterator it,
         Tokens::TokenSequence::const_iterator end);
 
-    void initialize(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    void initialize();
 
-    bool parseName(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    bool parseName();
 
-    bool parseHeritage(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    bool parseHeritage();
 
-    bool parseScope(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    bool parseScope();
 
-    bool parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    bool parseVariablesFromScopeToSemicolon();
 
+    static bool create(Statement& statement,
+        Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
 
   private:
 
@@ -67,6 +65,8 @@ class StatementOfStruct
     Statement* scope_;
     Statement* hieritance_;
     Statement* variables_;
+    Tokens::TokenSequence::const_iterator& it_;
+    Tokens::TokenSequence::const_iterator& end_;
 };
 
 } // namespace Structures

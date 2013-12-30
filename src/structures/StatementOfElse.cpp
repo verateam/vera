@@ -58,7 +58,6 @@ StatementOfElse::StatementOfElse(const Statement& statement)
   {
     throw StatementsError(IS_NOT_TOKEN);
   }
-
 }
 
 StatementOfElse::StatementOfElse(Statement& statement,
@@ -106,6 +105,29 @@ StatementOfElse::getStatementScope()
   }
 
   return getCurrentStatement().statementSequence_[0];
+}
+
+bool
+StatementOfElse::isValid(Tokens::TokenSequence::const_iterator it,
+  Tokens::TokenSequence::const_iterator end)
+{
+ return true;
+}
+
+bool
+StatementOfElse::create(Statement& statement,
+    Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  if (isValid(it, end) == true)
+  {
+    StatementOfElse builder(StatementsBuilder(statement).add(), it, end);
+    successful = true;
+  }
+
+  return successful;
 }
 
 } // Vera namespace

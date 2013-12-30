@@ -54,6 +54,13 @@ class StatementOfForLoop
      */
     const Statement& getStatementScope();
 
+    static bool isValid(Tokens::TokenSequence::const_iterator it,
+        Tokens::TokenSequence::const_iterator end);
+
+    static bool create(Statement& statement,
+        Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
   private:
 
     bool extractOneStatementArgument(Statement& current,

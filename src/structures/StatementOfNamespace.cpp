@@ -136,5 +136,21 @@ StatementOfNamespace::isValid(Tokens::TokenSequence::const_iterator it,
   return IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched);
 }
 
+
+bool
+StatementOfNamespace::create(Statement& statement,
+    Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  if (isValid(it, end) == true)
+  {
+    StatementOfNamespace builder(StatementsBuilder(statement).add(), it, end);
+  }
+
+  return successful;
+}
+
 } // Vera namespace
 } // Structures namespace

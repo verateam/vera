@@ -6,7 +6,7 @@
 //
 
 #include "StatementOfSwitch.h"
-#include "StatementOfCases.h"
+#include "StatementOfCase.h"
 #include "IsTokenWithName.h"
 
 #include <vector>
@@ -89,7 +89,7 @@ StatementOfSwitch::initialize(Tokens::TokenSequence::const_iterator& it,
 
 
 void
-StatementOfSwitch::parseScope(Tokens::TokenSequence::const_iterator& it,
+StatementOfSwitch::parseScopeS(Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
   IS_EQUAL_RETURN(it, end)
@@ -118,8 +118,9 @@ StatementOfSwitch::parseScope(Tokens::TokenSequence::const_iterator& it,
 
     while (IsTokenWithName(CASE_TOKEN_NAME)(*it) == true || IsTokenWithName(DEFAULT_TOKEN_NAME)(*it) == true)
     {
-      StatementsBuilder partial(current);
-      StatementOfCases(partial.add(), it, end);
+      //StatementsBuilder partial(current);
+      //StatementOfCase(partial.add(), it, end);
+      builder(add(),it, end);
       IS_EQUAL_BREAK(it, end)
       addEachInvalidToken(current, it, end);
       IS_EQUAL_BREAK(it, end)
@@ -165,6 +166,29 @@ StatementOfSwitch::getStatementScope()
   }
 
   return getCurrentStatement().statementSequence_[1];
+}
+
+bool
+StatementOfSwitch::isValid(Tokens::TokenSequence::const_iterator it,
+  Tokens::TokenSequence::const_iterator end)
+{
+ return true;
+}
+
+bool
+StatementOfSwitch::create(Statement& statement,
+    Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  if (isValid(it, end) == true)
+  {
+    StatementOfSwitch builder(StatementsBuilder(statement).add(), it, end);
+    successful = true;
+  }
+
+  return successful;
 }
 
 } // Vera namespace
