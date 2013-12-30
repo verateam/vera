@@ -63,11 +63,6 @@ class StatementOfForLoop
 
   private:
 
-    bool extractOneStatementArgument(Statement& current,
-      Tokens::TokenSequence::const_iterator& it,
-      Tokens::TokenSequence::const_iterator& end,
-      std::string tokenName);
-
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 

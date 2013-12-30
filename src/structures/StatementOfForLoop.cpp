@@ -21,6 +21,7 @@
 #define LEFTBRACE_TOKEN_NAME  "leftbrace"
 #define RIGHTBRACE_TOKEN_NAME  "rightbrace"
 #define SEMICOLON_TOKEN_NAME  "semicolon"
+
 #define IS_EQUAL_RETURN(left, right) \
   {\
     if (left == right) \
@@ -35,6 +36,55 @@
       return false;\
     }\
   }
+
+namespace Vera
+{
+namespace Structures
+{
+namespace {
+
+
+struct FinishWithRightParen
+: public std::unary_function<const Token, bool>
+{
+  public:
+
+    FinishWithRightParen()
+    : parens_(0)
+    {
+    }
+
+    result_type operator()(argument_type item) const
+    {
+      bool response = false;
+
+      if (item.name_.compare(LEFTPAREN_TOKEN_NAME) == 0)
+      {
+        ++parens_;
+      }
+
+      if (item.name_.compare(RIGHTPAREN_TOKEN_NAME) == 0)
+      {
+        if(parens_ == 0)
+        {
+          response = true;
+        }
+        else
+        {
+          --parens_;
+        }
+      }
+
+      return response;
+    }
+
+
+    mutable int   parens_;
+};
+
+} // unname namespace
+} // Structures namespace
+} // Vera namespace
 
 namespace Vera
 {
@@ -123,19 +173,14 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
   addEachInvalidToken(getCurrentStatement(), it, end);
   Statement& current = add();
   current.push(*it);
-  ++it;
 
-  if (extractOneStatementArgument(current, it, end, SEMICOLON_TOKEN_NAME) == false)
   {
-    return false;
-  }
+    IS_EQUAL_RETURN_FALSE(it, end);
+    ++it;
+    IS_EQUAL_RETURN_FALSE(it, end);
+    StatementsBuilder partial(current);
 
-  ++it;
-  IS_EQUAL_RETURN_FALSE(it, end);
-
-  if (extractOneStatementArgument(current, it, end, SEMICOLON_TOKEN_NAME) == false)
-  {
-    return false;
+    partial.builder(current, it, itMatched);
   }
 
   {
@@ -144,10 +189,20 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
     IS_EQUAL_RETURN_FALSE(it, end);
     StatementsBuilder partial(current);
 
-    std::vector<boost::wave::token_id> finishTypeList;
-    finishTypeList.push_back(boost::wave::T_RIGHTPAREN);
+    partial.builder(current, it, itMatched);
+  }
 
-    partial.parseVariablesFromScopeToSemicolon(it, end, finishTypeList);
+  itMatched = std::find_if(it,
+      end,
+      FinishWithRightParen());
+
+  {
+    IS_EQUAL_RETURN_FALSE(it, end);
+    ++it;
+    IS_EQUAL_RETURN_FALSE(it, end);
+    StatementsBuilder partial(current);
+
+    partial.builder(current, it, itMatched);
 
     current.push(*it);
   }
@@ -156,25 +211,47 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
 }
 
 bool
-StatementOfForLoop::extractOneStatementArgument(Statement& current,
-  Tokens::TokenSequence::const_iterator& it,
-  Tokens::TokenSequence::const_iterator& end,
-  std::string tokenName)
-{
-  IS_EQUAL_RETURN_FALSE(it, end);
-
-  builder(current, it, end);
-
-  IS_EQUAL_RETURN_FALSE(it, end);
-
-  return IsTokenWithName(tokenName)(*it);//hasTokenNameLastSentence(current, tokenName);
-}
-
-bool
 StatementOfForLoop::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
- return true;
+  IS_EQUAL_RETURN_FALSE(it,end);
+
+  if (it->name_.compare(TOKEN_NAME) != 0)
+  {
+    return false;
+  }
+
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it+1,
+    end,
+    IsValidTokenForStatement());
+
+  IS_EQUAL_RETURN_FALSE(itMatched,end);
+
+  if (itMatched->name_.compare(LEFTPAREN_TOKEN_NAME) != 0)
+  {
+    return false;
+  }
+  it = itMatched;
+  ++itMatched;
+  IS_EQUAL_RETURN_FALSE(itMatched,end);
+
+  itMatched = std::find_if(itMatched,
+      end,
+      FinishWithRightParen());
+
+  IS_EQUAL_RETURN_FALSE(itMatched,end);
+
+  int count = 0;
+
+  for(;it != itMatched; it++)
+  {
+    if (it->name_.compare(SEMICOLON_TOKEN_NAME) == 0)
+    {
+      ++count;
+    }
+  }
+
+ return count == 2; //TODO remove this magic number.
 }
 
 bool

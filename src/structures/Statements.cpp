@@ -251,7 +251,6 @@ class IsTokenEqual
   private:
 
     Token token_;
-
 };
 
 
