@@ -90,7 +90,7 @@ StatementOfTryCatches::initialize(Tokens::TokenSequence::const_iterator& it,
     {
       Statement& current = add();
       ++it;
-      addEachInvalidToken(current, it ,end);
+      addEachInvalidToken(current, it , end);
       StatementOfCatch partialBuilder(current, it, end);
 
       collection_.push_back(&partialBuilder.getCurrentStatement());

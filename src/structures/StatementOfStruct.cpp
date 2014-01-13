@@ -57,8 +57,8 @@ StatementOfStruct::StatementOfStruct(Statement& statement,
 , scope_(NULL)
 , hieritance_(NULL)
 , variables_(NULL)
-,it_(it)
-,end_(end)
+, it_(it)
+, end_(end)
 {
 
   const Token& token = *it;

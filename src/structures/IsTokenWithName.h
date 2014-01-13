@@ -77,7 +77,7 @@ class IsTokenWithName
      */
     result_type operator()(argument_type item) const
     {
-      return name_.compare(item.name_) == 0;
+      return name_ == item.name_;
     }
 
   private:
@@ -140,7 +140,7 @@ struct EndsWithCorrectPattern
 {
   public:
 
-    EndsWithCorrectPattern(const std::string& beginType,const std::string& endType)
+    EndsWithCorrectPattern(const std::string& beginType, const std::string& endType)
     : beginType_(beginType)
     , endType_(endType)
     , braces_(0)

@@ -72,8 +72,8 @@ StatementOfDefault::StatementOfDefault(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
-,it_(it)
-,end_(end)
+, it_(it)
+, end_(end)
 {
   const Token& token = *it;
 

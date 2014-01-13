@@ -120,7 +120,7 @@ StatementOfSwitch::parseScopeS(Tokens::TokenSequence::const_iterator& it,
     {
       //StatementsBuilder partial(current);
       //StatementOfCase(partial.add(), it, end);
-      builder(add(),it, end);
+      builder(add(), it, end);
       IS_EQUAL_BREAK(it, end)
       addEachInvalidToken(current, it, end);
       IS_EQUAL_BREAK(it, end)
