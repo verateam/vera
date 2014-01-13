@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STATEMENTOFCASES_H_INCLUDED
-#define STATEMENTOFCASES_H_INCLUDED
+#ifndef STATEMENTOFOPERATORTERNARIO_H_INCLUDED
+#define STATEMENTOFOPERATORTERNARIO_H_INCLUDED
 
 #include "Tokens.h"
 #include <string>
@@ -20,14 +20,14 @@ namespace Structures
 
 /**
  * @brief Classes that implements a decorator dedicated to the construction
- * of Statements of type "case" and "default".
+ * of Statements of type "OperatorTernario".
  */
-class StatementOfCases
+class StatementOfOperatorTernario
 : public StatementsBuilder
 {
   public:
 
-    StatementOfCases(Statement& statement,
+    StatementOfOperatorTernario(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
@@ -39,17 +39,22 @@ class StatementOfCases
      */
     const Statement& getStatementScope();
 
+    static bool isValid(Tokens::TokenSequence::const_iterator it,
+      Tokens::TokenSequence::const_iterator end);
+
+
+    static bool create(Statement& statement,
+        Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
   private:
 
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
-
-    bool isDefault_;
-
 };
 
 } // namespace Structures
 
 } // namespace Vera
 
-#endif // STATEMENTOFCASES_H_INCLUDED
+#endif // STATEMENTOFOPERATORTERNARIO_H_INCLUDED

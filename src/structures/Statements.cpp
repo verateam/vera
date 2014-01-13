@@ -13,15 +13,15 @@
 #include "StatementOfTryCatches.h"
 #include "StatementOfDoWhileLoop.h"
 #include "StatementOfSwitch.h"
-//#include "StatementOfCases.h"
 #include "StatementOfCase.h"
 #include "StatementOfCatch.h"
 #include "StatementOfNamespace.h"
 #include "StatementOfStruct.h"
-#include "IsTokenWithName.h"
 #include "StatementOfAccessModifiers.h"
 #include "StatementOfDefault.h"
+#include "StatementOfOperatorTernario.h"
 
+#include "IsTokenWithName.h"
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <vector>
@@ -29,6 +29,12 @@
 #include <algorithm>
 #include <sstream>
 #include <cctype>
+
+#define LEFTPAREN_TOKEN_NAME  "leftparen"
+#define RIGHTPAREN_TOKEN_NAME  "rightparen"
+#define LEFTBRACE_TOKEN_NAME  "leftbrace"
+#define RIGHTBRACE_TOKEN_NAME  "rightbrace"
+
 #define IS_EQUAL_BREAK(left, right) \
   {\
     if (left == right) \
@@ -87,6 +93,8 @@ class StrategySelector
       factories_[boost::wave::T_PUBLIC] = &Vera::Structures::StatementOfAccessModifiers::create;
       factories_[boost::wave::T_PROTECTED] = &Vera::Structures::StatementOfAccessModifiers::create;
       factories_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::create;
+      factories_[boost::wave::T_QUESTION_MARK] = &Vera::Structures::StatementOfOperatorTernario::create;
+      factories_[boost::wave::T_COLON] = &Vera::Structures::StatementOfOperatorTernario::create;
     }
 
     /**
@@ -159,6 +167,8 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_PUBLIC] = &Vera::Structures::StatementOfAccessModifiers::isValid;
       verifiers_[boost::wave::T_PROTECTED] = &Vera::Structures::StatementOfAccessModifiers::isValid;
       verifiers_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::isValid;
+      verifiers_[boost::wave::T_QUESTION_MARK] = &Vera::Structures::StatementOfOperatorTernario::isValid;
+      verifiers_[boost::wave::T_COLON] = &Vera::Structures::StatementOfOperatorTernario::isValid;
     }
 
     /**
@@ -219,42 +229,6 @@ static boost::wave::token_id
 getTokenId(const Token& token);
 
 /**
- *  @brief Binary function object class whose call returns whether a item is equal
- *  to the given token.
- */
-class IsTokenEqual
-: public std::unary_function<const Token, bool>
-{
-  public:
-
-    /**
-     * @brief Initializes a new instance of the IsTokenEqual class.
-     * @param token The token desired of the collection.
-     */
-    IsTokenEqual(Token token)
-    : token_(token)
-    {
-    }
-
-    /**
-     * @brief Member function that returns true if the element is equal to the given token.
-     *
-     * @param token The token to be compare
-     *
-     * @return True if the item is equal to the given token, otherwise, false.
-     */
-    result_type operator()(argument_type item) const
-    {
-      return token_ == item;
-    }
-
-  private:
-
-    Token token_;
-};
-
-
-/**
  *  @brief Binary function object class whose call returns whether a item with id given.
  */
 class IsTokenWithId
@@ -288,7 +262,6 @@ class IsTokenWithId
     boost::wave::token_id id_;
 
 };
-
 
 #define returnIdWheterTokenMatch(TOKEN, NAME) \
 { \
@@ -600,15 +573,20 @@ void recursiveParseStatement(Statement& response,
 
     IS_EQUAL_BREAK(id, boost::wave::T_EOF)
 
+    if ((id == boost::wave::T_QUESTION_MARK || id == boost::wave::T_COLON) && isValid_(id)(it, end) == true)
+    {
+      parseStatement(response, it, end);
+      IS_EQUAL_BREAK(it, end);
+      continue;
+    }
 
-    if (builders_.isHandled(id))
+    if (builders_.isHandled(id) && isValid_(id)(it, end) == true)
     {
       parseStatement(response, it, end);
       IS_EQUAL_BREAK(it, end);
       ++it;
       continue;
     }
-
 
     if (id == boost::wave::T_EXTERN)
     {
@@ -623,15 +601,24 @@ void recursiveParseStatement(Statement& response,
     }
 
     if (id == boost::wave::T_LEFTPAREN ||
-      id == boost::wave::T_LEFTBRACE ||
-      id == boost::wave::T_LEFTBRACKET)
+        id == boost::wave::T_LEFTBRACE ||
+        id == boost::wave::T_LEFTBRACKET)
     {
       Statement& current = addStatement(response);
+
       current.push(*it);
       ++it;
-      recursiveParseStatement(current, it, end);
+
+      TokenSequenceConstIterator itMatched = std::find_if(it,
+        end,
+        EndsWithCorrectPattern(id));
+
+      recursiveParseStatement(current, it, itMatched);
+
       IS_EQUAL_BREAK(it, end);
-      //continue;
+      current.push(*it);
+      ++it;
+      IS_EQUAL_BREAK(it, end);
     }
     else
     {
@@ -641,6 +628,11 @@ void recursiveParseStatement(Statement& response,
     if (id == boost::wave::T_SEMICOLON)
     {
       //TODO break;
+    }
+
+    if (id == boost::wave::T_COLON)
+    {
+      break;
     }
 
     if (id == boost::wave::T_RIGHTPAREN)
@@ -700,8 +692,8 @@ extractTokens(TokenSequenceConstIterator& begin,
   return response;
 }
 
-
-void parseStatement(Statement& response, Tokens::TokenSequence& collection)
+void
+parseStatement(Statement& response, Tokens::TokenSequence& collection)
 {
   TokenSequenceConstIterator it = collection.begin();
   TokenSequenceConstIterator end = collection.end();
@@ -725,8 +717,14 @@ void parseStatement(Statement& response,
       break;
     }
 
+    if ((id == boost::wave::T_QUESTION_MARK || id == boost::wave::T_COLON) && isValid_(id)(it, end) == true)
+    {
+      builders_(id)(response, it, end);
+      IS_EQUAL_BREAK(it, end);
+      continue;
+    }
 
-    if (builders_.isHandled(id))
+    if (builders_.isHandled(id) && isValid_(id)(it, end) == true)
     {
       builders_(id)(response, it, end);
       IS_EQUAL_BREAK(it, end);
@@ -734,29 +732,35 @@ void parseStatement(Statement& response,
       break;
     }
 
-    if (id == boost::wave::T_LEFTBRACE||
-      id == boost::wave::T_LEFTPAREN ||
-      id == boost::wave::T_LEFTBRACKET)
+    if (id == boost::wave::T_LEFTPAREN ||
+        id == boost::wave::T_LEFTPAREN ||
+        id == boost::wave::T_LEFTBRACKET)
     {
       Statement& current = addStatement(response);
 
       current.push(*it);
-
       ++it;
 
-      recursiveParseStatement(current, it, end);
-      IS_EQUAL_BREAK(it, end);
+      TokenSequenceConstIterator itMatched = std::find_if(it,
+        end,
+        EndsWithCorrectPattern(id));
+
+      recursiveParseStatement(current, it, itMatched);
+
+      IS_EQUAL_BREAK(it, end)
+      current.push(*it);
       ++it;
+      IS_EQUAL_BREAK(it, end)
 
       continue;
     }
 
-    if (id == boost::wave::T_LEFTBRACE ||
-      id == boost::wave::T_LEFTPAREN ||
-      id == boost::wave::T_LEFTBRACKET)
-    {
-      break;
-    }
+//    if (id == boost::wave::T_LEFTBRACE ||
+//      id == boost::wave::T_LEFTPAREN ||
+//      id == boost::wave::T_LEFTBRACKET)
+//    {
+//      break;
+//    }
 
     if (id == boost::wave::T_RIGHTPAREN)
     {
@@ -770,6 +774,11 @@ void parseStatement(Statement& response,
       break;
     }
 
+    if (id == boost::wave::T_COLON)
+    {
+      response.push(*it);
+      break;
+    }
 
     if (id == boost::wave::T_SEMICOLON)
     {

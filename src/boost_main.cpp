@@ -14,7 +14,7 @@
 #include "plugins/Parameters.h"
 #include "plugins/Reports.h"
 #include "plugins/RootDirectory.h"
-#include "structures/Tokens.h"
+#include "structures/Document.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -237,7 +237,7 @@ int boost_main(int argc, char * argv[])
             Vera::Plugins::Parameters::set(assoc);
         }
 
-        Vera::Structures::Tokens::readConfigFile(preprocessingConfigFile);
+        Vera::Structures::Document::readConfigFile(preprocessingConfigFile);
 
         if (vm.count("__input__"))
         {

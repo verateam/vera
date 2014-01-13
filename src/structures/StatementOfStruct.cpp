@@ -91,8 +91,6 @@ StatementOfStruct::getStatementScope()
   return *scope_;
 }
 
-
-
 bool
 StatementOfStruct::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)

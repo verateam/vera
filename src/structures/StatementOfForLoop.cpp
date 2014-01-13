@@ -41,55 +41,6 @@ namespace Vera
 {
 namespace Structures
 {
-namespace {
-
-
-struct FinishWithRightParen
-: public std::unary_function<const Token, bool>
-{
-  public:
-
-    FinishWithRightParen()
-    : parens_(0)
-    {
-    }
-
-    result_type operator()(argument_type item) const
-    {
-      bool response = false;
-
-      if (item.name_.compare(LEFTPAREN_TOKEN_NAME) == 0)
-      {
-        ++parens_;
-      }
-
-      if (item.name_.compare(RIGHTPAREN_TOKEN_NAME) == 0)
-      {
-        if(parens_ == 0)
-        {
-          response = true;
-        }
-        else
-        {
-          --parens_;
-        }
-      }
-
-      return response;
-    }
-
-
-    mutable int   parens_;
-};
-
-} // unname namespace
-} // Structures namespace
-} // Vera namespace
-
-namespace Vera
-{
-namespace Structures
-{
 
 bool
 hasTokenNameLastSentence(const Statement& current, std::string tokenName)
@@ -194,7 +145,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
 
   itMatched = std::find_if(it,
       end,
-      FinishWithRightParen());
+      EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
 
   {
     IS_EQUAL_RETURN_FALSE(it, end);
@@ -237,7 +188,7 @@ StatementOfForLoop::isValid(Tokens::TokenSequence::const_iterator it,
 
   itMatched = std::find_if(itMatched,
       end,
-      FinishWithRightParen());
+      EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
 
   IS_EQUAL_RETURN_FALSE(itMatched,end);
 

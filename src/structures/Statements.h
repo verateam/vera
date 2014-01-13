@@ -88,6 +88,8 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfAccessModifiers;
   friend class StatementOfDefault;
   friend class StatementOfCase;
+  friend class Document;
+  friend class StatementOfOperatorTernario;
 
   public:
 
@@ -151,7 +153,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @param statement The reference to the parent statement.
      */
     StatementsBuilder(Statement& statement);
-    
+
     /**
      * @brief Adds all the tokens that a statement can not contain.
      *
@@ -166,7 +168,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     /**
      * @brief Parses all the parameters on the given sentence.
      * Where the given sentence is determined by a start and end point.
-     * 
+     *
      * @param it Defines the starting point of the statement.
      * @param end Defines the ending point of the statement.
      * @return True if it found a valid argument. Otherwise false.
@@ -177,7 +179,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     /**
      * @brief Parses the given list in order to determine all
      * the valid tokens contained on its scope.
-     * 
+     *
      * @param it Defines the starting point of the statement.
      * @param end Defines the ending point of the statement.
      */
@@ -187,7 +189,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     /**
      * @brief Parses the given list in order to determine the
      * related heritage.
-     * 
+     *
      * @param it Defines the starting point of the statement.
      * @param end Defines the ending point of the statement.
      * @return True if it has a valid heritage. Otherwise false.
@@ -198,7 +200,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     /**
      * @brief Parses the given list in order to determine if it
      * contains the token with the given id.
-     * 
+     *
      * @param it Defines the starting point of the statement.
      * @param end Defines the ending point of the statement.
      * @param id_ Defines the id of the last token.
@@ -208,11 +210,11 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end,
       boost::wave::token_id id_);
-      
+
     /**
      * @brief Parses the parameter on the given sentence.
      * Where the given sentence is determined by the start and end point.
-     * 
+     *
      * @param it Defines the starting point of the statement.
      * @param end Defines the ending point of the statement.
      * @return True if it is a valid argument. Otherwise false.

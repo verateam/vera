@@ -13,6 +13,7 @@
 #include "../structures/SourceLines.h"
 #include "../structures/Tokens.h"
 #include "../structures/Statements.h"
+#include "../structures/Document.h"
 #include "cpptcl-1.1.4/cpptcl.h"
 #include <fstream>
 #include <iterator>
@@ -22,6 +23,7 @@
 
 #ifdef VERA_PYTHON
 #include <boost/python.hpp>
+#include <boost/python/make_constructor.hpp>
 #include <vector>
 #include <sstream>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -310,6 +312,21 @@ BOOST_PYTHON_MODULE(vera)
     .add_property("statements", &Structures::Statement::statementSequence_)
     .add_property("sequenceOfChilds", &Structures::Statement::childs_);
 
+
+  py::class_<Structures::Document, boost::noncopyable>("Document", py::no_init)
+   // .def(py::init<std::string&, std::string& >())
+   // .def(py::init<void*, std::string&, std::string& >())
+    //.def("__init__", py::make_constructor(Vera::Structures::Document::createCppDocument))
+    .def("initialize", &Structures::Document::initialize)
+    .def("parse", &Structures::Document::parse)
+    .def("getRoot", &Structures::Document::getRoot);
+
+//  py::class_<Structures::CppDocument>("CppDocument")
+//    .def(py::init<>())
+//    .def(py::init<Structures::CppDocument&>())
+//    .def("getRoot", &Structures::CppDocument::loadDocument);
+  //py::register_ptr_to_python< boost::shared_ptr<Structures::Document> >();
+
   py::enum_<Structures::Statement::TypeItem>("TypeItem")
         .value("TYPE_ITEM_TOKEN",Structures::Statement::TYPE_ITEM_TOKEN)
         .value("TYPE_ITEM_STATEMENT", Structures::Statement::TYPE_ITEM_STATEMENT)
@@ -348,6 +365,9 @@ BOOST_PYTHON_MODULE(vera)
       py::return_value_policy<py::reference_existing_object>());
 
   py::def("getAllLines", &Structures::SourceLines::getAllLines,
+      py::return_value_policy<py::reference_existing_object>());
+
+  py::def("createCppDocument", &Structures::Document::createCppDocument,
       py::return_value_policy<py::reference_existing_object>());
 };
 

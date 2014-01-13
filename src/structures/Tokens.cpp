@@ -79,12 +79,8 @@ typedef std::vector<TokenRef> TokenCollection;
 
 using namespace underlyImpl;
 
-namespace //unname
+namespace
 {
-
-std::vector<std::string> includes_;
-std::vector<std::string> sysIncludes_;
-std::vector<std::string> macros_;
 
 typedef std::map<Vera::Structures::SourceFiles::FileName, TokenCollection> FileTokenCollection;
 
@@ -379,60 +375,6 @@ Vera::Structures::Token getToken(std::string fileName, underlyImpl::TokenCollect
   return Vera::Structures::Token(value, line, column, tokenName);
 }
 
-void addParameterToContext(const std::string& line)
-{
-  if (line.empty())
-   {
-     return;
-   }
-
-  std::string::size_type pos = line.find("+=");
-  if (pos != std::string::npos)
-  {
-    std::string name = line.substr(0, pos);
-    std::string value = line.substr(pos + 2);
-
-    if (name.compare("include") == 0)
-    {
-      includes_.push_back(value);
-    }
-    else if (name.compare("sysInclude") == 0)
-    {
-      sysIncludes_.push_back(value);
-    }
-    else if (name.compare("macro") == 0)
-    {
-      sysIncludes_.push_back(value);
-    }
-  }
-  else
-  {
-      std::ostringstream ss;
-      ss << "Invalid parameter association: " << line;
-      throw Vera::Structures::TokensError(ss.str());
-  }
-}
-
-std::string
-removeCommentsOfConfigFile(const std::string& line)
-{
-  std::string response;
-
-  if (line.empty())
-  {
-    return response;
-  }
-  std::string::size_type pos = line.find("#");
-
-
-  if (pos != std::string::npos)
-  {
-    response = line.substr(0, pos);
-  }
-
-  return response;
-}
-
 } // unname namespace
 
 
@@ -636,44 +578,6 @@ Tokens::TokenSequence Tokens::getEachTokenFromFile(const std::string & fileName)
   }
 
   return response;
-}
-
-void
-Tokens::readConfigFile(const std::string& fileName)
-{
-  if (fileName.empty())
-    return;
-
-  std::ifstream file(fileName.c_str());
-  if (file.is_open() == false)
-  {
-      std::ostringstream ss;
-      ss << "Cannot open config file " << fileName << ": "
-         << strerror(errno);
-      throw TokensError(ss.str());
-  }
-
-  std::string line;
-  int lineNumber = 0;
-  while (getline(file, line))
-  {
-      ++lineNumber;
-
-      if (line.empty())
-      {
-          continue;
-      }
-
-      std::string content = removeCommentsOfConfigFile(line);
-      addParameterToContext(content);
-  }
-  if (file.bad())
-  {
-      throw std::ios::failure(
-          "Cannot read from " + fileName + ": " + strerror(errno));
-  }
-
-  file.close();
 }
 
 }
