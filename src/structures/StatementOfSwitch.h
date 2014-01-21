@@ -58,9 +58,6 @@ class StatementOfSwitch
 
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
-
-    void parseScopeS(Tokens::TokenSequence::const_iterator& it,
-      Tokens::TokenSequence::const_iterator& end);
 };
 
 } // namespace Structures

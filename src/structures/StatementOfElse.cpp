@@ -65,13 +65,6 @@ StatementOfElse::StatementOfElse(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-  const Token& token = *it;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
   initialize(it, end);
 }
 
@@ -111,7 +104,7 @@ bool
 StatementOfElse::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
- return true;
+ return it->name_.compare(TOKEN_NAME) == 0;
 }
 
 bool

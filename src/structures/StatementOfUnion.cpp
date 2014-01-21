@@ -5,7 +5,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "StatementOfStruct.h"
+#include "StatementOfUnion.h"
 #include "IsTokenWithName.h"
 
 #include <vector>
@@ -49,13 +49,11 @@ namespace Vera
 namespace Structures
 {
 
-StatementOfStruct::StatementOfStruct(Statement& statement,
+StatementOfUnion::StatementOfUnion(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 ,name_(NULL)
-,scope_(NULL)
-,hieritance_(NULL)
 ,variables_(NULL)
 ,it_(it)
 ,end_(end)
@@ -69,7 +67,7 @@ StatementOfStruct::StatementOfStruct(Statement& statement,
 }
 
 void
-StatementOfStruct::initialize()
+StatementOfUnion::initialize()
 {
   push(*it_);
   ++it_;
@@ -80,7 +78,7 @@ StatementOfStruct::initialize()
 }
 
 const Statement&
-StatementOfStruct::getStatementScope()
+StatementOfUnion::getStatementScope()
 {
   if (scope_ == NULL)
   {
@@ -91,7 +89,7 @@ StatementOfStruct::getStatementScope()
 }
 
 bool
-StatementOfStruct::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
+StatementOfUnion::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
   if (it->name_.compare(TOKEN_NAME) != 0)
@@ -138,7 +136,7 @@ StatementOfStruct::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
 }
 
 bool
-StatementOfStruct::parseName()
+StatementOfUnion::parseName()
 {
   bool successful = false;
 
@@ -158,88 +156,13 @@ StatementOfStruct::parseName()
 }
 
 bool
-StatementOfStruct::parseHeritage()
+StatementOfUnion::parseVariablesFromScopeToSemicolon()
 {
-  bool successful = false;
 
-  IS_EQUAL_RETURN_FALSE(it_, end_);
-  if (IsTokenWithName(COLON_TOKEN_NAME)(*it_) == true )
-  {
-    StatementsBuilder partial(add());
-
-    successful = partial.parseHeritage(it_, end_);
-  }
-
-  if (successful)
-  {
-    hieritance_ = &getCurrentStatement().statementSequence_.back();
-  }
-
-  return successful;
 }
 
 bool
-StatementOfStruct::parseScope()
-{
-  bool successful = false;
-
-  IS_EQUAL_RETURN_FALSE(it_, end_);
-  if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*it_) == true )
-  {
-    StatementsBuilder::parseScope(it_, end_);
-    scope_ = &getCurrentStatement().statementSequence_.back();
-
-    successful = true;
-  }
-
-  return successful;
-}
-
-bool
-StatementOfStruct::parseVariablesFromScopeToSemicolon()
-{
-  bool successful = false;
-
-  if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it_, end_))
-  {
-    variables_ = &getCurrentStatement().statementSequence_.back();
-    successful = true;
-  }
-
-  /*++it_;
-  IS_EQUAL_RETURN_FALSE(it_, end_);
-
-  Tokens::TokenSequence::const_iterator end =
-    std::find_if(it_, end_, IsTokenWithName(SEMICOLON_TOKEN_NAME));
-
-  Statement& current = add();
-  StatementsBuilder partial(current);
-  partial.addEachInvalidToken(current, it_, end);
-
-  while(it_ < end)
-  {
-    partial.builder(current, it_, end);
-
-    IS_EQUAL_BREAK(it_, end);
-    ++it_;
-
-    partial.addEachInvalidToken(current, it_, end);
-  }
-
-  if (IsTokenWithName(SEMICOLON_TOKEN_NAME)(*it_) == true && successful)
-  {
-      push(*it_);
-  }
-  else
-  {
-    successful = false;
-  }*/
-
-  return successful;
-}
-
-bool
-StatementOfStruct::isValid(Tokens::TokenSequence::const_iterator it,
+StatementOfUnion::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
   if (it->name_.compare(TOKEN_NAME) != 0)
@@ -265,39 +188,10 @@ StatementOfStruct::isValid(Tokens::TokenSequence::const_iterator it,
       end,
       IsValidTokenForStatement());
 
-  if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched) == true)
-  {
-    return true;
-  }
-
-  if (IsTokenWithName(COLON_TOKEN_NAME)(*itMatched) == false)
-  {
-    return false;
-  }
-
-  Statement auxiliar;
-  StatementsBuilder partial(auxiliar);
-
-  if (partial.parseHeritage(itMatched, end) == false)
-  {
-    return false;
-  }
-
-  IS_EQUAL_RETURN_FALSE(itMatched, end)
-
-  itMatched = std::find_if(itMatched,
-      end,
-      IsValidTokenForStatement());
-
-  if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched) == true)
-  {
-    return true;
-  }
-
-  return false;
+  return IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched);
 }
 
-bool StatementOfStruct::create(Statement& statement,
+bool StatementOfUnion::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
@@ -306,12 +200,11 @@ bool StatementOfStruct::create(Statement& statement,
   if (isValid(it, end))
   {
     //TODO
-    StatementOfStruct builder(StatementsBuilder(statement).add(), it, end);
+    StatementOfUnion builder(StatementsBuilder(statement).add(), it, end);
 
     builder.initialize();
     builder.parseName();
-    builder.parseHeritage();
-    builder.parseScope();
+    builder.parseScope(it, end);
     builder.parseVariablesFromScopeToSemicolon();
     successful = true;
   }
@@ -321,5 +214,4 @@ bool StatementOfStruct::create(Statement& statement,
 
 } // Vera namespace
 } // Structures namespace
-
 

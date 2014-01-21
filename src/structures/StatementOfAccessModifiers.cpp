@@ -183,7 +183,8 @@ StatementOfAccessModifiers::create(Statement& statement,
   {
     //TODO
     StatementOfAccessModifiers builder(StatementsBuilder(statement).add(), it, end);
-    --it;
+    if (it < end)
+      ++it;
     successful = true;
   }
 

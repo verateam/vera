@@ -5,24 +5,22 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "StatementOfDoWhileLoop.h"
+#include "StatementOfExtern.h"
 #include "IsTokenWithName.h"
 
 #include <vector>
 #include <map>
 #include <algorithm>
 
-#define IS_NOT_DO_TOKEN "the first element of the collection is not a token of 'do' type."
-#define IS_NOT_WHILE_TOKEN "the element of the collection is not a token of 'while' type."
-#define WITHOUT_CONDITIONAL_ARGUMENTS "The statement not contain conditional arguments."
-#define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
-#define DO_TOKEN_NAME  "do"
-#define WHILE_TOKEN_NAME  "while"
+#define TOKEN_NAME  "EXTERN"
+#define STRINGLIT_TOKEN_NAME  "stringlit"
 #define LEFTPAREN_TOKEN_NAME  "leftparen"
-#define RIGHTPAREN_TOKEN_NAME "rightparen"
+#define RIGHTPAREN_TOKEN_NAME  "rightparen"
 #define LEFTBRACE_TOKEN_NAME  "leftbrace"
-#define RIGHTBRACE_TOKEN_NAME "rightbrace"
+#define RIGHTBRACE_TOKEN_NAME  "rightbrace"
 #define SEMICOLON_TOKEN_NAME  "semicolon"
+#define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
+
 #define IS_EQUAL_RETURN(left, right) \
   {\
     if (left == right) \
@@ -37,13 +35,20 @@
       return false;\
     }\
   }
+#define IS_EQUAL_BREAK(left, right) \
+  {\
+    if (left == right) \
+    { \
+      break;\
+    }\
+  }
 
 namespace Vera
 {
 namespace Structures
 {
 
-StatementOfDoWhileLoop::StatementOfDoWhileLoop(Statement& statement,
+StatementOfExtern::StatementOfExtern(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
@@ -52,45 +57,32 @@ StatementOfDoWhileLoop::StatementOfDoWhileLoop(Statement& statement,
 }
 
 void
-StatementOfDoWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
+StatementOfExtern::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
   Statement& current = getCurrentStatement();
+
   push(*it);
   ++it;
 
   addEachInvalidToken(current, it, end);
+
   IS_EQUAL_RETURN(it, end);
-  parseScope(it, end);
+
+  push(*it);
+  ++it;
+
   IS_EQUAL_RETURN(it, end);
 
   addEachInvalidToken(current, it, end);
 
   IS_EQUAL_RETURN(it, end);
 
-  if (it->name_.compare(WHILE_TOKEN_NAME) != 0)
-  {
-    return;
-  }
-
-  IS_EQUAL_RETURN(it, end);
   parseScope(it, end);
-  IS_EQUAL_RETURN(it, end);
 }
 
 const Statement&
-StatementOfDoWhileLoop::getArgumentStatementFromConditionalSentence()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_CONDITIONAL_ARGUMENTS);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
-}
-
-const Statement&
-StatementOfDoWhileLoop::getStatementScope()
+StatementOfExtern::getStatementScope()
 {
   if (getCurrentStatement().statementSequence_.size() == 0)
   {
@@ -101,14 +93,37 @@ StatementOfDoWhileLoop::getStatementScope()
 }
 
 bool
-StatementOfDoWhileLoop::isValid(Tokens::TokenSequence::const_iterator it,
-    Tokens::TokenSequence::const_iterator end)
+StatementOfExtern::isValid(Tokens::TokenSequence::const_iterator it,
+  Tokens::TokenSequence::const_iterator end)
 {
-  return (it->name_.compare(DO_TOKEN_NAME) == 0);
+  if (it->name_.compare(TOKEN_NAME) != 0)
+  {
+    return false;
+  }
+
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it+1,
+    end,
+    IsValidTokenForStatement());
+
+  IS_EQUAL_RETURN_FALSE(itMatched, end)
+
+
+  if (IsTokenWithName(STRINGLIT_TOKEN_NAME)(*itMatched) == false)
+  {
+    return false;
+  }
+
+  itMatched = std::find_if(itMatched+1,
+   end,
+   IsValidTokenForStatement());
+
+  IS_EQUAL_RETURN_FALSE(itMatched, end)
+
+  return IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched);
 }
 
 bool
-StatementOfDoWhileLoop::create(Statement& statement,
+StatementOfExtern::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
@@ -116,8 +131,7 @@ StatementOfDoWhileLoop::create(Statement& statement,
 
   if (isValid(it, end) == true)
   {
-    StatementOfDoWhileLoop builder(statement, it, end);
-    successful = true;
+    StatementOfExtern builder(StatementsBuilder(statement).add(), it, end);
   }
 
   return successful;

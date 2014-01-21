@@ -133,8 +133,6 @@ class IsValidTokenForStatement
     }
 };
 
-
-
 struct EndsWithCorrectPattern
 : public std::unary_function<const Token, bool>
 {
@@ -150,7 +148,6 @@ struct EndsWithCorrectPattern
     EndsWithCorrectPattern(const boost::wave::token_id id)
     : braces_(0)
     {
-
       if (id == boost::wave::T_LEFTPAREN)
       {
         beginType_ = "leftparen";

@@ -31,6 +31,14 @@
     }\
   }
 
+#define IS_EQUAL_RETURN_FALSE(left, right) \
+  {\
+    if (left == right) \
+    { \
+      return false;\
+    }\
+  }
+
 namespace Vera
 {
 namespace Structures
@@ -56,33 +64,34 @@ void
 StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  Tokens::TokenSequence::const_iterator itMatched = end;
   Statement& current = getCurrentStatement();
 
   current.push(*it);
   ++it;
+  addEachInvalidToken(current, it, end);
+
+  IS_EQUAL_RETURN(it, end);
 
   if (parseArguments(it, end) == false)
   {
     return;
   }
 
-  ++it;
+  IS_EQUAL_RETURN(it, end);
+  addEachInvalidToken(current, it, end);
+
+ // ++it;
   IS_EQUAL_RETURN(it, end);
 
   parseScope(it, end);
   IS_EQUAL_RETURN(it, end);
 
-
-  IS_EQUAL_RETURN(it, end);
-
-  itMatched = std::find_if(it+1, end, IsValidTokenForStatement());
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it, end, IsValidTokenForStatement());
 
   IS_EQUAL_RETURN(itMatched, end);
 
   if (isElse(itMatched))
   {
-    ++it;
     addEachInvalidToken(current, it, end);
 
     StatementOfElse(add(), it, end);
@@ -133,7 +142,18 @@ StatementOfIf::getStatementElse()
 bool StatementOfIf::isValid(Tokens::TokenSequence::const_iterator it,
     Tokens::TokenSequence::const_iterator end)
 {
-  return true;
+  if (it->name_.compare(TOKEN_NAME) != 0)
+  {
+    return false;
+  }
+
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it+1,
+    end,
+    IsValidTokenForStatement());
+
+  IS_EQUAL_RETURN_FALSE(itMatched, end)
+
+  return itMatched->name_.compare(LEFTPAREN_TOKEN_NAME) == 0;
 }
 
 bool

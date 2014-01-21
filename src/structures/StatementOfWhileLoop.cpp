@@ -46,14 +46,6 @@ StatementOfWhileLoop::StatementOfWhileLoop(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
-  const Token& token = *it;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
   initialize(it, end);
 }
 
@@ -64,6 +56,10 @@ StatementOfWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
   push(*it);
   ++it;
 
+  Statement& current = getCurrentStatement();
+
+  addEachInvalidToken(current, it, end);
+
   if (parseArguments(it, end) == false)
   {
     return;
@@ -71,7 +67,7 @@ StatementOfWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
   ++it;
-
+  addEachInvalidToken(current, it, end);
   parseScope(it, end);
 }
 
@@ -101,7 +97,35 @@ bool
 StatementOfWhileLoop::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
-  return true;
+  if (it->name_.compare(TOKEN_NAME) != 0)
+  {
+    return false;
+  }
+
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it+1,
+    end,
+    IsValidTokenForStatement());
+
+  if (itMatched == end)
+  {
+    return false;
+  }
+
+  if (itMatched->name_.compare(LEFTPAREN_TOKEN_NAME) != 0)
+  {
+    return false;
+  }
+
+  itMatched = std::find_if(itMatched+1,
+    end, EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
+
+  IS_EQUAL_RETURN_FALSE(itMatched, end);
+
+  itMatched = std::find_if(itMatched+1,
+    end,
+    IsValidTokenForStatement());
+
+  return (itMatched->name_.compare(SEMICOLON_TOKEN_NAME) != 0);
 }
 
 bool

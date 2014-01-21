@@ -5,14 +5,13 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STATEMENTOFTRYCATCHES_H_INCLUDED
-#define STATEMENTOFTRYCATCHES_H_INCLUDED
+#ifndef STATEMENTOFEXTERN_H_INCLUDED
+#define STATEMENTOFEXTERN_H_INCLUDED
 
 #include "Tokens.h"
 #include <string>
 #include <vector>
 #include "Statements.h"
-#include "StatementOfCatch.h"
 
 namespace Vera
 {
@@ -21,22 +20,16 @@ namespace Structures
 
 /**
  * @brief Classes that implements a decorator dedicated to the construction
- * of Statements of type "try catch".
+ * of Statements of type "extern".
  */
-class StatementOfTryCatches
+class StatementOfExtern
 : public StatementsBuilder
 {
   public:
-    typedef std::vector<Statement*> listOfCatchSentences;
-    typedef listOfCatchSentences::const_iterator     iteratorOfCatchStatements;
 
-    StatementOfTryCatches(Statement& statement,
+    StatementOfExtern(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
-
-    iteratorOfCatchStatements begin();
-
-    iteratorOfCatchStatements end();
 
     /**
      * @brief Gets the scope of the current sentence.
@@ -46,16 +39,9 @@ class StatementOfTryCatches
      */
     const Statement& getStatementScope();
 
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScopeOfTry();
-
     static bool isValid(Tokens::TokenSequence::const_iterator it,
-        Tokens::TokenSequence::const_iterator end);
+      Tokens::TokenSequence::const_iterator end);
+
 
     static bool create(Statement& statement,
         Tokens::TokenSequence::const_iterator& it,
@@ -65,15 +51,10 @@ class StatementOfTryCatches
 
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
-
-  private:
-
-    listOfCatchSentences collection_;
-
 };
 
 } // namespace Structures
 
 } // namespace Vera
 
-#endif // STATEMENTOFTRYCATCHES_H_INCLUDED
+#endif // STATEMENTOFEXTERN_H_INCLUDED

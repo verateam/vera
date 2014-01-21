@@ -87,65 +87,6 @@ StatementOfSwitch::initialize(Tokens::TokenSequence::const_iterator& it,
   parseScope(it, end);
 }
 
-
-void
-StatementOfSwitch::parseScopeS(Tokens::TokenSequence::const_iterator& it,
-  Tokens::TokenSequence::const_iterator& end)
-{
-  IS_EQUAL_RETURN(it, end)
-
-  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
-    end,
-    IsValidTokenForStatement());
-
-  IS_EQUAL_RETURN(itMatched, end)
-
-  if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched) == false)
-  {
-    return;
-  }
-
-  Statement& current = add();
-  addEachInvalidToken(current, it, end);
-
-  current.push(*it);
-
-  for (++it; it != end; ++it)
-  {
-    addEachInvalidToken(current, it, end);
-
-    IS_EQUAL_BREAK(it, end)
-
-    while (IsTokenWithName(CASE_TOKEN_NAME)(*it) == true || IsTokenWithName(DEFAULT_TOKEN_NAME)(*it) == true)
-    {
-      //StatementsBuilder partial(current);
-      //StatementOfCase(partial.add(), it, end);
-      builder(add(), it, end);
-      IS_EQUAL_BREAK(it, end)
-      addEachInvalidToken(current, it, end);
-      IS_EQUAL_BREAK(it, end)
-      continue;
-    }
-
-    IS_EQUAL_BREAK(it, end)
-
-    addEachInvalidToken(current, it, end);
-
-    if (IsTokenWithName(RIGHTBRACE_TOKEN_NAME)(*it) == true)
-    {
-      current.push(*it);
-      //++it;
-      break;
-    }
-
-    builder(current, it, end);
-
-    IS_EQUAL_BREAK(it, end)
-  }
-
-  return;
-}
-
 const Statement&
 StatementOfSwitch::getArgument()
 {

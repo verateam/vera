@@ -82,7 +82,6 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfDoWhileLoop;
   friend class StatementOfElse;
   friend class StatementOfSwitch;
-  //friend class StatementOfCases;
   friend class StatementOfNamespace;
   friend class StatementOfStruct;
   friend class StatementOfAccessModifiers;
@@ -90,6 +89,14 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfCase;
   friend class Document;
   friend class StatementOfOperatorTernario;
+  friend class StatementOfExtern;
+  friend class StatementOfTemplateParameters;
+  friend class StatementOfEnum;
+  friend class StatementOfParensArguments;
+  friend class  StatementOfBracketsArguments;
+  friend class StatementOfBracesArguments;
+  friend class StatementOfPreprocessorLine;
+  friend class StatementOfUnion;
 
   public:
 
@@ -206,10 +213,10 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @param id_ Defines the id of the last token.
      * @return True if it contains the given last token. Otherwise false.
      */
-    bool paramentersWithLastToken(
-      Tokens::TokenSequence::const_iterator& it,
-      Tokens::TokenSequence::const_iterator& end,
-      boost::wave::token_id id_);
+//    bool paramentersWithLastToken(
+//      Tokens::TokenSequence::const_iterator& it,
+//      Tokens::TokenSequence::const_iterator& end,
+//      boost::wave::token_id id_);
 
     /**
      * @brief Parses the parameter on the given sentence.
@@ -223,12 +230,23 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
         Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
-    bool parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end, std::vector<boost::wave::token_id>& finishTypeList);
+    void parseListScope(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
 
-    bool parseVariableDeclaration(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end,
-        std::vector<boost::wave::token_id>& finishTypeList);
+    bool parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
+    /**
+     * @brief Parses the statements from the token list
+     * and retrieves the related list of tokens.
+     *
+     * used to return the response.
+     * @param it the reference to the const iterator with the
+     * initial element of the statement.
+     * @param end the of the list to be analyzed.
+     */
+    void parse(TokenSequenceConstIterator& it,
+      TokenSequenceConstIterator& end);
 
   private:
 

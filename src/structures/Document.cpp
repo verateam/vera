@@ -19,6 +19,10 @@
 #include <boost/function.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 
+#define SYSTEM_INCLUDE_LABEL "sysInclude"
+#define INCLUDE_LABEL "include"
+#define MACRO_LABEL "macro"
+
 #define EOF_TOKEN_NAME  "eof"
 
 #define IS_EQUAL_RETURN(left, right) \
@@ -51,7 +55,8 @@ namespace {
 std::vector<std::string> includes_;
 std::vector<std::string> sysIncludes_;
 std::vector<std::string> defines_;
-} //unname
+
+} // unname namespace
 
 Document::Document(std::string& content, std::string& name)
 : content_(content)
@@ -71,6 +76,28 @@ addDefine(PrecompilerContext& context, const std::string& macro)
   context.add_macro_definition(macro);
 }
 
+struct Tracker
+{
+    Tracker()
+    : fileName(NULL)
+    , isIntialize_(true)
+    {}
+
+    void clear()
+    {
+      isIntialize_ = false;
+    }
+
+    void set(const std::string& name)
+    {
+      isIntialize_ = true;
+      fileName = name.c_str();
+    }
+
+    const char *fileName;
+    bool isIntialize_;
+} tracker_;
+
 static Token convertToToken(boost::wave::cpplexer::lex_token<>& token )
 {
   const boost::wave::token_id id(token);
@@ -78,6 +105,16 @@ static Token convertToToken(boost::wave::cpplexer::lex_token<>& token )
   const std::string value = token.get_value().c_str();
   const int line = pos.get_line();
   const int column = pos.get_column() - 1;
+
+  if (id == boost::wave::T_PP_LINE)
+  {
+    tracker_.clear();
+  }
+
+  if (tracker_.isIntialize_ == false && id == boost::wave::T_STRINGLIT)
+  {
+    tracker_.set(value);
+  }
 
   std::string tokenName = boost::wave::get_token_name(id).c_str();
   boost::algorithm::to_lower(tokenName);
@@ -90,36 +127,44 @@ Document::initialize()
 {
   std::for_each(includes_.begin(),
       includes_.end(),
-      boost::bind(&PrecompilerContext::add_include_path, boost::ref(context_), boost::bind(&std::string::c_str, _1)));
+      boost::bind(&PrecompilerContext::add_include_path, boost::ref(context_),
+        boost::bind(&std::string::c_str,
+        _1)));
 
   std::for_each(sysIncludes_.begin(),
       sysIncludes_.end(),
-      boost::bind(&PrecompilerContext::add_sysinclude_path, boost::ref(context_), boost::bind(&std::string::c_str, _1)));
+      boost::bind(&PrecompilerContext::add_sysinclude_path, boost::ref(context_),
+        boost::bind(&std::string::c_str,
+        _1)));
 
   std::for_each(defines_.begin(),
     defines_.end(),
     boost::bind(Structures::addDefine, boost::ref(context_), _1 ));
 
   PrecompilerContext::iterator_type it = context_.begin();
-  PrecompilerContext::iterator_type end =  context_.end();
+  PrecompilerContext::iterator_type end = context_.end();
 
   try
   {
     while (it != end)
     {
       collection_.push_back(convertToToken(*it));
+      Token& token = collection_.back();
+
       ++it;
     }
   }
-  catch (boost::wave::cpp_exception const& e) {
+  catch (boost::wave::cpp_exception const& e)
+  {
   // some preprocessing error
     std::ostringstream ss;
     ss<<e.file_name() << "(" << e.line_no() << "): "
         << e.description() << std::endl;
 
-    throw DocumentError(e.description());
+    //throw DocumentError(e.description());
   }
-  catch (std::exception const& e) {
+  catch (std::exception const& e)
+  {
   // use last recognized token to retrieve the error position
       std::cerr
           << "  "
@@ -132,6 +177,7 @@ Document::initialize()
   {
     std::cout<<"\nexception"<<std::endl;
   }
+
   std::cout<<std::endl;
 }
 
@@ -148,17 +194,17 @@ void addParameterToContext(const std::string& line)
     std::string name = line.substr(0, pos);
     std::string value = line.substr(pos + 2);
 
-    if (name.compare("include") == 0)
+    if (name.compare(INCLUDE_LABEL) == 0)
     {
       includes_.push_back(value);
     }
-    else if (name.compare("sysInclude") == 0)
+    else if (name.compare(SYSTEM_INCLUDE_LABEL) == 0)
     {
       sysIncludes_.push_back(value);
     }
-    else if (name.compare("macro") == 0)
+    else if (name.compare(MACRO_LABEL) == 0)
     {
-      sysIncludes_.push_back(value);
+      defines_.push_back(value);
     }
   }
   else
@@ -242,7 +288,7 @@ Document::parse()
   Tokens::TokenSequence::const_iterator it = collection_.begin();
   Tokens::TokenSequence::const_iterator end = collection_.end();
 
-  for (;it != end; ++it)
+  for (;it < end; ++it)
   {
     StatementsBuilder partial(root_);
     partial.addEachInvalidToken(root_, it, end);
@@ -252,8 +298,7 @@ Document::parse()
       continue;
     }
 
-    StatementsBuilder(root_).builder(root_, it, end);
-
+    partial.builder(partial.add(), it, end);
   }
 }
 
@@ -275,6 +320,7 @@ Document::createCppDocument(std::string fileName)
     std::ostringstream ss;
     ss << "Cannot open file " << fileName << ": "
        << strerror(errno);
+
     throw DocumentError(ss.str());
   }
 

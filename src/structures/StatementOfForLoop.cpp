@@ -56,14 +56,6 @@ StatementOfForLoop::StatementOfForLoop(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
-  const Token& token = *it;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
   initialize(it, end);
 }
 
@@ -71,16 +63,38 @@ void
 StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
+  Statement& current = getCurrentStatement();
+
   push(*it);
   ++it;
 
-  if (parseArguments(it, end) == false)
-  {
-    return;
-  }
+  addEachInvalidToken(current, it, end);
+
+  Tokens::TokenSequence::const_iterator endArguments = std::find_if(it+1,
+      end,
+      EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
 
   IS_EQUAL_RETURN(it, end);
+
+  if (endArguments < end)
+  {
+    ++endArguments;
+  }
+
+  //builder(current,it, endArguments);
+  parseScope(it, endArguments);
+
+  IS_EQUAL_RETURN(it, end);
+
+  addEachInvalidToken(current, it, end);
+
+  IS_EQUAL_RETURN(it, end);
+
+  //builder(current,it, end);
   parseScope(it, end);
+
+ // IS_EQUAL_RETURN(it, end);
+ // parseScope(it, end);
 }
 
 const Statement&
@@ -125,6 +139,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
       end,
       EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
 
+  for (int i = 0; i < 3; ++i)
   {
     IS_EQUAL_RETURN_FALSE(it, end);
     ++it;
@@ -134,26 +149,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
     partial.builder(current, it, endArguments);
   }
 
-  {
-    IS_EQUAL_RETURN_FALSE(it, end);
-    ++it;
-    IS_EQUAL_RETURN_FALSE(it, end);
-    StatementsBuilder partial(current);
-
-    partial.builder(current, it, endArguments);
-  }
-
-  {
-    IS_EQUAL_RETURN_FALSE(it, end);
-    ++it;
-    IS_EQUAL_RETURN_FALSE(it, end);
-
-    StatementsBuilder partial(current);
-
-    partial.builder(current, it, endArguments);
-    current.push(*it);
-  }
-
+  current.push(*it);
   ++it;
   return true;
 }
@@ -175,32 +171,7 @@ StatementOfForLoop::isValid(Tokens::TokenSequence::const_iterator it,
 
   IS_EQUAL_RETURN_FALSE(itMatched, end);
 
-  if (itMatched->name_.compare(LEFTPAREN_TOKEN_NAME) != 0)
-  {
-    return false;
-  }
-
-  it = itMatched;
-  ++itMatched;
-  IS_EQUAL_RETURN_FALSE(itMatched, end);
-
-  itMatched = std::find_if(itMatched,
-      end,
-      EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
-
-  IS_EQUAL_RETURN_FALSE(itMatched, end);
-
-  int count = 0;
-
-  for(;it != itMatched; it++)
-  {
-    if (it->name_.compare(SEMICOLON_TOKEN_NAME) == 0)
-    {
-      ++count;
-    }
-  }
-
- return count == 2; //TODO remove this magic number.
+  return itMatched->name_.compare(LEFTPAREN_TOKEN_NAME) == 0;
 }
 
 bool

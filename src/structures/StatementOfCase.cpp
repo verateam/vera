@@ -96,20 +96,17 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
 {
   Statement& current = getCurrentStatement();
 
-  current.push(*it);
+  push(*it);
   ++it;
   IS_EQUAL_RETURN(it, end);
 
   addEachInvalidToken(current, it, end);
   IS_EQUAL_RETURN(it, end);
 
+  parse(it, end);
+  ++it;
 
   StatementsBuilder partial(current);
-  std::vector<boost::wave::token_id> finishTypeList;
-  finishTypeList.push_back(boost::wave::T_COLON);
-  finishTypeList.push_back(boost::wave::T_COMMA);
-
-  partial.parseVariableDeclaration(it, end, finishTypeList);
 
   push(*it);
   ++it;
@@ -171,23 +168,12 @@ StatementOfCase::isValid(
   }
   ++it;
 
-  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it, end, IsValidTokenForStatement());
+  Tokens::TokenSequence::const_iterator colonMatched =
+    std::find_if(it, end, IsTokenWithName(COLON_TOKEN_NAME));
+  Tokens::TokenSequence::const_iterator semicolonMatched =
+    std::find_if(it, end, IsTokenWithName(SEMICOLON_TOKEN_NAME));
 
-  IS_EQUAL_RETURN_FALSE(itMatched, end)
-
-  Statement aux;
-  StatementsBuilder partial(aux);
-  std::vector<boost::wave::token_id> finishTypeList;
-  finishTypeList.push_back(boost::wave::T_COLON);
-  finishTypeList.push_back(boost::wave::T_COMMA);
-  bool response = partial.parseVariablesFromScopeToSemicolon(itMatched, end, finishTypeList);
-
-  if (response == false)
-    return false;
-
-  IS_EQUAL_RETURN_FALSE(itMatched, end)
-
-  return itMatched->name_.compare(COLON_TOKEN_NAME) == 0;
+  return colonMatched < semicolonMatched && colonMatched < end;
 }
 
 bool
@@ -199,7 +185,8 @@ StatementOfCase::create(Statement& statement,
 
   if (isValid(it, end) == true)
   {
-    StatementOfCase builder(statement, it, end);
+    Statement& current = StatementsBuilder(statement).add();
+    StatementOfCase builder(current, it, end);
     successful = true;
 
     if (it != end)

@@ -20,6 +20,13 @@
 #include "StatementOfAccessModifiers.h"
 #include "StatementOfDefault.h"
 #include "StatementOfOperatorTernario.h"
+#include "StatementOfExtern.h"
+#include "StatementOfTemplateParameters.h"
+#include "StatementOfEnum.h"
+#include "StatementOfParensArguments.h"
+#include "StatementOfBracketsArguments.h"
+#include "StatementOfBracesArguments.h"
+#include "StatementOfPreprocessorLine.h"
 
 #include "IsTokenWithName.h"
 #include <functional>
@@ -34,6 +41,7 @@
 #define RIGHTPAREN_TOKEN_NAME  "rightparen"
 #define LEFTBRACE_TOKEN_NAME  "leftbrace"
 #define RIGHTBRACE_TOKEN_NAME  "rightbrace"
+#define SEMICOLON_TOKEN_NAME  "semicolon"
 
 #define IS_EQUAL_BREAK(left, right) \
   {\
@@ -95,6 +103,13 @@ class StrategySelector
       factories_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::create;
       factories_[boost::wave::T_QUESTION_MARK] = &Vera::Structures::StatementOfOperatorTernario::create;
       factories_[boost::wave::T_COLON] = &Vera::Structures::StatementOfOperatorTernario::create;
+      factories_[boost::wave::T_LESS] = &Vera::Structures::StatementOfTemplateParameters::create;
+      factories_[boost::wave::T_EXTERN] = &Vera::Structures::StatementOfExtern::create;
+      factories_[boost::wave::T_ENUM] = &Vera::Structures::StatementOfEnum::create;
+      factories_[boost::wave::T_LEFTPAREN] = &Vera::Structures::StatementOfParensArguments::create;
+      factories_[boost::wave::T_LEFTBRACKET] = &Vera::Structures::StatementOfBracketsArguments::create;
+      factories_[boost::wave::T_LEFTBRACE] = &Vera::Structures::StatementOfBracesArguments::create;
+      factories_[boost::wave::T_PP_LINE] = &Vera::Structures::StatementOfPreprocessorLine::create;
     }
 
     /**
@@ -169,6 +184,13 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::isValid;
       verifiers_[boost::wave::T_QUESTION_MARK] = &Vera::Structures::StatementOfOperatorTernario::isValid;
       verifiers_[boost::wave::T_COLON] = &Vera::Structures::StatementOfOperatorTernario::isValid;
+      verifiers_[boost::wave::T_LESS] = &Vera::Structures::StatementOfTemplateParameters::isValid;
+      verifiers_[boost::wave::T_EXTERN] = &Vera::Structures::StatementOfExtern::isValid;
+      verifiers_[boost::wave::T_ENUM] = &Vera::Structures::StatementOfEnum::isValid;
+      verifiers_[boost::wave::T_LEFTPAREN] = &Vera::Structures::StatementOfParensArguments::isValid;
+      verifiers_[boost::wave::T_LEFTBRACKET] = &Vera::Structures::StatementOfBracketsArguments::isValid;
+      verifiers_[boost::wave::T_LEFTBRACE] = &Vera::Structures::StatementOfBracesArguments::isValid;
+      verifiers_[boost::wave::T_PP_LINE] = &Vera::Structures::StatementOfPreprocessorLine::isValid;
     }
 
     /**
@@ -522,9 +544,9 @@ addStatement(Statement& current)
  * initial element of the statement.
  * @param end the of the list to be analyzed.
  */
-void parseStatement(Statement& response,
-  TokenSequenceConstIterator& it,
-  TokenSequenceConstIterator& end);
+//void parseStatement(Statement& response,
+//  TokenSequenceConstIterator& it,
+//  TokenSequenceConstIterator& end);
 
 /**
  * @brief Parses the statements from the token list
@@ -533,7 +555,7 @@ void parseStatement(Statement& response,
  * used to return the response.
  * @param collection token list to be analyzed.
  */
-void parseStatement(Statement& response, Tokens::TokenSequence& collection);
+//void parseStatement(Statement& response, Tokens::TokenSequence& collection);
 
 /**
  * @brief TODO
@@ -552,115 +574,6 @@ Tokens::TokenSequence
 extractTokens(TokenSequenceConstIterator& begin,
     TokenSequenceConstIterator& end, boost::wave::token_id id);
 
-/**
- * @brief Parses recursively the statements from the
- * token list and retrieves the related list of tokens.
- *
- * @param response [out] the reference to the statement
- * used to return the response.
- * @param it the reference to the const iterator with the
- * initial element of the statement.
- * @param end the of the list to be analyzed.
- */
-void recursiveParseStatement(Statement& response,
-  TokenSequenceConstIterator& it,
-  TokenSequenceConstIterator& end)
-{
-  while (it != end)
-  {
-    const struct Token& token = *it;
-    boost::wave::token_id id = getTokenId(token);
-
-    IS_EQUAL_BREAK(id, boost::wave::T_EOF)
-
-    if ((id == boost::wave::T_QUESTION_MARK || id == boost::wave::T_COLON)
-      && isValid_(id)(it, end) == true)
-    {
-      parseStatement(response, it, end);
-      IS_EQUAL_BREAK(it, end);
-      continue;
-    }
-
-    if (builders_.isHandled(id) && isValid_(id)(it, end) == true)
-    {
-      parseStatement(response, it, end);
-      IS_EQUAL_BREAK(it, end);
-      ++it;
-      continue;
-    }
-
-    if (id == boost::wave::T_EXTERN)
-    {
-      Statement& current = addStatement(response);
-      current.push(*it);
-
-      ++it;
-      parseStatement(current, it, end);
-      IS_EQUAL_BREAK(it, end);
-      ++it; //TODO require continue?
-      continue;
-    }
-
-    if (id == boost::wave::T_LEFTPAREN ||
-        id == boost::wave::T_LEFTBRACE ||
-        id == boost::wave::T_LEFTBRACKET)
-    {
-      Statement& current = addStatement(response);
-
-      current.push(*it);
-      ++it;
-
-      TokenSequenceConstIterator itMatched = std::find_if(it,
-        end,
-        EndsWithCorrectPattern(id));
-
-      recursiveParseStatement(current, it, itMatched);
-
-      IS_EQUAL_BREAK(it, end);
-      current.push(*it);
-      ++it;
-      IS_EQUAL_BREAK(it, end);
-    }
-    else
-    {
-      response.push(*it);
-    }
-
-    if (id == boost::wave::T_SEMICOLON)
-    {
-      //TODO break;
-    }
-
-    if (id == boost::wave::T_COLON)
-    {
-      break;
-    }
-
-    if (id == boost::wave::T_RIGHTPAREN)
-    {
-      break;
-    }
-
-    if (id == boost::wave::T_RIGHTBRACE)
-    {
-      break;
-    }
-
-    if (id == boost::wave::T_RIGHTBRACKET)
-    {
-      break;
-    }
-
-    if (id == boost::wave::T_PP_DEFINE)
-    {
-      parseStatementDefineType(response, it, end);
-      IS_EQUAL_BREAK(it, end);
-    }
-
-    ++it;
-  }
-}
-
 void parseStatementDefineType(Statement& response,
   TokenSequenceConstIterator& it,
   TokenSequenceConstIterator& end)
@@ -672,7 +585,7 @@ void parseStatementDefineType(Statement& response,
 
   Tokens::TokenSequence subCollection = extractTokens(it, end, boost::wave::T_NEWLINE);
 
-  parseStatement(current, subCollection);
+  //parseStatement(current, subCollection);
 }
 
 Tokens::TokenSequence
@@ -691,104 +604,6 @@ extractTokens(TokenSequenceConstIterator& begin,
   }
 
   return response;
-}
-
-void
-parseStatement(Statement& response, Tokens::TokenSequence& collection)
-{
-  TokenSequenceConstIterator it = collection.begin();
-  TokenSequenceConstIterator end = collection.end();
-
-  parseStatement(response, it, end);
-}
-
-void parseStatement(Statement& response,
-  TokenSequenceConstIterator& it,
-  TokenSequenceConstIterator& end)
-{
-  while (it != end)
-  {
-    const struct Token& token = *it;
-
-    boost::wave::token_id id = getTokenId(token);
-
-    if (id == boost::wave::T_EOF)
-    {
-      break;
-    }
-
-    if ((id == boost::wave::T_QUESTION_MARK || id == boost::wave::T_COLON)
-      && isValid_(id)(it, end) == true)
-    {
-      builders_(id)(response, it, end);
-      IS_EQUAL_BREAK(it, end);
-      continue;
-    }
-
-    if (builders_.isHandled(id) && isValid_(id)(it, end) == true)
-    {
-      builders_(id)(response, it, end);
-      IS_EQUAL_BREAK(it, end);
-      //++it;
-      break;
-    }
-
-    if (id == boost::wave::T_LEFTPAREN ||
-        id == boost::wave::T_LEFTPAREN ||
-        id == boost::wave::T_LEFTBRACKET)
-    {
-      Statement& current = addStatement(response);
-
-      current.push(*it);
-      ++it;
-
-      TokenSequenceConstIterator itMatched = std::find_if(it,
-        end,
-        EndsWithCorrectPattern(id));
-
-      recursiveParseStatement(current, it, itMatched);
-
-      IS_EQUAL_BREAK(it, end)
-      current.push(*it);
-      ++it;
-      IS_EQUAL_BREAK(it, end)
-
-      continue;
-    }
-
-    if (id == boost::wave::T_RIGHTPAREN)
-    {
-      response.push(*it);
-      break;
-    }
-
-    if (id == boost::wave::T_RIGHTBRACKET)
-    {
-      response.push(*it);
-      break;
-    }
-
-    if (id == boost::wave::T_COLON)
-    {
-      response.push(*it);
-      break;
-    }
-
-    if (id == boost::wave::T_SEMICOLON)
-    {
-      response.push(*it);
-      break;
-    }
-
-    if (id == boost::wave::T_PP_DEFINE)
-    {
-      parseStatementDefineType(response, it, end);
-      break;
-    }
-
-    response.push(*it);
-    ++it;
-  }
 }
 
 } //unname namespace
@@ -836,7 +651,7 @@ StatementsBuilder::create(Token token, Tokens::TokenSequence& tokenCollection)
 
   if (it != end)
   {
-    parseStatement(response, it, end);
+    concreteBuilder.parse(it, end);
   }
 
   return response;
@@ -874,22 +689,15 @@ StatementsBuilder::builder(Statement& response,
   StatementsBuilder partial(response);
 
 
-  if (isValid_.isHandled(id) == true)
+  if (isValid_.isHandled(id) == true && isValid_(id)(it, end) == true)
   {
-    if (isValid_(id)(it, end) == true)
-    {
-      //parseStatement(response, it, end);
-      parseStatement(addStatement(response), it, end);
-    }
-    else
-    {
-      parseStatement(response, it, end);
-      //parseStatement(addStatement(response), it, end);
-    }
+    partial.parse(it, end);
   }
   else
   {
-    parseStatement(addStatement(response), it, end);
+    StatementsBuilder branch(partial.add());
+
+    branch.parse(it, end);
   }
 }
 
@@ -922,40 +730,26 @@ bool
 StatementsBuilder::parseArguments(Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
-  if (it == end)
+  IS_EQUAL_RETURN_FALSE(it, end);
+
+  addEachInvalidToken(statement_, it, end);
+
+  IS_EQUAL_RETURN_FALSE(it, end);
+
+  if (IsTokenWithId(boost::wave::T_LEFTPAREN)(*it) == false)
   {
     return false;
   }
 
-  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
-     end,
-     IsValidTokenForStatement());
+  Tokens::TokenSequence::const_iterator rightLimit = std::find_if(it+1,
+      end,
+      EndsWithCorrectPattern(boost::wave::T_LEFTPAREN));
 
-  if (itMatched == end)
-  {
-      return false;
-  }
+  Tokens::TokenSequence::const_iterator endArguments = (endArguments < end)? rightLimit + 1 : end;
 
-  if (IsTokenWithId(boost::wave::T_LEFTPAREN)(*itMatched) == false)
-  {
-    return false;
-  }
+  parse(it, endArguments);
 
-  addEachInvalidToken(getCurrentStatement(), it, end);
-
-  Statement& current = add();
-
-  current.push(*it);
-  ++it;
-
-  parseStatement(current, it, end);
-
-  if (IsTokenWithId(boost::wave::T_RIGHTPAREN)(*it) == false)
-  {
-    return false;
-  }
-
-  return true;
+  return IsTokenWithId(boost::wave::T_RIGHTPAREN)(*rightLimit);
 }
 
 void
@@ -964,40 +758,15 @@ StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
 {
   IS_EQUAL_RETURN(it, end)
 
-  Statement& current = add();
-  addEachInvalidToken(current, it, end);
-
-  if (IsTokenWithId(boost::wave::T_LEFTBRACE)(*it) == true)
-  {
-    current.push(*it);
-
-    for (++it; it != end; ++it)
-    {
-      addEachInvalidToken(current, it, end);
-
-      IS_EQUAL_BREAK(it, end)
-
-      if (IsTokenWithId(boost::wave::T_RIGHTBRACE)(*it) == true)
-      {
-        current.push(*it);
-        break;
-      }
-
-      if (IsTokenWithId(boost::wave::T_LEFTBRACE)(*it) == true)
-      {
-        StatementsBuilder(current).parseScope(it, end);
-        continue;
-      }
-
-      builder(current, it, end);
-
-      IS_EQUAL_BREAK(it, end)
-    }
-  }
+  if (IsTokenWithId(boost::wave::T_LEFTBRACE)(*it) ||
+      IsTokenWithId(boost::wave::T_LEFTPAREN)(*it) ||
+      IsTokenWithId(boost::wave::T_LEFTBRACE)(*it))
+    parse( it, end);
   else
   {
-    //builder(current, it, end);
-    parseStatement(current, it, end);
+    StatementsBuilder branch(add());
+    branch.parse(it, end);
+    ++it;
   }
 }
 
@@ -1018,278 +787,188 @@ bool
 StatementsBuilder::parseHeritage(Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
-  Statement& current = getCurrentStatement();
   if (IsTokenWithId(boost::wave::T_COLON)(*it) == false)
   {
     return false;
   }
 
-  do
-  {
-    push(*it);
-    ++it;
-    IS_EQUAL_BREAK(it, end)
+  Tokens::TokenSequence::const_iterator endLeftbrace = std::find_if(it,
+      end,
+      IsTokenWithName(LEFTBRACE_TOKEN_NAME));
 
-    addEachInvalidToken(current, it, end);
+  Tokens::TokenSequence::const_iterator endSemicolon = std::find_if(it,
+      end,
+      IsTokenWithName(SEMICOLON_TOKEN_NAME));
 
-    if (IsTokenWithId(boost::wave::T_IDENTIFIER)(*it) == true ||
-     IsTokenWithId(boost::wave::T_VIRTUAL)(*it) == true       ||
-     IsTokenWithId(boost::wave::T_PRIVATE)(*it) == true       ||
-     IsTokenWithId(boost::wave::T_PUBLIC)(*it) == true        ||
-     IsTokenWithId(boost::wave::T_PROTECTED)(*it) == true)
-    {
-      StatementsBuilder partial(add());
-      if (partial.parseArgument(it, end) == false)
-      {
-        return false;
-      }
-
-      IS_EQUAL_BREAK(it, end)
-    }
-
-  } while (IsTokenWithId(boost::wave::T_COMMA)(*it) == true);
-
-  return true;
-}
-
-bool
-StatementsBuilder::paramentersWithLastToken(
-  Tokens::TokenSequence::const_iterator& it,
-  Tokens::TokenSequence::const_iterator& end,
-  boost::wave::token_id id_)
-{
-  if (it == end)
+  if (endLeftbrace > endSemicolon || endLeftbrace >= end)
   {
     return false;
   }
 
+  Statement& current = getCurrentStatement();
+
   push(*it);
   ++it;
-  IS_EQUAL_RETURN_FALSE(it, end)
 
-  do
+  addEachInvalidToken(current, it, endLeftbrace);
+
+  while(it < endLeftbrace)
   {
-    StatementsBuilder partial(add());
-    partial.parseArgument(it, end);
+    builder(current, it, endLeftbrace);
 
-    IS_EQUAL_BREAK(it, end)
-
-
-    push(*it);
-
-    if (IsTokenWithId(id_)(*it) == true)
-    {
-      break;
-    }
-
+    IS_EQUAL_BREAK(it, endLeftbrace);
     ++it;
-  } while (it != end);
+
+    addEachInvalidToken(current, it, endLeftbrace);
+  }
 
   return true;
 }
 
-bool
-StatementsBuilder::parseArgument(
-    Tokens::TokenSequence::const_iterator& it,
+void
+StatementsBuilder::parseListScope(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  IS_EQUAL_RETURN_FALSE(it, end)
+  Statement& current = add();
+  StatementsBuilder scope(current);
 
-  push(*it);
+  scope.push(*it);
   ++it;
 
-  while (it != end)
+  while(it < end)
   {
-    if (IsTokenWithId(boost::wave::T_LEFTPAREN)(*it) == true)
-    {
-      StatementsBuilder partial(add());
-      partial.paramentersWithLastToken(it, end, boost::wave::T_RIGHTPAREN);
-      continue;
-    }
+    scope.addEachInvalidToken(current, it, end);
 
-    if (IsTokenWithId(boost::wave::T_LEFTBRACKET)(*it) == true)
-    {
-      StatementsBuilder partial(add());
+    Tokens::TokenSequence::const_iterator endItem = std::find_if(it,
+      end,
+      IsTokenWithId(boost::wave::T_COMMA));
 
-      partial.paramentersWithLastToken(it, end, boost::wave::T_RIGHTBRACKET);
-      continue;
-    }
+    scope.builder(current, it, endItem);
 
-    if (IsTokenWithId(boost::wave::T_LESS)(*it) == true)
-    {
-      StatementsBuilder partial(add());
-
-      partial.paramentersWithLastToken(it, end, boost::wave::T_GREATER);
-      IS_EQUAL_BREAK(it, end);
-      ++it;
-      continue;
-    }
-
-    if (IsTokenWithId(boost::wave::T_RIGHTPAREN)(*it) == true)
-    {
-      push(*it);
-      break;
-    }
-
-    if (IsTokenWithId(boost::wave::T_RIGHTBRACKET)(*it) == true)
-    {
-      push(*it);
-      break;
-    }
-
-    if (IsTokenWithId(boost::wave::T_GREATER)(*it) == true)
-    {
-      //current.push(*it);
-      break;
-    }
-
-    if (IsTokenWithId(boost::wave::T_LEFTBRACE)(*it) == true ||
-        IsTokenWithId(boost::wave::T_SEMICOLON)(*it) == true ||
-        IsTokenWithId(boost::wave::T_COMMA)(*it) == true)
-    {
-      break;
-    }
-
-    push(*it);
+    scope.push(*it);
     ++it;
   }
-
-  return true;
 }
 
 bool
 StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
-    Tokens::TokenSequence::const_iterator& end, std::vector<boost::wave::token_id>& finishTypeList)
+  Tokens::TokenSequence::const_iterator& end)
 {
+  bool successful = true;
+
   IS_EQUAL_RETURN_FALSE(it, end)
+  ++it;
+  IS_EQUAL_RETURN_FALSE(it, end);
 
-  Statement& current = getCurrentStatement();
+  Tokens::TokenSequence::const_iterator endMatched =
+    std::find_if(it, end, IsTokenWithName(SEMICOLON_TOKEN_NAME));
 
-  //push(*it);
-  //++it;
-  do
+  Statement& current = add();
+  StatementsBuilder partial(current);
+  partial.addEachInvalidToken(current, it, endMatched);
+
+  while(it < endMatched)
   {
-    IS_EQUAL_BREAK(it, end)
-    addEachInvalidToken(current, it, end);
-    IS_EQUAL_BREAK(it, end)
+    partial.builder(current, it, endMatched);
 
-    boost::wave::token_id id = getTokenId(*it);
+    IS_EQUAL_BREAK(it, endMatched);
+    ++it;
 
-    if (id == boost::wave::T_COMMA)
-    {
+    partial.addEachInvalidToken(current, it, endMatched);
+  }
+
+  if (IsTokenWithName(SEMICOLON_TOKEN_NAME)(*it) == true && successful)
+  {
       push(*it);
-      ++it;
-
-      IS_EQUAL_BREAK(it, end)
-      addEachInvalidToken(current, it, end);
-      IS_EQUAL_BREAK(it, end)
-
-      id = getTokenId(*it);
-    }
-    else
-    {
-      bool finish = std::find(finishTypeList.begin(),
-        finishTypeList.end(),
-        id) != finishTypeList.end();
-
-      if (finish)
-      {
-        break;
-      }
-    }
-
-    IS_EQUAL_BREAK(it, end)
-
-    if (id != boost::wave::T_COMMA)
-    {
-      StatementsBuilder partial(add());
-
-      if (partial.parseVariableDeclaration(it, end, finishTypeList) == false)
-      {
-        return false;
-      }
-
-      IS_EQUAL_BREAK(it, end)
-    }
-
-  } while (IsTokenWithId(boost::wave::T_COMMA)(*it) == true);
+  }
+  else
+  {
+    successful = false;
+  }
 
   return true;
 }
 
-bool
-StatementsBuilder::parseVariableDeclaration(Tokens::TokenSequence::const_iterator& it,
-    Tokens::TokenSequence::const_iterator& end,
-    std::vector<boost::wave::token_id>& finishTypeList)
+void
+StatementsBuilder::parse(TokenSequenceConstIterator& it,
+  TokenSequenceConstIterator& end)
 {
-  IS_EQUAL_RETURN_FALSE(it, end)
-  std::map<boost::wave::token_id, boost::wave::token_id> tokens;
-
-  tokens[boost::wave::T_LEFTBRACE] = boost::wave::T_RIGHTBRACE;
-  tokens[boost::wave::T_LEFTPAREN] = boost::wave::T_RIGHTPAREN;
-  tokens[boost::wave::T_LEFTBRACKET] = boost::wave::T_RIGHTBRACKET;
-  tokens[boost::wave::T_LESS] = boost::wave::T_GREATER;
-
-  while (it != end)
+  while (it < end)
   {
-    boost::wave::token_id id = getTokenId(*it);
+    const struct Token& token = *it;
 
-    bool finish = std::find(finishTypeList.begin(),
-      finishTypeList.end(),
-      id) != finishTypeList.end();
+    boost::wave::token_id id = getTokenId(token);
 
-    if (finish)
-      break;
-
-    if (id == boost::wave::T_ASSIGN)
+    if (id == boost::wave::T_EOF)
     {
-      StatementsBuilder partial(add());
+      break;
+    }
 
-      partial.push(*it);
-      ++it;
-      IS_EQUAL_BREAK(it, end)
-
-      if (partial.parseVariableDeclaration(it, end, finishTypeList) == false)
-      {
-        return false;
-      }
-
+    if ((id == boost::wave::T_QUESTION_MARK ||
+      id == boost::wave::T_COLON ||
+      id == boost::wave::T_LEFTPAREN ||
+      id == boost::wave::T_LEFTBRACKET ||
+      id == boost::wave::T_PP_LINE ||
+      id == boost::wave::T_PUBLIC ||
+      id == boost::wave::T_PROTECTED ||
+      id == boost::wave::T_PRIVATE ||
+      id == boost::wave::T_LESS)
+        && isValid_(id)(it, end) == true)
+    {
+      builders_(id)(statement_, it, end);
+      IS_EQUAL_BREAK(it, end);
       continue;
     }
 
-    if (id == boost::wave::T_LEFTBRACE ||
-        id == boost::wave::T_LEFTPAREN ||
-        id == boost::wave::T_LESS      ||
-        id == boost::wave::T_LEFTBRACKET)
+    if (builders_.isHandled(id) && isValid_(id)(it, end) == true)
     {
-      finishTypeList.push_back(tokens[id]);
+      builders_(id)(statement_, it, end);
+      IS_EQUAL_BREAK(it, end);
+      //++it;
+      break;
+    }
 
-      StatementsBuilder partial(add());
+    if (id == boost::wave::T_RIGHTPAREN)
+    {
+      push(*it);
+      break;
+    }
 
-      partial.push(*it);
-      ++it;
-      IS_EQUAL_BREAK(it, end)
+    if (id == boost::wave::T_RIGHTBRACKET)
+    {
+      push(*it);
+      break;
+    }
 
-      if (partial.parseVariablesFromScopeToSemicolon(it, end, finishTypeList) == false)
-      {
-        return false;
-      }
+    if (id == boost::wave::T_COLON)
+    {
+      push(*it);
+      break;
+    }
 
-      partial.push(*it);
-      finishTypeList.pop_back();
+    if (id == boost::wave::T_SEMICOLON)
+    {
+      push(*it);
+      break;
+    }
 
-      IS_EQUAL_BREAK(it, end)
-      ++it;
+    if (id == boost::wave::T_COMMA)
+    {
+      push(*it);
+      break;
+    }
 
-      continue;
+    if (id == boost::wave::T_PP_DEFINE)
+    {
+      parseStatementDefineType(statement_, it, end);
+      break;
     }
 
     push(*it);
     ++it;
   }
-
-  return true;
 }
+
 
 }
 }
