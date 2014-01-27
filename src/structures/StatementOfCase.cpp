@@ -100,7 +100,7 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
   ++it;
   IS_EQUAL_RETURN(it, end);
 
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
   IS_EQUAL_RETURN(it, end);
 
   parse(it, end);

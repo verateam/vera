@@ -19,7 +19,7 @@ namespace Structures
 {
 
 /**
- * @brief Classes that implements a decorator dedicated to the construction
+ * @brief Class that implements a decorator dedicated to the construction
  * of Statements of modifier access type.
  */
 class StatementOfAccessModifiers
@@ -27,6 +27,13 @@ class StatementOfAccessModifiers
 {
   public:
 
+    /**
+     * @brief Initializes an instance of StatementOfAccessModifiers.
+     *
+     * @param statement The reference to the statement.
+     * @param it The initial point of the statement.
+     * @param end The end point of the statement.
+     */
     StatementOfAccessModifiers(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
@@ -39,16 +46,35 @@ class StatementOfAccessModifiers
      */
     const Statement& getStatementScope();
 
-
+    /**
+     * @brief Determines if a new statement can be created from the given tokens.
+     *
+     * @param it The initial point of the statement.
+     * @param end The end point of the statement.
+     * 
+     * @return True if a new statement can be created, otherwise, false.
+     */
     static bool isValid(Tokens::TokenSequence::const_iterator it,
         Tokens::TokenSequence::const_iterator end);
-
+        
+    /**
+     * @brief Creates a new statement from the given tokens.
+     *
+     * @param statement The reference to the statement.
+     * @param it The initial point of the statement.
+     * @param end The end point of the statement.
+     * 
+     * @return True if the new statement was created, otherwise, false.
+     */
     static bool create(Statement& statement,
         Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
   private:
-
+        
+    /**
+     * @brief Executes the analysis of the first tokens of the sentence.
+     */
     void initialize();
 
   private:

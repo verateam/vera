@@ -5,7 +5,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "StatementOfPreprocessorLine.h"
+#include "StatementOfDefine.h"
 #include "IsTokenWithName.h"
 
 #include <vector>
@@ -13,9 +13,11 @@
 #include <algorithm>
 
 #define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
-#define TOKEN_NAME  "pp_line"
-#define INTLIT_TOKEN_NAME  "intlit"
+#define TOKEN_NAME  "pp_define"
+#define IDENTIFIER_TOKEN_NAME  "identifier"
 #define STRINGLIT_TOKEN_NAME  "stringlit"
+#define LEFTPAREN_TOKEN_NAME  "leftparen"
+#define RIGHTPAREN_TOKEN_NAME  "rightparen"
 #define NEWLINE_TOKEN_NAME  "newline"
 
 #define IS_EQUAL_RETURN(left, right) \
@@ -46,16 +48,17 @@ namespace Vera
 namespace Structures
 {
 
-StatementOfPreprocessorLine::StatementOfPreprocessorLine(Statement& statement,
+StatementOfDefine::StatementOfDefine(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
+, scope_(NULL)
 {
   initialize(it, end);
 }
 
 void
-StatementOfPreprocessorLine::initialize(Tokens::TokenSequence::const_iterator& it,
+StatementOfDefine::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
   Statement& current = getCurrentStatement();
@@ -64,32 +67,54 @@ StatementOfPreprocessorLine::initialize(Tokens::TokenSequence::const_iterator& i
 
   ++it;
 
-  IS_EQUAL_RETURN(it, end);
-  addEachInvalidToken(it, end);
+  Tokens::TokenSequence::const_iterator endMatched = std::find_if(it,
+    end,
+    IsTokenWithName(NEWLINE_TOKEN_NAME));
 
-  if (it->name_.compare(INTLIT_TOKEN_NAME) == 0)
+  IS_EQUAL_RETURN(endMatched, end);
+
+  addEachInvalidToken(it, endMatched);
+
+  if (it->name_.compare(IDENTIFIER_TOKEN_NAME) == 0)
   {
     push(*it);
-
-    ++it;
+    name_ = it->value_;
   }
 
-  IS_EQUAL_RETURN(it, end);
-  addEachInvalidToken(it, end);
-
-  IS_EQUAL_RETURN(it, end);
-
-  if (it->name_.compare(STRINGLIT_TOKEN_NAME) == 0)
-  {
-    push(*it);
-  }
-
-  IS_EQUAL_RETURN(it, end);
   ++it;
+
+  IS_EQUAL_RETURN(it, end);
+
+  if (it->name_.compare(LEFTPAREN_TOKEN_NAME) == 0)
+  {
+    Tokens::TokenSequence::const_iterator rightParenMatched = std::find_if(it + 1,
+      end,
+      EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
+
+    if (rightParenMatched < end)
+    {
+      ++rightParenMatched;
+    }
+
+    parseScope(it, rightParenMatched);
+  }
+
+  addEachInvalidToken(it, end);
+
+  IS_EQUAL_RETURN(it, end);
+
+  StatementsBuilder branches(add());
+
+  for (; it < endMatched; ++it)
+  {
+    branches.push(*it);
+  }
+
+  IS_EQUAL_RETURN(it, end);
 }
 
 bool
-StatementOfPreprocessorLine::isValid(
+StatementOfDefine::isValid(
     Tokens::TokenSequence::const_iterator it,
     Tokens::TokenSequence::const_iterator end)
 {
@@ -97,7 +122,7 @@ StatementOfPreprocessorLine::isValid(
 }
 
 bool
-StatementOfPreprocessorLine::create(Statement& statement,
+StatementOfDefine::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
@@ -105,7 +130,7 @@ StatementOfPreprocessorLine::create(Statement& statement,
 
   if (isValid(it, end) == true)
   {
-    StatementOfPreprocessorLine builder(statement, it, end);
+    StatementOfDefine builder(statement, it, end);
     successful = true;
   }
 

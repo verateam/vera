@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STATEMENTOFUNION_H_INCLUDED
-#define STATEMENTOFUNION_H_INCLUDED
+#ifndef STATEMENTOFCLASS_H_INCLUDED
+#define STATEMENTOFCLASS_H_INCLUDED
 
 #include "Tokens.h"
 #include <string>
@@ -20,14 +20,14 @@ namespace Structures
 
 /**
  * @brief Classes that implements a decorator dedicated to the construction
- * of Statements of type "Struct".
+ * of Statements of type "Class".
  */
-class StatementOfUnion
+class StatementOfClass
 : public StatementsBuilder
 {
   public:
 
-    StatementOfUnion(Statement& statement,
+    StatementOfClass(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
@@ -42,23 +42,15 @@ class StatementOfUnion
     static bool isValid(Tokens::TokenSequence::const_iterator it,
       Tokens::TokenSequence::const_iterator end);
 
-    static bool isValidWithoutName(Tokens::TokenSequence::const_iterator it,
-        Tokens::TokenSequence::const_iterator end);
+    void initialize();
 
-    static bool isValidWithName(Tokens::TokenSequence::const_iterator it,
-           Tokens::TokenSequence::const_iterator end);
+    bool parseName();
 
-    void initialize(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    bool parseHeritage();
 
-    bool parseName(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    bool parseScope();
 
-    bool parseScope(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
-
-    bool parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
+    bool parseVariablesFromScopeToSemicolon();
 
     static bool create(Statement& statement,
         Tokens::TokenSequence::const_iterator& it,
@@ -68,11 +60,14 @@ class StatementOfUnion
 
     const std::string* name_;
     Statement* scope_;
+    Statement* hieritance_;
     Statement* variables_;
+    Tokens::TokenSequence::const_iterator& it_;
+    Tokens::TokenSequence::const_iterator& end_;
 };
 
 } // namespace Structures
 
 } // namespace Vera
 
-#endif // STATEMENTOFUNION_H_INCLUDED
+#endif // STATEMENTOFCLASS_H_INCLUDED

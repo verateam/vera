@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STATEMENTOFNAMESPACE_H_INCLUDED
-#define STATEMENTOFNAMESPACE_H_INCLUDED
+#ifndef STATEMENTOFTYPEDEF_H_INCLUDED
+#define STATEMENTOFTYPEDEF_H_INCLUDED
 
 #include "Tokens.h"
 #include <string>
@@ -20,28 +20,23 @@ namespace Structures
 
 /**
  * @brief Classes that implements a decorator dedicated to the construction
- * of Statements of type "Namespace".
+ * of Statements of modifier access type.
  */
-class StatementOfNamespace
+class StatementOfTypedef
 : public StatementsBuilder
 {
+  friend class BuilderImpl;
   public:
 
-    StatementOfNamespace(Statement& statement,
+    StatementOfTypedef(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScope();
+    bool parseListFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
 
     static bool isValid(Tokens::TokenSequence::const_iterator it,
-      Tokens::TokenSequence::const_iterator end);
-
+        Tokens::TokenSequence::const_iterator end);
 
     static bool create(Statement& statement,
         Tokens::TokenSequence::const_iterator& it,
@@ -49,16 +44,23 @@ class StatementOfNamespace
 
   private:
 
-    void initialize(Tokens::TokenSequence::const_iterator& it,
+    void parseSignature(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
+
+    bool isSignature(Tokens::TokenSequence::const_iterator it,
+        Tokens::TokenSequence::const_iterator end);
+
+    void initialize(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end);
 
   private:
 
-    std::string name_;
+    const std::vector<std::string> names_;
+    const Statement* types_;
 };
 
 } // namespace Structures
 
 } // namespace Vera
 
-#endif // STATEMENTOFNAMESPACE_H_INCLUDED
+#endif // STATEMENTOFTYPEDEF_H_INCLUDED

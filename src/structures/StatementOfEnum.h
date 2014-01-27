@@ -39,12 +39,25 @@ class StatementOfEnum
      */
     const Statement& getStatementScope();
 
+    void initialize(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
 
     bool parseScope(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
+    bool parseName(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
+    bool parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+           Tokens::TokenSequence::const_iterator& end);
 
     static bool isValid(Tokens::TokenSequence::const_iterator it,
+      Tokens::TokenSequence::const_iterator end);
+
+    static bool isValidWithName(Tokens::TokenSequence::const_iterator it,
+      Tokens::TokenSequence::const_iterator end);
+
+    static bool isValidWithoutName(Tokens::TokenSequence::const_iterator it,
       Tokens::TokenSequence::const_iterator end);
 
 
@@ -53,9 +66,8 @@ class StatementOfEnum
         Tokens::TokenSequence::const_iterator& end);
 
   private:
+    Statement* variables_;
 
-    void initialize(Tokens::TokenSequence::const_iterator& it,
-        Tokens::TokenSequence::const_iterator& end);
 };
 
 } // namespace Structures

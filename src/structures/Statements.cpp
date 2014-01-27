@@ -26,9 +26,14 @@
 #include "StatementOfParensArguments.h"
 #include "StatementOfBracketsArguments.h"
 #include "StatementOfBracesArguments.h"
+#include "StatementOfUnion.h"
 #include "StatementOfPreprocessorLine.h"
+#include "StatementOfDefine.h"
+#include "StatementOfClass.h"
+#include "StatementOfTypedef.h"
 
 #include "IsTokenWithName.h"
+
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <vector>
@@ -101,15 +106,21 @@ class StrategySelector
       factories_[boost::wave::T_PUBLIC] = &Vera::Structures::StatementOfAccessModifiers::create;
       factories_[boost::wave::T_PROTECTED] = &Vera::Structures::StatementOfAccessModifiers::create;
       factories_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::create;
-      factories_[boost::wave::T_QUESTION_MARK] = &Vera::Structures::StatementOfOperatorTernario::create;
+      factories_[boost::wave::T_QUESTION_MARK] =
+        &Vera::Structures::StatementOfOperatorTernario::create;
       factories_[boost::wave::T_COLON] = &Vera::Structures::StatementOfOperatorTernario::create;
       factories_[boost::wave::T_LESS] = &Vera::Structures::StatementOfTemplateParameters::create;
       factories_[boost::wave::T_EXTERN] = &Vera::Structures::StatementOfExtern::create;
       factories_[boost::wave::T_ENUM] = &Vera::Structures::StatementOfEnum::create;
       factories_[boost::wave::T_LEFTPAREN] = &Vera::Structures::StatementOfParensArguments::create;
-      factories_[boost::wave::T_LEFTBRACKET] = &Vera::Structures::StatementOfBracketsArguments::create;
+      factories_[boost::wave::T_LEFTBRACKET] =
+        &Vera::Structures::StatementOfBracketsArguments::create;
       factories_[boost::wave::T_LEFTBRACE] = &Vera::Structures::StatementOfBracesArguments::create;
+      factories_[boost::wave::T_UNION] = &Vera::Structures::StatementOfUnion::create;
+      factories_[boost::wave::T_CLASS] = &Vera::Structures::StatementOfClass::create;
       factories_[boost::wave::T_PP_LINE] = &Vera::Structures::StatementOfPreprocessorLine::create;
+      factories_[boost::wave::T_PP_DEFINE] = &Vera::Structures::StatementOfDefine::create;
+      factories_[boost::wave::T_TYPEDEF] = &Vera::Structures::StatementOfTypedef::create;
     }
 
     /**
@@ -121,7 +132,9 @@ class StrategySelector
     FactoryMethod operator() (boost::wave::token_id id)
     {
       if (factories_.find(id) == factories_.end())
+      {
         throw;
+      }
 
       return *factories_[id];
     }
@@ -182,15 +195,21 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_PUBLIC] = &Vera::Structures::StatementOfAccessModifiers::isValid;
       verifiers_[boost::wave::T_PROTECTED] = &Vera::Structures::StatementOfAccessModifiers::isValid;
       verifiers_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::isValid;
-      verifiers_[boost::wave::T_QUESTION_MARK] = &Vera::Structures::StatementOfOperatorTernario::isValid;
+      verifiers_[boost::wave::T_QUESTION_MARK] =
+         &Vera::Structures::StatementOfOperatorTernario::isValid;
       verifiers_[boost::wave::T_COLON] = &Vera::Structures::StatementOfOperatorTernario::isValid;
       verifiers_[boost::wave::T_LESS] = &Vera::Structures::StatementOfTemplateParameters::isValid;
       verifiers_[boost::wave::T_EXTERN] = &Vera::Structures::StatementOfExtern::isValid;
       verifiers_[boost::wave::T_ENUM] = &Vera::Structures::StatementOfEnum::isValid;
       verifiers_[boost::wave::T_LEFTPAREN] = &Vera::Structures::StatementOfParensArguments::isValid;
-      verifiers_[boost::wave::T_LEFTBRACKET] = &Vera::Structures::StatementOfBracketsArguments::isValid;
+      verifiers_[boost::wave::T_LEFTBRACKET] =
+        &Vera::Structures::StatementOfBracketsArguments::isValid;
       verifiers_[boost::wave::T_LEFTBRACE] = &Vera::Structures::StatementOfBracesArguments::isValid;
+      verifiers_[boost::wave::T_UNION] = &Vera::Structures::StatementOfUnion::isValid;
       verifiers_[boost::wave::T_PP_LINE] = &Vera::Structures::StatementOfPreprocessorLine::isValid;
+      verifiers_[boost::wave::T_PP_DEFINE] = &Vera::Structures::StatementOfDefine::isValid;
+      verifiers_[boost::wave::T_CLASS] = &Vera::Structures::StatementOfClass::isValid;
+      verifiers_[boost::wave::T_TYPEDEF] = &Vera::Structures::StatementOfTypedef::isValid;
     }
 
     /**
@@ -202,7 +221,9 @@ class SelectorOfVerifiers
     IsValidMethod operator() (boost::wave::token_id id)
     {
       if (isHandled(id) == false)
+      {
         throw;
+      }
 
       return *verifiers_[id];
     }
@@ -227,6 +248,7 @@ class SelectorOfVerifiers
 
   private:
       IsValidMapType verifiers_;
+
 } isValid_;
 
 } /*unname namespace */
@@ -519,94 +541,21 @@ getTokenId(const Token& token)
   return boost::wave::T_UNKNOWN;
 }
 
-/**
- * @brief Adds a new statement to the statement collection associated to the parent statement.
- *
- * @param current
- * @return The reference to the new statement.
- */
-Statement&
-addStatement(Statement& current)
-{
-  current.statementSequence_.push_back(Statement());
-  Statement& next = current.statementSequence_.back();
-  current.childs_.push_back(Statement::TYPE_ITEM_STATEMENT);
-  return next;
-}
-
-/**
- * @brief Parses the statements from the token list
- * and retrieves the related list of tokens.
- *
- * @param response [out] the reference to the statement
- * used to return the response.
- * @param it the reference to the const iterator with the
- * initial element of the statement.
- * @param end the of the list to be analyzed.
- */
-//void parseStatement(Statement& response,
-//  TokenSequenceConstIterator& it,
-//  TokenSequenceConstIterator& end);
-
-/**
- * @brief Parses the statements from the token list
- * and retrieves the related list of tokens.
- * @param response [out] the reference to the statement
- * used to return the response.
- * @param collection token list to be analyzed.
- */
-//void parseStatement(Statement& response, Tokens::TokenSequence& collection);
-
-/**
- * @brief TODO
- * @param response
- * @param it
- * @param end
- */
-void parseStatementDefineType(Statement& response,
-  TokenSequenceConstIterator& it,
-  TokenSequenceConstIterator& end);
-
-/**
- * @brief TODO
- */
-Tokens::TokenSequence
-extractTokens(TokenSequenceConstIterator& begin,
-    TokenSequenceConstIterator& end, boost::wave::token_id id);
-
-void parseStatementDefineType(Statement& response,
-  TokenSequenceConstIterator& it,
-  TokenSequenceConstIterator& end)
-{
-  response.push(*it);
-  ++it;
-
-  Statement& current = addStatement(response);
-
-  Tokens::TokenSequence subCollection = extractTokens(it, end, boost::wave::T_NEWLINE);
-
-  //parseStatement(current, subCollection);
-}
-
-Tokens::TokenSequence
-extractTokens(TokenSequenceConstIterator& begin,
-    TokenSequenceConstIterator& end, boost::wave::token_id id)
-{
-  Tokens::TokenSequence response;
-
-  TokenSequenceConstIterator itMatched = std::find_if(begin, end, IsTokenWithId(id));
-
-  if (itMatched != end && itMatched != begin)
-  {
-    std::copy(begin,
-      itMatched,
-      std::back_inserter<Vera::Structures::Tokens::TokenSequence>(response));
-  }
-
-  return response;
-}
-
 } //unname namespace
+
+Statement&
+Statement::add()
+{
+  statementSequence_.push_back(Statement());
+
+  Statement& child = statementSequence_.back();
+
+  child.parent_ = this;
+  child.doc_ = doc_;
+  childs_.push_back(Statement::TYPE_ITEM_STATEMENT);
+
+  return child;
+}
 
 bool
 Statement::operator==(const Statement& statement) const
@@ -628,7 +577,7 @@ Statement::operator==(const Statement& statement) const
       statement.statementSequence_.begin());
   }
 
-  return isEqual;
+  return isEqual && id_ == statement.id_;
 }
 
 void
@@ -636,6 +585,12 @@ Statement::push(Token token)
 {
   tokenSequence_.push_back(token);
   childs_.push_back(Statement::TYPE_ITEM_TOKEN);
+}
+
+Statement*
+Statement::getParent()
+{
+  return parent_;
 }
 
 Statement
@@ -672,7 +627,7 @@ StatementsBuilder::setCurrentStatement(Statement& current)
 Statement&
 StatementsBuilder::add()
 {
-  return addStatement(statement_);
+  return statement_.add();
 }
 
 void
@@ -703,7 +658,14 @@ StatementsBuilder::builder(Statement& response,
 
 StatementsBuilder::StatementsBuilder(Statement& statement)
 : statement_(statement)
+, id_(statement.id_)
 {
+}
+
+std::size_t
+StatementsBuilder::getId() const
+{
+  return id_;
 }
 
 void
@@ -725,6 +687,26 @@ StatementsBuilder::addEachInvalidToken(Statement& current,
 
   it += std::distance(it, itMatched);
 }
+
+void
+StatementsBuilder::addEachInvalidToken(Tokens::TokenSequence::const_iterator& it,
+  Tokens::TokenSequence::const_iterator& end)
+{
+  Tokens::TokenSequence& tokenList = statement_.tokenSequence_;
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
+    end,
+    IsValidTokenForStatement());
+
+  std::copy(it, itMatched, std::back_inserter<Vera::Structures::Tokens::TokenSequence>(tokenList));
+
+  for (int i = 0; i < std::distance(it, itMatched); ++i)
+  {
+    statement_.childs_.push_back(Statement::TYPE_ITEM_TOKEN);
+  }
+
+  it += std::distance(it, itMatched);
+}
+
 
 bool
 StatementsBuilder::parseArguments(Tokens::TokenSequence::const_iterator& it,
@@ -761,7 +743,9 @@ StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
   if (IsTokenWithId(boost::wave::T_LEFTBRACE)(*it) ||
       IsTokenWithId(boost::wave::T_LEFTPAREN)(*it) ||
       IsTokenWithId(boost::wave::T_LEFTBRACE)(*it))
-    parse( it, end);
+  {
+    parse(it, end);
+  }
   else
   {
     StatementsBuilder branch(add());
@@ -810,16 +794,16 @@ StatementsBuilder::parseHeritage(Tokens::TokenSequence::const_iterator& it,
   push(*it);
   ++it;
 
-  addEachInvalidToken(current, it, endLeftbrace);
+  addEachInvalidToken(it, endLeftbrace);
 
-  while(it < endLeftbrace)
+  while (it < endLeftbrace)
   {
     builder(current, it, endLeftbrace);
 
     IS_EQUAL_BREAK(it, endLeftbrace);
     ++it;
 
-    addEachInvalidToken(current, it, endLeftbrace);
+    addEachInvalidToken(it, endLeftbrace);
   }
 
   return true;
@@ -835,9 +819,9 @@ StatementsBuilder::parseListScope(Tokens::TokenSequence::const_iterator& it,
   scope.push(*it);
   ++it;
 
-  while(it < end)
+  while (it < end)
   {
-    scope.addEachInvalidToken(current, it, end);
+    scope.addEachInvalidToken(it, end);
 
     Tokens::TokenSequence::const_iterator endItem = std::find_if(it,
       end,
@@ -856,8 +840,6 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
 {
   bool successful = true;
 
-  IS_EQUAL_RETURN_FALSE(it, end)
-  ++it;
   IS_EQUAL_RETURN_FALSE(it, end);
 
   Tokens::TokenSequence::const_iterator endMatched =
@@ -865,16 +847,16 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
 
   Statement& current = add();
   StatementsBuilder partial(current);
-  partial.addEachInvalidToken(current, it, endMatched);
+  partial.addEachInvalidToken(it, endMatched);
 
-  while(it < endMatched)
+  while (it < endMatched)
   {
     partial.builder(current, it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
 
-    partial.addEachInvalidToken(current, it, endMatched);
+    partial.addEachInvalidToken(it, endMatched);
   }
 
   if (IsTokenWithName(SEMICOLON_TOKEN_NAME)(*it) == true && successful)
@@ -905,7 +887,6 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
     }
 
     if ((id == boost::wave::T_QUESTION_MARK ||
-      id == boost::wave::T_COLON ||
       id == boost::wave::T_LEFTPAREN ||
       id == boost::wave::T_LEFTBRACKET ||
       id == boost::wave::T_PP_LINE ||
@@ -958,17 +939,10 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
       break;
     }
 
-    if (id == boost::wave::T_PP_DEFINE)
-    {
-      parseStatementDefineType(statement_, it, end);
-      break;
-    }
-
     push(*it);
     ++it;
   }
 }
-
 
 }
 }

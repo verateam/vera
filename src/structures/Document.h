@@ -9,6 +9,11 @@
 #define DOCUMENT_H_INCLUDED
 
 #include "Tokens.h"
+#include "StatementOfDefine.h"
+#include "StatementOfStruct.h"
+#include "StatementOfUnion.h"
+#include "StatementOfEnum.h"
+
 #include <string>
 #include <vector>
 #include "Statements.h"
@@ -37,35 +42,53 @@ public:
  * @brief TODO
  */
 class Document
-//: private boost::noncopyable
+: private boost::noncopyable
 {
   public:
 
-    Document(std::string& content, std::string& name);
-
-    void initialize();
+    Document(const std::string& name);
 
     /**
      * @brief Reads the config file which contains the "include" of the directories and the system.
      * This file also contains the predefined macros list.
+     * 
      * @param fileName The file name.
      */
     static void readConfigFile(const std::string& fileName);
-
+    
+    /**
+     * @brief Reads the config file which contains the "include" of the directories and the system.
+     * This file also contains the predefined macros list.
+     * 
+     * @param in The reference to the file.
+     */
     static void readConfigFile(std::istream& in);
-
+    
+    /**
+     * @brief Analyze the cpp document.
+     */
     void parse();
 
+    /**
+     * @brief Retrieves the root statement of the document.
+     * 
+     * @return The root statement of the document.
+     */
     Statement getRoot();
+    
+    /**
+     * @brief Creates a pointer to the cpp document.
+     * 
+     * @return A pointer to the cpp document.
+     */
+    static boost::shared_ptr<Document> create(std::string fileName);
 
-    static Document*  createCppDocument(std::string fileName);
+    //static void registerStruct(StatementOfStruct );
 
   private:
 
-    std::string content_;
     std::string fileName_;
     Statement root_;
-    PrecompilerContext context_;
     Tokens::TokenSequence collection_;
 };
 

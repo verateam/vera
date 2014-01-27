@@ -56,9 +56,7 @@ StatementOfWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
   push(*it);
   ++it;
 
-  Statement& current = getCurrentStatement();
-
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
   if (parseArguments(it, end) == false)
   {
@@ -67,7 +65,7 @@ StatementOfWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
   ++it;
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
   parseScope(it, end);
 }
 

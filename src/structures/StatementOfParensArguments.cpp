@@ -66,32 +66,34 @@ StatementOfParensArguments::initialize(Tokens::TokenSequence::const_iterator& it
   Tokens::TokenSequence::const_iterator first;
   Tokens::TokenSequence::const_iterator second;
 
-  Statement& current = add();
+  struct Statement& current = add();
 
   Tokens::TokenSequence::const_iterator endMatched = std::find_if(it+1,
     end, EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
 
-  StatementsBuilder partial(current);
+  class StatementsBuilder partial(current);
   partial.push(*it);
   ++it;
-  partial.addEachInvalidToken(current, it, endMatched);
+  partial.addEachInvalidToken(it, endMatched);
 
-  while(it < endMatched)
+  while (it < endMatched)
   {
     partial.builder(current, it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
 
-    partial.addEachInvalidToken(current, it, endMatched);
+    partial.addEachInvalidToken(it, endMatched);
   }
 
   IS_EQUAL_RETURN(it, end);
 
   partial.push(*it);
 
-  if( it < end)
+  if (it < end)
+  {
     ++it;
+  }
 }
 
 const Statement&

@@ -53,30 +53,22 @@ StatementOfStruct::StatementOfStruct(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
-,name_(NULL)
-,scope_(NULL)
-,hieritance_(NULL)
-,variables_(NULL)
-,it_(it)
-,end_(end)
+, name_(NULL)
+, scope_(NULL)
+, hieritance_(NULL)
+, variables_(NULL)
 {
-  const Token& token = *it;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
+  initialize(it, end);
 }
 
 void
-StatementOfStruct::initialize()
+StatementOfStruct::initialize(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
 {
-  push(*it_);
-  ++it_;
+  push(*it);
+  ++it;
 
-  Statement& current = getCurrentStatement();
-
-  addEachInvalidToken(current, it_, end_);
+  addEachInvalidToken(it, end);
 }
 
 const Statement&
@@ -88,6 +80,121 @@ StatementOfStruct::getStatementScope()
   }
 
   return *scope_;
+}
+
+bool
+StatementOfStruct::parseName(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  IS_EQUAL_RETURN_FALSE(it, end);
+
+  if (IsTokenWithName(IDENTIFIER_TOKEN_NAME)(*it) == true )
+  {
+    push(*it);
+
+    name_ = &(it->value_);
+    ++it;
+    IS_EQUAL_RETURN_FALSE(it, end);
+    addEachInvalidToken(it, end);
+    successful = true;
+  }
+
+  return successful;
+}
+
+bool
+StatementOfStruct::parseHeritage(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  IS_EQUAL_RETURN_FALSE(it, end);
+
+  if (IsTokenWithName(COLON_TOKEN_NAME)(*it) == true )
+  {
+    StatementsBuilder partial(add());
+
+    successful = partial.parseHeritage(it, end);
+  }
+
+  if (successful)
+  {
+    hieritance_ = &getCurrentStatement().statementSequence_.back();
+  }
+
+  return successful;
+}
+
+bool
+StatementOfStruct::parseScope(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  IS_EQUAL_RETURN_FALSE(it, end);
+  if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*it) == false )
+  {
+    return false;
+  }
+
+  Statement& current = add();
+  StatementsBuilder branch(current);
+
+  branch.push(*it);
+
+  it++;
+
+  Tokens::TokenSequence::const_iterator rightBraceMached = std::find_if(it,
+    end,
+    EndsWithCorrectPattern(LEFTBRACE_TOKEN_NAME, RIGHTBRACE_TOKEN_NAME));
+
+  branch.addEachInvalidToken(it, end);
+
+  while (it < rightBraceMached)
+  {
+    //TODO constructors??
+    branch.builder(current, it, rightBraceMached);
+    ++it;
+    branch.addEachInvalidToken(it, rightBraceMached);
+  }
+
+  if (it >= end)
+  {
+    return false;
+  }
+
+  if (IsTokenWithName(RIGHTBRACE_TOKEN_NAME)(*it) == true)
+  {
+    successful = true;
+
+    branch.push(*it);
+    ++it;
+  }
+
+  scope_ = &current;
+
+  return successful;
+}
+
+bool
+StatementOfStruct::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  Statement& current = getCurrentStatement();
+
+  addEachInvalidToken(it, end);
+
+  if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it, end))
+  {
+    variables_ = &current.statementSequence_.back();
+    successful = true;
+  }
+
+  return successful;
 }
 
 bool
@@ -129,6 +236,8 @@ StatementOfStruct::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
       end,
       IsValidTokenForStatement());
 
+  IS_EQUAL_RETURN_FALSE(itMatched, end)
+
   if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched) == true)
   {
     return true;
@@ -138,108 +247,7 @@ StatementOfStruct::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
 }
 
 bool
-StatementOfStruct::parseName()
-{
-  bool successful = false;
-
-  IS_EQUAL_RETURN_FALSE(it_, end_);
-  if (IsTokenWithName(IDENTIFIER_TOKEN_NAME)(*it_) == true )
-  {
-    push(*it_);
-
-    name_ = &(it_->value_);
-    ++it_;
-    IS_EQUAL_RETURN_FALSE(it_, end_);
-    addEachInvalidToken(getCurrentStatement(), it_, end_);
-    successful = true;
-  }
-
-  return successful;
-}
-
-bool
-StatementOfStruct::parseHeritage()
-{
-  bool successful = false;
-
-  IS_EQUAL_RETURN_FALSE(it_, end_);
-  if (IsTokenWithName(COLON_TOKEN_NAME)(*it_) == true )
-  {
-    StatementsBuilder partial(add());
-
-    successful = partial.parseHeritage(it_, end_);
-  }
-
-  if (successful)
-  {
-    hieritance_ = &getCurrentStatement().statementSequence_.back();
-  }
-
-  return successful;
-}
-
-bool
-StatementOfStruct::parseScope()
-{
-  bool successful = false;
-
-  IS_EQUAL_RETURN_FALSE(it_, end_);
-  if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*it_) == true )
-  {
-    StatementsBuilder::parseScope(it_, end_);
-    scope_ = &getCurrentStatement().statementSequence_.back();
-
-    successful = true;
-  }
-
-  return successful;
-}
-
-bool
-StatementOfStruct::parseVariablesFromScopeToSemicolon()
-{
-  bool successful = false;
-
-  if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it_, end_))
-  {
-    variables_ = &getCurrentStatement().statementSequence_.back();
-    successful = true;
-  }
-
-  /*++it_;
-  IS_EQUAL_RETURN_FALSE(it_, end_);
-
-  Tokens::TokenSequence::const_iterator end =
-    std::find_if(it_, end_, IsTokenWithName(SEMICOLON_TOKEN_NAME));
-
-  Statement& current = add();
-  StatementsBuilder partial(current);
-  partial.addEachInvalidToken(current, it_, end);
-
-  while(it_ < end)
-  {
-    partial.builder(current, it_, end);
-
-    IS_EQUAL_BREAK(it_, end);
-    ++it_;
-
-    partial.addEachInvalidToken(current, it_, end);
-  }
-
-  if (IsTokenWithName(SEMICOLON_TOKEN_NAME)(*it_) == true && successful)
-  {
-      push(*it_);
-  }
-  else
-  {
-    successful = false;
-  }*/
-
-  return successful;
-}
-
-bool
-StatementOfStruct::isValid(Tokens::TokenSequence::const_iterator it,
+StatementOfStruct::isValidWithName(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
   if (it->name_.compare(TOKEN_NAME) != 0)
@@ -297,22 +305,46 @@ StatementOfStruct::isValid(Tokens::TokenSequence::const_iterator it,
   return false;
 }
 
-bool StatementOfStruct::create(Statement& statement,
-    Tokens::TokenSequence::const_iterator& it,
-    Tokens::TokenSequence::const_iterator& end)
+bool
+StatementOfStruct::isValid(Tokens::TokenSequence::const_iterator it,
+  Tokens::TokenSequence::const_iterator end)
+{
+  return isValidWithName(it, end) || isValidWithoutName(it, end);
+}
+
+bool
+StatementOfStruct::create(Statement& statement,
+  Tokens::TokenSequence::const_iterator& it,
+  Tokens::TokenSequence::const_iterator& end)
 {
   bool successful = false;
+  bool isValid = false;
+  bool hasName = false;
 
-  if (isValid(it, end))
+  if (isValidWithName(it, end))
+  {
+    hasName = true;
+    isValid = true;
+  }
+  else if (isValidWithoutName(it, end))
+  {
+    isValid = true;
+  }
+
+  if (isValid)
   {
     //TODO
     StatementOfStruct builder(StatementsBuilder(statement).add(), it, end);
 
-    builder.initialize();
-    builder.parseName();
-    builder.parseHeritage();
-    builder.parseScope();
-    builder.parseVariablesFromScopeToSemicolon();
+    if (hasName)
+    {
+      builder.parseName(it, end);
+    }
+
+    builder.parseHeritage(it, end);
+    builder.parseScope(it, end);
+    builder.parseVariablesFromScopeToSemicolon(it, end);
+
     successful = true;
   }
 
@@ -321,5 +353,4 @@ bool StatementOfStruct::create(Statement& statement,
 
 } // Vera namespace
 } // Structures namespace
-
 

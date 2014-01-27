@@ -39,7 +39,6 @@ class StatementOfDefault
      */
     const Statement& getStatementScope();
 
-
     static bool isValid(Tokens::TokenSequence::const_iterator it,
         Tokens::TokenSequence::const_iterator end);
 
@@ -50,8 +49,6 @@ class StatementOfDefault
   private:
 
     void initialize();
-
-
 
   private:
 

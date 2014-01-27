@@ -52,8 +52,18 @@ StatementOfEnum::StatementOfEnum(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
+, variables_(NULL)
 {
   initialize(it, end);
+}
+
+bool
+StatementOfEnum::parseName(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  push(*it);
+  ++it;
+  return true;
 }
 
 void
@@ -65,56 +75,48 @@ StatementOfEnum::initialize(Tokens::TokenSequence::const_iterator& it,
 
   Statement& current = getCurrentStatement();
 
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
   IS_EQUAL_RETURN(it, end);
-
-
-  push(*it);
-  ++it;
-  IS_EQUAL_RETURN(it, end);
-
-
-  addEachInvalidToken(current, it, end);
-  IS_EQUAL_RETURN(it, end);
-
-  Tokens::TokenSequence::const_iterator endScope = std::find_if(it+1,
-      end,
-      EndsWithCorrectPattern(LEFTBRACE_TOKEN_NAME, RIGHTBRACE_TOKEN_NAME));
-
-  Tokens::TokenSequence::const_iterator endSemiColon = std::find_if(it,
-    end,
-    IsTokenWithName(SEMICOLON_TOKEN_NAME));
-
-  parseListScope(it, endScope);
-  IS_EQUAL_RETURN(it, end);
-  parseListScope(it, endSemiColon);
 }
 
 bool
 StatementOfEnum::parseScope(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  Statement& current = add();
-  StatementsBuilder scope(current);
+  addEachInvalidToken(it, end);
+  IS_EQUAL_RETURN_FALSE(it, end);
 
-  scope.push(*it);
-  ++it;
-
-  while(it < end)
-  {
-    scope.addEachInvalidToken(current, it, end);
-
-    Tokens::TokenSequence::const_iterator endItem = std::find_if(it,
+  Tokens::TokenSequence::const_iterator endScope = std::find_if(it+1,
       end,
-      IsTokenWithName(COMMA_TOKEN_NAME));
+      EndsWithCorrectPattern(LEFTBRACE_TOKEN_NAME, RIGHTBRACE_TOKEN_NAME));
 
-    scope.builder(current, it, endItem);
+  StatementsBuilder::parseScope(it, end);
+  IS_EQUAL_RETURN_FALSE(it, end);
+  addEachInvalidToken(it, end);
 
-    scope.push(*it);
-    ++it;
-  }
+  return true;
 }
+
+bool
+StatementOfEnum::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  Statement& current = getCurrentStatement();
+
+  addEachInvalidToken(it, end);
+
+  if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it, end))
+  {
+    variables_ = &current.statementSequence_.back();
+    successful = true;
+  }
+
+  return successful;
+}
+
 
 const Statement&
 StatementOfEnum::getStatementScope()
@@ -128,7 +130,7 @@ StatementOfEnum::getStatementScope()
 }
 
 bool
-StatementOfEnum::isValid(Tokens::TokenSequence::const_iterator it,
+StatementOfEnum::isValidWithName(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
   if (it->name_.compare(TOKEN_NAME) != 0)
@@ -157,15 +159,44 @@ StatementOfEnum::isValid(Tokens::TokenSequence::const_iterator it,
 }
 
 bool
+StatementOfEnum::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
+  Tokens::TokenSequence::const_iterator end)
+{
+  if (it->name_.compare(TOKEN_NAME) != 0)
+  {
+    return false;
+  }
+
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it+1,
+    end,
+    IsValidTokenForStatement());
+
+  IS_EQUAL_RETURN_FALSE(itMatched, end)
+
+  return IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched);
+}
+
+bool
+StatementOfEnum::isValid(Tokens::TokenSequence::const_iterator it,
+  Tokens::TokenSequence::const_iterator end)
+{
+  return isValidWithName(it, end);
+}
+
+bool
 StatementOfEnum::create(Statement& statement,
-    Tokens::TokenSequence::const_iterator& it,
-    Tokens::TokenSequence::const_iterator& end)
+  Tokens::TokenSequence::const_iterator& it,
+  Tokens::TokenSequence::const_iterator& end)
 {
   bool successful = false;
 
   if (isValid(it, end) == true)
   {
-    StatementOfEnum builder(StatementsBuilder(statement).add(), it, end);
+    StatementOfEnum branch(StatementsBuilder(statement).add(), it, end);
+
+    branch.parseName(it, end);
+    branch.parseScope(it, end);
+    branch.parseVariablesFromScopeToSemicolon(it, end);
   }
 
   return successful;

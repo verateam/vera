@@ -68,7 +68,7 @@ StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
   push(*it);
   ++it;
 
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
   Tokens::TokenSequence::const_iterator endArguments = std::find_if(it+1,
       end,
@@ -86,7 +86,7 @@ StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
 
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
   IS_EQUAL_RETURN(it, end);
 
@@ -124,7 +124,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
      Tokens::TokenSequence::const_iterator& end)
 {
   IS_EQUAL_RETURN_FALSE(it, end);
-  addEachInvalidToken(getCurrentStatement(), it, end);
+  addEachInvalidToken(it, end);
   IS_EQUAL_RETURN_FALSE(it, end);
 
   if (IsTokenWithName(LEFTPAREN_TOKEN_NAME)(*it) == false)
@@ -192,4 +192,3 @@ StatementOfForLoop::create(Statement& statement,
 
 } // Structures namespace
 } // Vera namespace
-

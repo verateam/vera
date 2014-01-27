@@ -65,7 +65,7 @@ StatementOfExtern::initialize(Tokens::TokenSequence::const_iterator& it,
   push(*it);
   ++it;
 
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
   IS_EQUAL_RETURN(it, end);
 
@@ -74,7 +74,7 @@ StatementOfExtern::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
 
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
   IS_EQUAL_RETURN(it, end);
 

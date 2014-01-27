@@ -68,7 +68,7 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
 
   current.push(*it);
   ++it;
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
   IS_EQUAL_RETURN(it, end);
 
@@ -78,7 +78,7 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
   }
 
   IS_EQUAL_RETURN(it, end);
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
  // ++it;
   IS_EQUAL_RETURN(it, end);
@@ -86,13 +86,15 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
   parseScope(it, end);
   IS_EQUAL_RETURN(it, end);
 
-  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it, end, IsValidTokenForStatement());
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
+    end,
+    IsValidTokenForStatement());
 
   IS_EQUAL_RETURN(itMatched, end);
 
   if (isElse(itMatched))
   {
-    addEachInvalidToken(current, it, end);
+    addEachInvalidToken(it, end);
 
     StatementOfElse(add(), it, end);
   }

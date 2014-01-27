@@ -72,16 +72,10 @@ StatementOfOperatorTernario::initialize(Tokens::TokenSequence::const_iterator& i
   Tokens::TokenSequence::const_iterator first;
   Tokens::TokenSequence::const_iterator second;
 
-  if (colonMatched < questionMarkMatched)
-  {
-    first = colonMatched;
-    second = questionMarkMatched;
-  }
-  else
-  {
-    first = questionMarkMatched;
-    second = colonMatched;
-  }
+
+  first = questionMarkMatched;
+  second = colonMatched;
+
 
   Statement& current = getCurrentStatement();
 
@@ -137,7 +131,7 @@ StatementOfOperatorTernario::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator questionMarkMatched = std::find_if(it,
       endMatched, IsTokenWithName(QUESTION_MARK_TOKEN_NAME));
 
-  return (colonMatched < endMatched && questionMarkMatched < endMatched);
+  return (questionMarkMatched < colonMatched && colonMatched < endMatched && questionMarkMatched < endMatched);
 }
 
 

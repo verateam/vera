@@ -56,14 +56,6 @@ StatementOfTryCatches::StatementOfTryCatches(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
-  const Token& token = *it;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
   initialize(it, end);
 }
 
@@ -75,32 +67,34 @@ StatementOfTryCatches::initialize(Tokens::TokenSequence::const_iterator& it,
 
   ++it;
 
+  addEachInvalidToken(it, end);
+
   IS_EQUAL_RETURN(it, end);
 
   parseScope(it, end);
   Tokens::TokenSequence::const_iterator   itMatched  = end;
-
   do
   {
-    itMatched = std::find_if(it+1, end, IsValidTokenForStatement());
+    itMatched = std::find_if(it, end, IsValidTokenForStatement());
 
     IS_EQUAL_BREAK(itMatched, end);
 
     if (itMatched->name_.compare(CATCH_TOKEN_NAME) == 0)
     {
       Statement& current = add();
-      ++it;
-      addEachInvalidToken(current, it , end);
-      StatementOfCatch partialBuilder(current, it, end);
 
-      collection_.push_back(&partialBuilder.getCurrentStatement());
+      addEachInvalidToken(it, end);
+      StatementOfCatch branch(current, it, end);
+
+      collection_.push_back(&current);
     }
     else
     {
       break;
     }
 
-  } while(itMatched != end && it != end);
+  }
+  while (itMatched != end && it != end);
 
 }
 
@@ -132,7 +126,9 @@ StatementOfTryCatches::getStatementScope()
 bool StatementOfTryCatches::isValid(Tokens::TokenSequence::const_iterator it,
     Tokens::TokenSequence::const_iterator end)
 {
- return true;
+  const Token& token = *it;
+
+  return (token.name_.compare(TOKEN_NAME) == 0);
 }
 
 bool

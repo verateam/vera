@@ -7,6 +7,7 @@
 
 #include "Document.h"
 #include "IsTokenWithName.h"
+#include "TokensIterator.h"
 
 #include <vector>
 #include <map>
@@ -18,6 +19,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include "SourceFiles.h"
 
 #define SYSTEM_INCLUDE_LABEL "sysInclude"
 #define INCLUDE_LABEL "include"
@@ -51,18 +53,57 @@ namespace Vera
 {
 namespace Structures
 {
-namespace {
+namespace
+{
+
 std::vector<std::string> includes_;
 std::vector<std::string> sysIncludes_;
-std::vector<std::string> defines_;
+std::vector<std::string> preDefines_;
+std::vector<std::string> types_;
+std::vector<std::string> structures_;
+typedef std::map< std::string, boost::shared_ptr<Document> > DocumentSequence;
+typedef std::map< std::size_t, StatementOfDefine> StatementOfDefineSequence;
+typedef std::map< std::size_t, StatementOfStruct> StatementOfStructSequence;
+typedef std::map< std::size_t, StatementOfEnum> StatementOfEnumSequence;
+typedef std::map< std::size_t, StatementOfUnion> StatementOfUnionSequence;
+DocumentSequence documents_;
+StatementOfDefineSequence defines_;
+StatementOfEnumSequence enums_;
+StatementOfUnionSequence unions_;
+/*
+ *
+std::map<std::size_t, StatementOfStruct> structures_;
+std::map<std::string, boost::shared_prt<Document>> documents_;
+std::vector<std::size_t, std::string> namespaces_;
+*/
+
+struct Startup
+{
+    Startup()
+    : isInitialize_(false)
+    {
+    }
+
+    void initialize()
+    {
+      isInitialize_ = true;
+      const SourceFiles::FileNameSet& files = SourceFiles::getAllFileNames();
+      for (SourceFiles::FileNameSet::const_iterator it =  files.begin(); it != files.end();  ++it )
+      {
+
+        Document::create(*it);
+      }
+    }
+
+    bool isInitialize_;
+} startup_;
 
 } // unname namespace
 
-Document::Document(std::string& content, std::string& name)
-: content_(content)
-, fileName_(name)
-, context_(content_.begin(), content_.end(), fileName_.c_str())
+Document::Document(const std::string& name)
+: fileName_(name)
 {
+  root_.doc_ = this;
 }
 
 static std::string toString(const std::string& path)
@@ -76,109 +117,28 @@ addDefine(PrecompilerContext& context, const std::string& macro)
   context.add_macro_definition(macro);
 }
 
-struct Tracker
+std::string
+removeCommentsOfConfigFile(const std::string& line)
 {
-    Tracker()
-    : fileName(NULL)
-    , isIntialize_(true)
-    {}
+  std::string response;
 
-    void clear()
-    {
-      isIntialize_ = false;
-    }
-
-    void set(const std::string& name)
-    {
-      isIntialize_ = true;
-      fileName = name.c_str();
-    }
-
-    const char *fileName;
-    bool isIntialize_;
-} tracker_;
-
-static Token convertToToken(boost::wave::cpplexer::lex_token<>& token )
-{
-  const boost::wave::token_id id(token);
-  const token_type::position_type pos = token.get_position();
-  const std::string value = token.get_value().c_str();
-  const int line = pos.get_line();
-  const int column = pos.get_column() - 1;
-
-  if (id == boost::wave::T_PP_LINE)
+  if (line.empty())
   {
-    tracker_.clear();
+    return response;
+  }
+  std::string::size_type pos = line.find("#");
+
+
+  if (pos < line.size())
+  {
+    response = line.substr(0, pos);
+  }
+  else
+  {
+    response = line;
   }
 
-  if (tracker_.isIntialize_ == false && id == boost::wave::T_STRINGLIT)
-  {
-    tracker_.set(value);
-  }
-
-  std::string tokenName = boost::wave::get_token_name(id).c_str();
-  boost::algorithm::to_lower(tokenName);
-
-  return Token(value, line, column, tokenName);
-}
-
-void
-Document::initialize()
-{
-  std::for_each(includes_.begin(),
-      includes_.end(),
-      boost::bind(&PrecompilerContext::add_include_path, boost::ref(context_),
-        boost::bind(&std::string::c_str,
-        _1)));
-
-  std::for_each(sysIncludes_.begin(),
-      sysIncludes_.end(),
-      boost::bind(&PrecompilerContext::add_sysinclude_path, boost::ref(context_),
-        boost::bind(&std::string::c_str,
-        _1)));
-
-  std::for_each(defines_.begin(),
-    defines_.end(),
-    boost::bind(Structures::addDefine, boost::ref(context_), _1 ));
-
-  PrecompilerContext::iterator_type it = context_.begin();
-  PrecompilerContext::iterator_type end = context_.end();
-
-  try
-  {
-    while (it != end)
-    {
-      collection_.push_back(convertToToken(*it));
-      Token& token = collection_.back();
-
-      ++it;
-    }
-  }
-  catch (boost::wave::cpp_exception const& e)
-  {
-  // some preprocessing error
-    std::ostringstream ss;
-    ss<<e.file_name() << "(" << e.line_no() << "): "
-        << e.description() << std::endl;
-
-    //throw DocumentError(e.description());
-  }
-  catch (std::exception const& e)
-  {
-  // use last recognized token to retrieve the error position
-      std::cerr
-          << "  "
-          << "(" << " " << "): "
-          << "exception caught: " << e.what()
-          << std::endl;
-
-  }
-  catch(...)
-  {
-    std::cout<<"\nexception"<<std::endl;
-  }
-
-  std::cout<<std::endl;
+  return response;
 }
 
 void addParameterToContext(const std::string& line)
@@ -204,7 +164,7 @@ void addParameterToContext(const std::string& line)
     }
     else if (name.compare(MACRO_LABEL) == 0)
     {
-      defines_.push_back(value);
+      preDefines_.push_back(value);
     }
   }
   else
@@ -213,28 +173,6 @@ void addParameterToContext(const std::string& line)
       ss << "Invalid parameter association: " << line;
       throw Vera::Structures::DocumentError(ss.str());
   }
-}
-
-std::string
-removeCommentsOfConfigFile(const std::string& line)
-{
-  std::string response;
-
-  if (line.empty())
-  {
-    return response;
-  }
-  std::string::size_type pos = line.find("#");
-
-
-  if (pos < line.size())
-  {
-    response = line.substr(0, pos);
-  }
-  else
-    response = line;
-
-  return response;
 }
 
 void
@@ -260,7 +198,9 @@ void
 Document::readConfigFile(const std::string& fileName)
 {
   if (fileName.empty())
+  {
     return;
+  }
 
   std::ifstream file(fileName.c_str());
   if (file.is_open() == false)
@@ -291,10 +231,15 @@ Document::parse()
   for (;it < end; ++it)
   {
     StatementsBuilder partial(root_);
-    partial.addEachInvalidToken(root_, it, end);
 
-    if(it->name_ == EOF_TOKEN_NAME)
+    if (it->name_ == EOF_TOKEN_NAME)
     {
+      continue;
+    }
+
+    if (IsValidTokenForStatement()(*it) == false)
+    {
+      partial.push(*it);
       continue;
     }
 
@@ -308,34 +253,33 @@ Document::getRoot()
   return root_;
 }
 
-Document*
-Document::createCppDocument(std::string fileName)
+boost::shared_ptr<Document>
+Document::create(std::string fileName)
 {
-  std::ifstream file(fileName.c_str());
-  std::string content;
-  std::string line;
-
-  if (file.is_open() == false)
+  if (startup_.isInitialize_ == false)
   {
-    std::ostringstream ss;
-    ss << "Cannot open file " << fileName << ": "
-       << strerror(errno);
-
-    throw DocumentError(ss.str());
+    startup_.initialize();
   }
 
-  while(getline(file, line))
+  DocumentSequence::const_iterator it = documents_.find(fileName);
+
+  if (it != documents_.end())
   {
-    content += line;
-    content += '\n';
+    return it->second;
   }
 
-  Document* doc = new Document(content, fileName);
+  Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName);
+
+  boost::shared_ptr<Document> doc = boost::make_shared<Document>(fileName);
+  Tokens::TokenSequence& collection = doc->collection_;
+
+  std::copy(tokens.begin(), tokens.end(), std::back_inserter(collection));
+  documents_[fileName] = doc;
+
+  doc->parse();
 
   return doc;
 }
 
 } // Vera namespace
 } // Structures namespace
-
-

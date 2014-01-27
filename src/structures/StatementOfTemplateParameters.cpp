@@ -78,15 +78,15 @@ StatementOfTemplateParameters::initialize(Tokens::TokenSequence::const_iterator&
   StatementsBuilder partial(current);
   partial.push(*it);
   ++it;
-  partial.addEachInvalidToken(current, it, endMatched);
+  partial.addEachInvalidToken(it, endMatched);
 
-  while(it < endMatched)
+  while (it < endMatched)
   {
     partial.builder(current, it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
-    partial.addEachInvalidToken(current, it, endMatched);
+    partial.addEachInvalidToken(it, endMatched);
    // partial.push(*it);
   }
 
@@ -94,9 +94,10 @@ StatementOfTemplateParameters::initialize(Tokens::TokenSequence::const_iterator&
 
   partial.push(*it);
 
-  if( it < end)
+  if ( it < end)
+  {
     ++it;
-
+  }
 }
 
 const Statement&
@@ -120,7 +121,6 @@ StatementOfTemplateParameters::isValid(Tokens::TokenSequence::const_iterator it,
   invalidTokens.push_back(ANDAND_TOKEN_NAME);
   invalidTokens.push_back(EQUAL_TOKEN_NAME);
   invalidTokens.push_back(NOTEQUAL_TOKEN_NAME);
-
 
   if (it->name_.compare(LESS_TOKEN_NAME) != 0)
   {

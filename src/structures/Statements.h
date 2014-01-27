@@ -9,6 +9,7 @@
 #define STATEMENTS_H_INCLUDED
 
 #include "Tokens.h"
+#include <boost/smart_ptr.hpp>
 #include <string>
 #include <vector>
 #include <boost/noncopyable.hpp>
@@ -17,6 +18,8 @@ namespace Vera
 {
 namespace Structures
 {
+
+class Document;
 
 /**
  * @brief Wrapper implemented to define the errors related to
@@ -50,10 +53,26 @@ struct Statement
 
     typedef std::vector<TypeItem> SequenceOfChilds;
 
-    Statement(){}
+    Statement()
+    : parent_(NULL)
+    , doc_(NULL)
+    {
+      static std::size_t id = 0;
 
+      id_ = ++id;
+    }
 
     void push(Token token);
+
+    /**
+     * @brief Adds a new statement to the statement collection associated to the parent statement.
+     *
+     * @param current
+     * @return The reference to the new statement.
+     */
+    Statement& add();
+
+    Statement* getParent();
 
     /**
      * @brief This is the comparison operator required
@@ -67,6 +86,9 @@ struct Statement
   StatementSequence statementSequence_;
   Tokens::TokenSequence tokenSequence_;
   SequenceOfChilds childs_;
+  Statement* parent_;
+  std::size_t id_;
+  Document* doc_;
 };
 
 /**
@@ -93,10 +115,13 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfTemplateParameters;
   friend class StatementOfEnum;
   friend class StatementOfParensArguments;
-  friend class  StatementOfBracketsArguments;
+  friend class StatementOfBracketsArguments;
   friend class StatementOfBracesArguments;
   friend class StatementOfPreprocessorLine;
   friend class StatementOfUnion;
+  friend class StatementOfDefine;
+  friend class StatementOfClass;
+  friend class StatementOfTypedef;
 
   public:
 
@@ -131,6 +156,9 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @return The const reference to the token collection.
      */
     const Tokens::TokenSequence& getTokens();
+
+
+    std::size_t getId() const;
 
   protected:
 
@@ -170,6 +198,9 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      */
     void addEachInvalidToken(Statement& current,
       Tokens::TokenSequence::const_iterator& it,
+      Tokens::TokenSequence::const_iterator& end);
+
+    void addEachInvalidToken(Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
     /**
@@ -247,6 +278,10 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      */
     void parse(TokenSequenceConstIterator& it,
       TokenSequenceConstIterator& end);
+
+  protected:
+
+    std::size_t id_;
 
   private:
 

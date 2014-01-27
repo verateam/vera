@@ -17,7 +17,7 @@ namespace Structures
 {
 
 /**
- *  @brief Binary function object class whose call returns whether a item is equal
+ *  @brief Binary function object class that returns whether a item is equal
  *  to the given token.
  */
 class IsTokenEqual
@@ -27,6 +27,7 @@ class IsTokenEqual
 
     /**
      * @brief Initializes a new instance of the IsTokenEqual class.
+     * 
      * @param token The token desired of the collection.
      */
     IsTokenEqual(Token token)
@@ -37,7 +38,7 @@ class IsTokenEqual
     /**
      * @brief Member function that returns true if the element is equal to the given token.
      *
-     * @param token The token to be compare
+     * @param token The token to be compared.
      *
      * @return True if the item is equal to the given token, otherwise, false.
      */
@@ -52,7 +53,7 @@ class IsTokenEqual
 };
 
 /**
- * @brief Binary function object class whose call returns whether an item contains the given name.
+ * @brief Binary function object class that returns whether an item contains the given name.
  */
 class IsTokenWithName
 : public std::unary_function<const Token&, bool>
@@ -86,7 +87,7 @@ class IsTokenWithName
 };
 
 /**
- * @brief Binary function object class whose call returns whether a
+ * @brief Binary function object class that returns whether a
  * token is valid to build a statement.
  */
 class IsValidTokenForStatement
@@ -100,9 +101,9 @@ class IsValidTokenForStatement
     IsValidTokenForStatement(){}
 
     /**
-     * @brief Member function that returns true if the token is valid to build statement.
+     * @brief Member function that returns true if the item is valid to build statement.
      *
-     * @param token The token to be compare
+     * @param item The item to be compare
      *
      * @return True if the token is valid, otherwise, false.
      */
@@ -132,19 +133,33 @@ class IsValidTokenForStatement
       return true;
     }
 };
-
+/**
+ * @brief Binary function object class that returns whether a
+ * token ends with the right pattern.
+ */
 struct EndsWithCorrectPattern
 : public std::unary_function<const Token, bool>
 {
   public:
 
+    /**
+     * @brief Initializes a new instance of the EndsWithCorrectPattern class.
+     * 
+     * @param beginType The name of the first token.
+     * @param endType The name of the last token.
+     */
     EndsWithCorrectPattern(const std::string& beginType, const std::string& endType)
     : beginType_(beginType)
     , endType_(endType)
     , braces_(0)
     {
     }
-
+    
+    /**
+     * @brief Initializes a new instance of the EndsWithCorrectPattern class.
+     * 
+     * @param id The identifier of the given token.
+     */
     EndsWithCorrectPattern(const boost::wave::token_id id)
     : braces_(0)
     {
@@ -170,6 +185,14 @@ struct EndsWithCorrectPattern
       }
     }
 
+    /**
+     * @brief Member function that returns true if the item ends with the 
+     * right pattern.
+     *
+     * @param item The item to be verify.
+     *
+     * @return True if the item ends with the right pattern, otherwise, false.
+     */
     result_type operator()(argument_type item) const
     {
       bool response = false;
@@ -181,7 +204,7 @@ struct EndsWithCorrectPattern
 
       if (item.name_ == endType_)
       {
-        if(braces_ == 0)
+        if (braces_ == 0)
         {
           response = true;
         }

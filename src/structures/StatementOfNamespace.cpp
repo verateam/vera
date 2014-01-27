@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <sstream>
 
 #define IS_NOT_TOKEN "the first element of the collection is not a token of 'namespace' type."
 #define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
@@ -53,14 +54,6 @@ StatementOfNamespace::StatementOfNamespace(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
-  const Token& token = *it;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
   initialize(it, end);
 }
 
@@ -73,18 +66,26 @@ StatementOfNamespace::initialize(Tokens::TokenSequence::const_iterator& it,
 
   Statement& current = getCurrentStatement();
 
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
 
   IS_EQUAL_RETURN(it, end);
 
   if (IsTokenWithName(IDENTIFIER_TOKEN_NAME)(*it) == true )
   {
     push(*it);
+
+    name_ = it->value_;
     ++it;
     IS_EQUAL_RETURN(it, end);
   }
+  else
+  {
+    std::stringstream stream;
+    stream << id_ << '_'<<std::flush;
+    name_ = stream.str();
+  }
 
-  addEachInvalidToken(current, it, end);
+  addEachInvalidToken(it, end);
   IS_EQUAL_RETURN(it, end);
 
   parseScope(it, end);

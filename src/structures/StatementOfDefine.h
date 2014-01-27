@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STATEMENTOFNAMESPACE_H_INCLUDED
-#define STATEMENTOFNAMESPACE_H_INCLUDED
+#ifndef STATEMENTOFDEFINE_H_INCLUDED
+#define STATEMENTOFDEFINE_H_INCLUDED
 
 #include "Tokens.h"
 #include <string>
@@ -20,28 +20,19 @@ namespace Structures
 
 /**
  * @brief Classes that implements a decorator dedicated to the construction
- * of Statements of type "Namespace".
+ * of Statements of modifier access type.
  */
-class StatementOfNamespace
+class StatementOfDefine
 : public StatementsBuilder
 {
   public:
 
-    StatementOfNamespace(Statement& statement,
+    StatementOfDefine(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScope();
-
     static bool isValid(Tokens::TokenSequence::const_iterator it,
-      Tokens::TokenSequence::const_iterator end);
-
+        Tokens::TokenSequence::const_iterator end);
 
     static bool create(Statement& statement,
         Tokens::TokenSequence::const_iterator& it,
@@ -53,12 +44,12 @@ class StatementOfNamespace
         Tokens::TokenSequence::const_iterator& end);
 
   private:
-
     std::string name_;
+    Tokens::TokenSequence*  scope_;
 };
 
 } // namespace Structures
 
 } // namespace Vera
 
-#endif // STATEMENTOFNAMESPACE_H_INCLUDED
+#endif // STATEMENTOFDEFINE_H_INCLUDED

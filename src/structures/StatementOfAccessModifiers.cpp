@@ -98,7 +98,7 @@ StatementOfAccessModifiers::initialize()
   ++it_;
   IS_EQUAL_RETURN(it_, end_);
 
-  addEachInvalidToken(current, it_, end_);
+  addEachInvalidToken(it_, end_);
 
   if (it_->name_.compare(COLON_TOKEN_NAME) != 0)
   {
@@ -117,7 +117,7 @@ StatementOfAccessModifiers::initialize()
 
   Tokens::TokenSequence::const_iterator itMatched = end_;
 
-  while(it_ != end_)
+  while (it_ < end_)
   {
     if (IsValidTokenForStatement()(*it_) == false)
     {
@@ -165,7 +165,8 @@ StatementOfAccessModifiers::isValid(
 
   IS_EQUAL_RETURN_FALSE(it, end)
 
-  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it, end, IsValidTokenForStatement());
+  Tokens::TokenSequence::const_iterator itMatched =
+    std::find_if(it, end, IsValidTokenForStatement());
 
   IS_EQUAL_RETURN_FALSE(itMatched, end)
 
@@ -183,8 +184,12 @@ StatementOfAccessModifiers::create(Statement& statement,
   {
     //TODO
     StatementOfAccessModifiers builder(StatementsBuilder(statement).add(), it, end);
+
     if (it < end)
+    {
       ++it;
+    }
+
     successful = true;
   }
 
@@ -193,5 +198,3 @@ StatementOfAccessModifiers::create(Statement& statement,
 
 } // Vera namespace
 } // Structures namespace
-
-

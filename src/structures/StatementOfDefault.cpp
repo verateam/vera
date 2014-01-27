@@ -12,7 +12,8 @@
 #include <map>
 #include <algorithm>
 
-#define IS_NOT_TOKEN "the first element of the collection is not a valid token of modifier access type."
+#define IS_NOT_TOKEN "the first element of the collection is not a\
+valid token of modifier access type."
 #define WITHOUT_CONDITIONAL_ARGUMENTS "The statement not contain conditional arguments."
 #define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
 #define COLON_TOKEN_NAME  "colon"
@@ -94,7 +95,7 @@ StatementOfDefault::initialize()
   ++it_;
   IS_EQUAL_RETURN(it_, end_);
 
-  addEachInvalidToken(current, it_, end_);
+  addEachInvalidToken(it_, end_);
 
   if (it_->name_.compare(COLON_TOKEN_NAME) != 0)
   {
@@ -107,13 +108,14 @@ StatementOfDefault::initialize()
   {
     return;
   }
+
   ++it_;
 
   IS_EQUAL_RETURN(it_, end_);
 
   Tokens::TokenSequence::const_iterator itMatched = end_;
 
-  while(it_ != end_)
+  while (it_ < end_)
   {
     if (IsValidTokenForStatement()(*it_) == false)
     {
@@ -134,6 +136,7 @@ StatementOfDefault::initialize()
     {
       break;
     }
+
     it_++;
   }
 }
@@ -162,7 +165,9 @@ StatementOfDefault::isValid(
 
   IS_EQUAL_RETURN_FALSE(it, end)
 
-  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it, end, IsValidTokenForStatement());
+  Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
+      end,
+      IsValidTokenForStatement());
 
   IS_EQUAL_RETURN_FALSE(itMatched, end)
 
@@ -180,16 +185,17 @@ StatementOfDefault::create(Statement& statement,
   {
     //TODO
     StatementOfDefault  builder(statement, it, end);
+
     if (it != end)
+    {
       --it;
+    }
+
     successful = true;
   }
 
   return successful;
 }
 
-
 } // Vera namespace
 } // Structures namespace
-
-

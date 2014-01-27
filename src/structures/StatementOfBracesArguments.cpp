@@ -72,15 +72,15 @@ StatementOfBracesArguments::initialize(Tokens::TokenSequence::const_iterator& it
   StatementsBuilder partial(current);
   partial.push(*it);
   ++it;
-  partial.addEachInvalidToken(current, it, endMatched);
+  partial.addEachInvalidToken(it, endMatched);
 
-  while(it < endMatched)
+  while (it < endMatched)
   {
     partial.builder(current, it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
-    partial.addEachInvalidToken(current, it, endMatched);
+    partial.addEachInvalidToken(it, endMatched);
    // partial.push(*it);
   }
 
@@ -88,7 +88,7 @@ StatementOfBracesArguments::initialize(Tokens::TokenSequence::const_iterator& it
 
   partial.push(*it);
 
-  if (it < end);
+  if (it < end)
     ++it;
 }
 

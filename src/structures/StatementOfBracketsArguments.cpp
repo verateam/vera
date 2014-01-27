@@ -68,7 +68,7 @@ StatementOfBracketsArguments::initialize(Tokens::TokenSequence::const_iterator& 
   StatementsBuilder partial(current);
   partial.push(*it);
   ++it;
-  partial.addEachInvalidToken(current, it, endMatched);
+  partial.addEachInvalidToken(it, endMatched);
 
   while (it < endMatched)
   {
@@ -76,7 +76,7 @@ StatementOfBracketsArguments::initialize(Tokens::TokenSequence::const_iterator& 
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
-    partial.addEachInvalidToken(current, it, endMatched);
+    partial.addEachInvalidToken(it, endMatched);
   }
 
   IS_EQUAL_RETURN(it, end);
