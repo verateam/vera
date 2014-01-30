@@ -52,12 +52,14 @@ namespace Structures
 StatementOfElse::StatementOfElse(const Statement& statement)
 : StatementsBuilder(const_cast<Statement&>(statement))
 {
-  const Token& token = statement.tokenSequence_.front();
+  const Statement& current = statement.statementSequence_.front();
+  const Token& token = current.token_;
 
   if (token.name_.compare(TOKEN_NAME) != 0)
   {
     throw StatementsError(IS_NOT_TOKEN);
   }
+
 }
 
 StatementOfElse::StatementOfElse(Statement& statement,
@@ -66,6 +68,7 @@ StatementOfElse::StatementOfElse(Statement& statement,
 : StatementsBuilder(statement)
 {
   initialize(it, end);
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_ELSE;
 }
 
 void
@@ -76,28 +79,16 @@ StatementOfElse::initialize(Tokens::TokenSequence::const_iterator& it,
 
   ++it;
   IS_EQUAL_RETURN(it, end);
-  addEachInvalidToken(getCurrentStatement(), it, end);
+  addEachInvalidToken(it, end);
   IS_EQUAL_RETURN(it, end);
 
   parseScope(it, end);
 }
 
-const
-Tokens::TokenSequence&
-StatementOfElse::getTokens()
-{
-  return getCurrentStatement().tokenSequence_;
-}
-
-const Statement&
+const Statement::StatementSequence&
 StatementOfElse::getStatementScope()
 {
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
+  return getCurrentStatement().statementSequence_;
 }
 
 bool

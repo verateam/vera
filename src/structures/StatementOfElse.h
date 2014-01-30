@@ -33,19 +33,12 @@ class StatementOfElse
       Tokens::TokenSequence::const_iterator& end);
 
     /**
-     * @brief Gets the tokens of the current sentence.
-     *
-     * @return The const reference to the token collection.
-     */
-    const Tokens::TokenSequence& getTokens();
-
-    /**
      * @brief Gets the scope of the current sentence.
      *
      * @return The const reference to the Statement structure
      * which contains the associated tokens.
      */
-    const Statement& getStatementScope();
+    const Statement::StatementSequence& getStatementScope();
 
     static bool isValid(Tokens::TokenSequence::const_iterator it,
         Tokens::TokenSequence::const_iterator end);

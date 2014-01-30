@@ -5,18 +5,16 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "StatementOfPreprocessorLine.h"
+#include "StatementOfInclude.h"
 #include "IsTokenWithName.h"
 
 #include <vector>
 #include <map>
 #include <algorithm>
 
-#define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
-#define TOKEN_NAME  "pp_line"
-#define INTLIT_TOKEN_NAME  "intlit"
-#define STRINGLIT_TOKEN_NAME  "stringlit"
-#define NEWLINE_TOKEN_NAME  "newline"
+
+#define TOKEN_NAME  "pp_hheader"
+#define HEADER_TOKEN_NAME  "pp_qheader"
 
 #define IS_EQUAL_RETURN(left, right) \
   {\
@@ -46,16 +44,17 @@ namespace Vera
 namespace Structures
 {
 
-StatementOfPreprocessorLine::StatementOfPreprocessorLine(Statement& statement,
+StatementOfInclude::StatementOfInclude(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_INCLUDE;
   initialize(it, end);
 }
 
 void
-StatementOfPreprocessorLine::initialize(Tokens::TokenSequence::const_iterator& it,
+StatementOfInclude::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
   Statement& current = getCurrentStatement();
@@ -63,41 +62,18 @@ StatementOfPreprocessorLine::initialize(Tokens::TokenSequence::const_iterator& i
   push(*it);
 
   ++it;
-
-  IS_EQUAL_RETURN(it, end);
-  addEachInvalidToken(it, end);
-
-  if (it->name_.compare(INTLIT_TOKEN_NAME) == 0)
-  {
-    push(*it);
-
-    ++it;
-  }
-
-  IS_EQUAL_RETURN(it, end);
-  addEachInvalidToken(it, end);
-
-  IS_EQUAL_RETURN(it, end);
-
-  if (it->name_.compare(STRINGLIT_TOKEN_NAME) == 0)
-  {
-    push(*it);
-  }
-
-  IS_EQUAL_RETURN(it, end);
-  ++it;
 }
 
 bool
-StatementOfPreprocessorLine::isValid(
+StatementOfInclude::isValid(
     Tokens::TokenSequence::const_iterator it,
     Tokens::TokenSequence::const_iterator end)
 {
-  return it->name_.compare(TOKEN_NAME) == 0;
+  return it->name_.compare(TOKEN_NAME) == 0 || it->name_.compare(HEADER_TOKEN_NAME) == 0;
 }
 
 bool
-StatementOfPreprocessorLine::create(Statement& statement,
+StatementOfInclude::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
@@ -105,17 +81,11 @@ StatementOfPreprocessorLine::create(Statement& statement,
 
   if (isValid(it, end) == true)
   {
-    StatementOfPreprocessorLine builder(statement, it, end);
+    StatementOfInclude builder(statement, it, end);
     successful = true;
   }
 
   return successful;
-}
-
-bool
-StatementOfPreprocessorLine::requiredContinue()
-{
-  return true;
 }
 
 } // Vera namespace

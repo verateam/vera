@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STATEMENTOFBRACESARGUMENTS_H_INCLUDED
-#define STATEMENTOFBRACESARGUMENTS_H_INCLUDED
+#ifndef STATEMENTOFTEMPLATE_H_INCLUDED
+#define STATEMENTOFTEMPLATE_H_INCLUDED
 
 #include "Tokens.h"
 #include <string>
@@ -20,34 +20,23 @@ namespace Structures
 
 /**
  * @brief Classes that implements a decorator dedicated to the construction
- * of Statements of type "braces".
+ * of include type.
  */
-class StatementOfBracesArguments
+class StatementOfTemplate
 : public StatementsBuilder
 {
   public:
 
-    StatementOfBracesArguments(Statement& statement,
+    StatementOfTemplate(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScope();
-
     static bool isValid(Tokens::TokenSequence::const_iterator it,
-      Tokens::TokenSequence::const_iterator end);
-
+        Tokens::TokenSequence::const_iterator end);
 
     static bool create(Statement& statement,
         Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
-
-    bool requiredContinue();
 
   private:
 
@@ -59,4 +48,4 @@ class StatementOfBracesArguments
 
 } // namespace Vera
 
-#endif // STATEMENTOFBRACESARGUMENTS_H_INCLUDED
+#endif // STATEMENTOFTEMPLATE_H_INCLUDED

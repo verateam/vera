@@ -46,6 +46,7 @@ StatementOfWhileLoop::StatementOfWhileLoop(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_WHILELOOP;
   initialize(it, end);
 }
 
@@ -67,6 +68,7 @@ StatementOfWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
   ++it;
   addEachInvalidToken(it, end);
   parseScope(it, end);
+  IS_EQUAL_RETURN(it, end);
 }
 
 const Statement&

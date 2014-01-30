@@ -59,6 +59,7 @@ StatementOfTemplateParameters::StatementOfTemplateParameters(Statement& statemen
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+
   initialize(it, end);
 }
 
@@ -74,6 +75,7 @@ StatementOfTemplateParameters::initialize(Tokens::TokenSequence::const_iterator&
     end, EndsWithCorrectPattern(LESS_TOKEN_NAME, GREATER_TOKEN_NAME));
 
   Statement& current = add();
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS;
 
   StatementsBuilder partial(current);
   partial.push(*it);
@@ -94,7 +96,7 @@ StatementOfTemplateParameters::initialize(Tokens::TokenSequence::const_iterator&
 
   partial.push(*it);
 
-  if ( it < end)
+  if (it < end)
   {
     ++it;
   }
@@ -110,6 +112,7 @@ StatementOfTemplateParameters::getStatementScope()
 
   return getCurrentStatement().statementSequence_[0];
 }
+
 //TODO fail
 bool
 StatementOfTemplateParameters::isValid(Tokens::TokenSequence::const_iterator it,
@@ -167,6 +170,12 @@ StatementOfTemplateParameters::create(Statement& statement,
   }
 
   return successful;
+}
+
+bool
+StatementOfTemplateParameters::requiredContinue()
+{
+  return true;
 }
 
 } // Vera namespace

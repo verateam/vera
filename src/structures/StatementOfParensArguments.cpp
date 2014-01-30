@@ -56,6 +56,7 @@ StatementOfParensArguments::StatementOfParensArguments(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+
   initialize(it, end);
 }
 
@@ -67,6 +68,8 @@ StatementOfParensArguments::initialize(Tokens::TokenSequence::const_iterator& it
   Tokens::TokenSequence::const_iterator second;
 
   struct Statement& current = add();
+
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS;
 
   Tokens::TokenSequence::const_iterator endMatched = std::find_if(it+1,
     end, EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));

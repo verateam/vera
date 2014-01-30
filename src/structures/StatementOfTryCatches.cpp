@@ -56,6 +56,7 @@ StatementOfTryCatches::StatementOfTryCatches(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TRYCATCHES;
   initialize(it, end);
 }
 

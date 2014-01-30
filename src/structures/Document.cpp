@@ -102,6 +102,7 @@ struct Startup
 
 Document::Document(const std::string& name)
 : fileName_(name)
+, root_(Token("root",0,0,"unknown"))
 {
   root_.doc_ = this;
 }
@@ -230,24 +231,25 @@ Document::parse()
 
   for (;it < end; ++it)
   {
-    StatementsBuilder partial(root_);
-
     if (it->name_ == EOF_TOKEN_NAME)
     {
       continue;
     }
 
-    if (IsValidTokenForStatement()(*it) == false)
+    if (IsValidTokenForStatement()(*it) == true)
     {
-      partial.push(*it);
-      continue;
+      Statement& branch = root_.add();
+      StatementsBuilder partial(branch);
+      partial.builder(branch, it, end);
     }
-
-    partial.builder(partial.add(), it, end);
+    else
+    {
+      root_.push(*it);
+    }
   }
 }
 
-Statement
+const Statement&
 Document::getRoot()
 {
   return root_;

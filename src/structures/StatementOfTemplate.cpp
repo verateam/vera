@@ -5,18 +5,17 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "StatementOfPreprocessorLine.h"
+#include "StatementOfTemplate.h"
+#include "StatementOfTemplateParameters.h"
 #include "IsTokenWithName.h"
 
 #include <vector>
 #include <map>
 #include <algorithm>
 
-#define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
-#define TOKEN_NAME  "pp_line"
-#define INTLIT_TOKEN_NAME  "intlit"
-#define STRINGLIT_TOKEN_NAME  "stringlit"
-#define NEWLINE_TOKEN_NAME  "newline"
+
+#define TOKEN_NAME  "template"
+
 
 #define IS_EQUAL_RETURN(left, right) \
   {\
@@ -46,7 +45,7 @@ namespace Vera
 namespace Structures
 {
 
-StatementOfPreprocessorLine::StatementOfPreprocessorLine(Statement& statement,
+StatementOfTemplate::StatementOfTemplate(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
@@ -55,41 +54,25 @@ StatementOfPreprocessorLine::StatementOfPreprocessorLine(Statement& statement,
 }
 
 void
-StatementOfPreprocessorLine::initialize(Tokens::TokenSequence::const_iterator& it,
+StatementOfTemplate::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
   Statement& current = getCurrentStatement();
-
   push(*it);
 
   ++it;
 
-  IS_EQUAL_RETURN(it, end);
   addEachInvalidToken(it, end);
 
-  if (it->name_.compare(INTLIT_TOKEN_NAME) == 0)
-  {
-    push(*it);
+  StatementOfTemplateParameters::create(current, it, end);
 
-    ++it;
-  }
-
-  IS_EQUAL_RETURN(it, end);
   addEachInvalidToken(it, end);
 
-  IS_EQUAL_RETURN(it, end);
-
-  if (it->name_.compare(STRINGLIT_TOKEN_NAME) == 0)
-  {
-    push(*it);
-  }
-
-  IS_EQUAL_RETURN(it, end);
-  ++it;
+  builder(current, it, end);
 }
 
 bool
-StatementOfPreprocessorLine::isValid(
+StatementOfTemplate::isValid(
     Tokens::TokenSequence::const_iterator it,
     Tokens::TokenSequence::const_iterator end)
 {
@@ -97,7 +80,7 @@ StatementOfPreprocessorLine::isValid(
 }
 
 bool
-StatementOfPreprocessorLine::create(Statement& statement,
+StatementOfTemplate::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
@@ -105,17 +88,11 @@ StatementOfPreprocessorLine::create(Statement& statement,
 
   if (isValid(it, end) == true)
   {
-    StatementOfPreprocessorLine builder(statement, it, end);
+    StatementOfTemplate builder(statement.add(), it, end);
     successful = true;
   }
 
   return successful;
-}
-
-bool
-StatementOfPreprocessorLine::requiredContinue()
-{
-  return true;
 }
 
 } // Vera namespace

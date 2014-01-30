@@ -72,6 +72,7 @@ StatementOfTypedef::StatementOfTypedef(Statement& statement,
 : StatementsBuilder(statement)
 , types_(NULL)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF;
   initialize(it, end);
 }
 

@@ -66,6 +66,7 @@ StatementOfSwitch::StatementOfSwitch(Statement& statement,
     throw StatementsError(IS_NOT_TOKEN);
   }
 
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_SWITCH;
   initialize(it, end);
 }
 

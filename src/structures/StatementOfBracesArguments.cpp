@@ -54,6 +54,7 @@ StatementOfBracesArguments::StatementOfBracesArguments(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+
   initialize(it, end);
 }
 
@@ -68,6 +69,7 @@ StatementOfBracesArguments::initialize(Tokens::TokenSequence::const_iterator& it
     end, EndsWithCorrectPattern(LEFTBRACE_TOKEN_NAME, RIGHTBRACE_TOKEN_NAME));
 
   Statement& current = add();
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS;
 
   StatementsBuilder partial(current);
   partial.push(*it);
@@ -89,7 +91,9 @@ StatementOfBracesArguments::initialize(Tokens::TokenSequence::const_iterator& it
   partial.push(*it);
 
   if (it < end)
+  {
     ++it;
+  }
 }
 
 const Statement&
@@ -123,6 +127,12 @@ StatementOfBracesArguments::create(Statement& statement,
   }
 
   return successful;
+}
+
+bool
+StatementOfBracesArguments::requiredContinue()
+{
+  return true;
 }
 
 } // Vera namespace

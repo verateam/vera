@@ -87,6 +87,7 @@ StatementOfCase::StatementOfCase(Statement& statement,
     throw StatementsError(IS_NOT_TOKEN);
   }
 
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_CASE;
   initialize(it, end);
 }
 

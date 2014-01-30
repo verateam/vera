@@ -86,6 +86,7 @@ StatementOfAccessModifiers::StatementOfAccessModifiers(Statement& statement,
     throw StatementsError(IS_NOT_TOKEN);
   }
 
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_ACCESSMODIFIERS;
   initialize();
 }
 
@@ -182,8 +183,7 @@ StatementOfAccessModifiers::create(Statement& statement,
 
   if (isValid(it, end))
   {
-    //TODO
-    StatementOfAccessModifiers builder(StatementsBuilder(statement).add(), it, end);
+    StatementOfAccessModifiers builder(statement.add(), it, end);
 
     if (it < end)
     {
@@ -194,6 +194,12 @@ StatementOfAccessModifiers::create(Statement& statement,
   }
 
   return successful;
+}
+
+bool
+StatementOfAccessModifiers::requiredContinue()
+{
+  return true;
 }
 
 } // Vera namespace

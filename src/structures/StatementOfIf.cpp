@@ -7,6 +7,7 @@
 
 #include "StatementOfIf.h"
 #include "IsTokenWithName.h"
+#include "StatementOfParensArguments.h"
 
 
 #include <vector>
@@ -23,6 +24,7 @@
 #define LEFTBRACE_TOKEN_NAME  "leftbrace"
 #define RIGHTBRACE_TOKEN_NAME  "rightbrace"
 #define ELSE_TOKEN_NAME  "else"
+#define SEMICOLON_TOKEN_NAME  "semicolon"
 #define IS_EQUAL_RETURN(left, right) \
   {\
     if (left == right) \
@@ -56,7 +58,7 @@ StatementOfIf::StatementOfIf(Statement& statement,
     throw StatementsError(IS_NOT_TOKEN);
   }
 
-
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_IF;
   initialize(it, end);
 }
 
@@ -64,18 +66,19 @@ void
 StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  Statement& current = getCurrentStatement();
-
-  current.push(*it);
+  push(*it);
   ++it;
   addEachInvalidToken(it, end);
 
   IS_EQUAL_RETURN(it, end);
 
-  if (parseArguments(it, end) == false)
+  if (StatementOfParensArguments::isValid(it, end) == false)
   {
     return;
   }
+
+  Statement& current = getCurrentStatement();
+  StatementOfParensArguments(current, it, end);
 
   IS_EQUAL_RETURN(it, end);
   addEachInvalidToken(it, end);
@@ -85,6 +88,12 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
 
   parseScope(it, end);
   IS_EQUAL_RETURN(it, end);
+
+  //TODO
+  if (it->name_.compare(SEMICOLON_TOKEN_NAME) == 0)
+  {
+    ++it;
+  }
 
   Tokens::TokenSequence::const_iterator itMatched = std::find_if(it,
     end,
@@ -167,7 +176,7 @@ StatementOfIf::create(Statement& statement,
 
   if (isValid(it, end) == true)
   {
-    StatementOfIf builder(statement/*StatementsBuilder(statement).add()*/, it, end);
+    StatementOfIf builder(statement.add(), it, end);
     successful = true;
   }
 

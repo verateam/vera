@@ -7,6 +7,7 @@
 
 #include "StatementOfClass.h"
 #include "IsTokenWithName.h"
+#include "StatementOfTemplateParameters.h"
 
 #include <vector>
 #include <map>
@@ -66,6 +67,7 @@ StatementOfClass::StatementOfClass(Statement& statement,
   {
     throw StatementsError(IS_NOT_TOKEN);
   }
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_CLASS;
 }
 
 void
@@ -73,7 +75,6 @@ StatementOfClass::initialize()
 {
   push(*it_);
   ++it_;
-
   addEachInvalidToken(it_, end_);
 }
 
@@ -125,6 +126,7 @@ StatementOfClass::parseHeritage()
   if (successful)
   {
     hieritance_ = &getCurrentStatement().statementSequence_.back();
+    hieritance_->type_ = Statement::TYPE_ITEM_STATEMENT_OF_HERITAGE;
   }
 
   return successful;
@@ -165,11 +167,11 @@ StatementOfClass::parseScope()
     ++it_;
   }
 
-  if (it_ < end_)
-  {
-    branch.push(*it_);
-    ++it_;
-  }
+//  if (it_ < end_)
+//  {
+//    branch.push(*it_);
+//    ++it_;
+//  }
 
   scope_ = &current;
 
@@ -188,6 +190,7 @@ StatementOfClass::parseVariablesFromScopeToSemicolon()
   if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it_, end_))
   {
     variables_ = &current.statementSequence_.back();
+    //variables_->type_ = Statement::TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST;
     successful = true;
   }
 
@@ -231,7 +234,8 @@ StatementOfClass::isValid(Tokens::TokenSequence::const_iterator it,
     return false;
   }
 
-  Statement auxiliar;
+  Token aux("", 0, 0, "");
+  Statement auxiliar(aux);
   StatementsBuilder partial(auxiliar);
 
   if (partial.parseHeritage(itMatched, end) == false)
@@ -262,11 +266,17 @@ StatementOfClass::create(Statement& statement,
 
   if (isValid(it, end))
   {
-    //TODO
-    StatementOfClass builder(StatementsBuilder(statement).add(), it, end);
+    StatementOfClass builder(statement.add(), it, end);
 
     builder.initialize();
     builder.parseName();
+    builder.addEachInvalidToken(it, end);
+
+    if (StatementOfTemplateParameters::isValid(it, end))
+    {
+      StatementOfTemplateParameters(builder.getCurrentStatement(), it, end);
+    }
+
     builder.parseHeritage();
     builder.parseScope();
     builder.parseVariablesFromScopeToSemicolon();

@@ -22,7 +22,11 @@ namespace Structures
 {
 
 class TokensIterator
-: public std::iterator<std::input_iterator_tag, Token,std::ptrdiff_t,const Token*,const Token&>
+: public std::iterator<std::input_iterator_tag,
+  Token,
+  std::ptrdiff_t,
+  const Token*,
+  const Token&>
 {
   public:
 
@@ -100,7 +104,6 @@ class MakerOfTokensIterator<Begin_>: public TokensIterator
     }
 };
 
-
 template<>
 class MakerOfTokensIterator<End_>: public TokensIterator
 {
@@ -119,7 +122,6 @@ class MakerOfTokensIterator<End_>: public TokensIterator
       index_ = size_;
     }
 };
-
 
 } // namespace Structures
 

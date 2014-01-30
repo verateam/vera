@@ -74,7 +74,7 @@ class Document
      * 
      * @return The root statement of the document.
      */
-    Statement getRoot();
+    const Statement& getRoot();
     
     /**
      * @brief Creates a pointer to the cpp document.

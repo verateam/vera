@@ -48,6 +48,7 @@ StatementOfDoWhileLoop::StatementOfDoWhileLoop(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_DOWHILELOOP;
   initialize(it, end);
 }
 
@@ -64,6 +65,12 @@ StatementOfDoWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
   parseScope(it, end);
   IS_EQUAL_RETURN(it, end);
 
+  //TODO
+  if (it->name_.compare(SEMICOLON_TOKEN_NAME) == 0)
+  {
+    ++it;
+  }
+
   addEachInvalidToken(it, end);
 
   IS_EQUAL_RETURN(it, end);
@@ -75,6 +82,9 @@ StatementOfDoWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
   parseScope(it, end);
+  Statement& branch = current.statementSequence_.back();
+
+  branch.type_ = Statement::TYPE_ITEM_STATEMENT_OF_WHILE;
   IS_EQUAL_RETURN(it, end);
 }
 
@@ -116,7 +126,7 @@ StatementOfDoWhileLoop::create(Statement& statement,
 
   if (isValid(it, end) == true)
   {
-    StatementOfDoWhileLoop builder(statement, it, end);
+    StatementOfDoWhileLoop builder(statement.add(), it, end);
     successful = true;
   }
 

@@ -56,6 +56,7 @@ StatementOfUnion::StatementOfUnion(Statement& statement,
 , name_(NULL)
 , variables_(NULL)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_UNION;
   initialize(it, end);
 }
 
@@ -110,6 +111,7 @@ StatementOfUnion::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::cons
   if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it, end))
   {
     variables_ = &getCurrentStatement().statementSequence_.back();
+    variables_->type_ = Statement::TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST;
     successful = true;
   }
 

@@ -54,6 +54,7 @@ StatementOfEnum::StatementOfEnum(Statement& statement,
 : StatementsBuilder(statement)
 , variables_(NULL)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_ENUM;
   initialize(it, end);
 }
 
@@ -111,6 +112,7 @@ StatementOfEnum::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const
   if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it, end))
   {
     variables_ = &current.statementSequence_.back();
+    variables_->type_ = Statement::TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST;
     successful = true;
   }
 

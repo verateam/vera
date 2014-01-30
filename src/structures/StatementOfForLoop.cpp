@@ -42,20 +42,12 @@ namespace Vera
 namespace Structures
 {
 
-bool
-hasTokenNameLastSentence(const Statement& current, std::string tokenName)
-{
-  const Statement& partialStatement = current.statementSequence_.back();
-  const Token& token = partialStatement.tokenSequence_.back();
-
-  return IsTokenWithName(tokenName)(token) == true;
-}
-
 StatementOfForLoop::StatementOfForLoop(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_FORLOOP;
   initialize(it, end);
 }
 

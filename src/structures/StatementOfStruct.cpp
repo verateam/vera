@@ -58,6 +58,7 @@ StatementOfStruct::StatementOfStruct(Statement& statement,
 , hieritance_(NULL)
 , variables_(NULL)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_STRUCT;
   initialize(it, end);
 }
 
@@ -122,6 +123,7 @@ StatementOfStruct::parseHeritage(Tokens::TokenSequence::const_iterator& it,
   if (successful)
   {
     hieritance_ = &getCurrentStatement().statementSequence_.back();
+    hieritance_->type_ = Statement::TYPE_ITEM_STATEMENT_OF_HERITAGE;
   }
 
   return successful;
@@ -191,6 +193,7 @@ StatementOfStruct::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
   if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it, end))
   {
     variables_ = &current.statementSequence_.back();
+    //variables_->type_ = Statement::TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST;
     successful = true;
   }
 
@@ -222,7 +225,8 @@ StatementOfStruct::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
     return false;
   }
 
-  Statement auxiliar;
+  Token aux("",0,0,"");
+  Statement auxiliar(aux);
   StatementsBuilder partial(auxiliar);
 
   if (partial.parseHeritage(itMatched, end) == false)
@@ -283,7 +287,8 @@ StatementOfStruct::isValidWithName(Tokens::TokenSequence::const_iterator it,
     return false;
   }
 
-  Statement auxiliar;
+  Token aux("", 0, 0, "");
+  Statement auxiliar(aux);
   StatementsBuilder partial(auxiliar);
 
   if (partial.parseHeritage(itMatched, end) == false)
@@ -333,8 +338,7 @@ StatementOfStruct::create(Statement& statement,
 
   if (isValid)
   {
-    //TODO
-    StatementOfStruct builder(StatementsBuilder(statement).add(), it, end);
+    StatementOfStruct builder(statement.add(), it, end);
 
     if (hasName)
     {

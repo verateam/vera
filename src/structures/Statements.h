@@ -43,7 +43,37 @@ struct Statement
     enum TypeItem
     {
       TYPE_ITEM_TOKEN,
-      TYPE_ITEM_STATEMENT
+      TYPE_ITEM_STATEMENT,
+      TYPE_ITEM_STATEMENT_OF_IF,
+      TYPE_ITEM_STATEMENT_OF_FORLOOP,
+      TYPE_ITEM_STATEMENT_OF_WHILELOOP,
+      TYPE_ITEM_STATEMENT_OF_TRYCATCHES,
+      TYPE_ITEM_STATEMENT_OF_CATCH,
+      TYPE_ITEM_STATEMENT_OF_DOWHILELOOP,
+      TYPE_ITEM_STATEMENT_OF_WHILE,
+      TYPE_ITEM_STATEMENT_OF_ELSE,
+      TYPE_ITEM_STATEMENT_OF_SWITCH,
+      TYPE_ITEM_STATEMENT_OF_NAMESPACE,
+      TYPE_ITEM_STATEMENT_OF_STRUCT,
+      TYPE_ITEM_STATEMENT_OF_ACCESSMODIFIERS,
+      TYPE_ITEM_STATEMENT_OF_DEFAULT,
+      TYPE_ITEM_STATEMENT_OF_CASE,
+      TYPE_ITEM_STATEMENT_OF_HERITAGE,
+      TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST,
+      TYPE_ITEM_STATEMENT_OF_OPERATORTERNARIO,
+      TYPE_ITEM_STATEMENT_OF_EXTERN,
+      TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS,
+      TYPE_ITEM_STATEMENT_OF_ENUM,
+      TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS,
+      TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS,
+      TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS,
+      TYPE_ITEM_STATEMENT_OF_PREPROCESSORLINE,
+      TYPE_ITEM_STATEMENT_OF_UNION,
+      TYPE_ITEM_STATEMENT_OF_DEFINE,
+      TYPE_ITEM_STATEMENT_OF_CLASS,
+      TYPE_ITEM_STATEMENT_OF_TYPEDEF,
+      TYPE_ITEM_STATEMENT_OF_INCLUDE,
+      TYPE_ITEM_STATEMENT_OF_TEMPLATE
     };
 
     /**
@@ -53,16 +83,18 @@ struct Statement
 
     typedef std::vector<TypeItem> SequenceOfChilds;
 
-    Statement()
+    Statement(const Token& token)
     : parent_(NULL)
     , doc_(NULL)
+    , token_(token)
+    , type_(TYPE_ITEM_TOKEN)
     {
       static std::size_t id = 0;
 
       id_ = ++id;
     }
 
-    void push(Token token);
+    void push(const Token& token);
 
     /**
      * @brief Adds a new statement to the statement collection associated to the parent statement.
@@ -71,6 +103,9 @@ struct Statement
      * @return The reference to the new statement.
      */
     Statement& add();
+
+    const Token& getToken();
+
 
     Statement* getParent();
 
@@ -84,11 +119,11 @@ struct Statement
     bool operator==(Statement const& statement) const;
 
   StatementSequence statementSequence_;
-  Tokens::TokenSequence tokenSequence_;
-  SequenceOfChilds childs_;
+  Token token_;
   Statement* parent_;
   std::size_t id_;
   Document* doc_;
+  TypeItem type_;
 };
 
 /**
@@ -109,7 +144,6 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfAccessModifiers;
   friend class StatementOfDefault;
   friend class StatementOfCase;
-  friend class Document;
   friend class StatementOfOperatorTernario;
   friend class StatementOfExtern;
   friend class StatementOfTemplateParameters;
@@ -122,6 +156,9 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfDefine;
   friend class StatementOfClass;
   friend class StatementOfTypedef;
+  friend class StatementOfInclude;
+  friend class StatementOfTemplate;
+  friend class Document;
 
   public:
 
@@ -155,7 +192,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      *
      * @return The const reference to the token collection.
      */
-    const Tokens::TokenSequence& getTokens();
+    const Statement::StatementSequence& getScope();
 
 
     std::size_t getId() const;
@@ -169,7 +206,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     Statement& add();
 
 
-    void push(Token token);
+    void push(const Token& token);
 
     /**
      * @brief Gets the parent of the current statement.
@@ -279,7 +316,10 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     void parse(TokenSequenceConstIterator& it,
       TokenSequenceConstIterator& end);
 
+    virtual bool requiredContinue();
+
   protected:
+
 
     std::size_t id_;
 

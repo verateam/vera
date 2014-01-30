@@ -358,7 +358,8 @@ isTokenEof(TokenCollection::const_iterator& it)
   return token.id_ == boost::wave::T_EOF;
 }
 
-Vera::Structures::Token getToken(std::string fileName, underlyImpl::TokenCollection::const_iterator& it)
+Vera::Structures::Token getToken(std::string fileName,
+  underlyImpl::TokenCollection::const_iterator& it)
 {
   const struct underlyImpl::TokenRef& token = *it;
   const int line = token.line_;

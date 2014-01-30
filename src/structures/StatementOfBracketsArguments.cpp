@@ -62,6 +62,8 @@ StatementOfBracketsArguments::initialize(Tokens::TokenSequence::const_iterator& 
 
   Statement& current = add();
 
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS;
+
   Tokens::TokenSequence::const_iterator endMatched = std::find_if(it+1,
     end, EndsWithCorrectPattern(LEFTBRACKET_TOKEN_NAME, RIGHTBRACKET_TOKEN_NAME));
 

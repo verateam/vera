@@ -12,7 +12,7 @@
 #include <map>
 #include <algorithm>
 
-#define TOKEN_NAME  "EXTERN"
+#define TOKEN_NAME  "extern"
 #define STRINGLIT_TOKEN_NAME  "stringlit"
 #define LEFTPAREN_TOKEN_NAME  "leftparen"
 #define RIGHTPAREN_TOKEN_NAME  "rightparen"
@@ -53,6 +53,7 @@ StatementOfExtern::StatementOfExtern(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_EXTERN;
   initialize(it, end);
 }
 

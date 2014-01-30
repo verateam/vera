@@ -54,6 +54,7 @@ StatementOfNamespace::StatementOfNamespace(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE;
   initialize(it, end);
 }
 
@@ -127,11 +128,10 @@ StatementOfNamespace::isValid(Tokens::TokenSequence::const_iterator it,
     return false;
   }
 
-  itMatched = std::find_if(itMatched,
+  itMatched = std::find_if(itMatched+1,
       end,
       IsValidTokenForStatement());
 
-  ++itMatched;
   IS_EQUAL_RETURN_FALSE(itMatched, end)
 
   return IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched);
@@ -147,7 +147,7 @@ StatementOfNamespace::create(Statement& statement,
 
   if (isValid(it, end) == true)
   {
-    StatementOfNamespace builder(StatementsBuilder(statement).add(), it, end);
+    StatementOfNamespace builder(statement.add(), it, end);
   }
 
   return successful;

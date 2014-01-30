@@ -44,7 +44,9 @@ namespace Structures
 StatementOfCatch::StatementOfCatch(const Statement& statement)
 : StatementsBuilder(const_cast<Statement&>(statement))
 {
-  const Token& token = statement.tokenSequence_.front();
+  const Statement& current = statement.statementSequence_.front();
+
+  const Token& token = current.token_;
 
   if (token.name_.compare(TOKEN_NAME) != 0)
   {
@@ -65,6 +67,7 @@ StatementOfCatch::StatementOfCatch(Statement& statement,
     throw StatementsError(IS_NOT_TOKEN);
   }
 
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_CATCH;
   initialize(it, end);
 }
 
