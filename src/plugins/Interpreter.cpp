@@ -21,6 +21,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
+
 #ifdef VERA_PYTHON
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>
@@ -149,6 +150,25 @@ namespace Vera
 {
 namespace Plugins
 {
+
+Interpreter::Interpreter()
+{
+#ifdef VERA_PYTHON
+  Py_Initialize();
+#endif
+}
+
+#ifdef VERA_PYTHON
+boost::shared_ptr<struct Startup> modules;
+#endif
+
+Interpreter::~Interpreter()
+{
+#ifdef VERA_PYTHON
+  modules.reset(static_cast<struct Startup*>(NULL));
+  Py_Finalize();
+#endif
+}
 
 void Interpreter::execute(const DirectoryName & root, 
     ScriptType type, const ScriptName & name)
@@ -291,9 +311,44 @@ struct py_seq_to_std_vector
   }
 };
 
+static bool initialize_ = false;
+
+#define REQUEST_REGISTER(T) \
+{\
+   boost::python::type_info info = boost::python::type_id<T >(); \
+   const boost::python::converter::registration* reg = boost::python::converter::registry::query(info); \
+}
+
+#define REGISTER_CONVERTER(T,policy) \
+{\
+   boost::python::type_info info = boost::python::type_id<T >(); \
+   const boost::python::converter::registration* reg = boost::python::converter::registry::query(info); \
+   if (reg == NULL)  \
+   {\
+    to_tuple_mapping<T >();\
+    from_python_sequence<T,policy>();\
+   }\
+   else if ((*reg).m_to_python == NULL)\
+   {\
+    to_tuple_mapping<T >();\
+    from_python_sequence<T,policy>();\
+   }\
+}
+
 BOOST_PYTHON_MODULE(vera)
 {
+  if (initialize_)
+     return;
+
+  boost::python::type_info info = boost::python::type_id<std::vector<Vera::Structures::Token> >();
+  boost::python::type_info info2 = boost::python::type_id<boost::shared_ptr<Structures::Document> >();
+  const boost::python::converter::registration* reg = boost::python::converter::registry::query(info);
+  const boost::python::converter::registration* reg2 = boost::python::converter::registry::query(info2);
+  REQUEST_REGISTER(Vera::Structures::Token)
+  REQUEST_REGISTER(Vera::Structures::Statement)
+
   py_seq_to_std_vector<std::string>();
+
 
   py::class_<Structures::Token>("Token")
     .def(py::init<>())
@@ -302,6 +357,8 @@ BOOST_PYTHON_MODULE(vera)
     .add_property("line", &Structures::Token::line_)
     .add_property("column", &Structures::Token::column_)
     .add_property("type", &Structures::Token::name_);
+
+
 
   py::class_<Structures::Statement>("Statement", py::no_init)
     .def(py::init<const Structures::Token&>())
@@ -318,8 +375,6 @@ BOOST_PYTHON_MODULE(vera)
     .def("parse", &Structures::Document::parse)
     .def("getRoot", &Structures::Document::getRoot,
         py::return_value_policy<py::reference_existing_object>());
-
-  py::register_ptr_to_python<boost::shared_ptr<Structures::Document> >();
 
   py::enum_<Structures::Statement::TypeItem>("TypeItem")
     .value("TYPE_ITEM_TOKEN", Structures::Statement::TYPE_ITEM_TOKEN)
@@ -386,6 +441,9 @@ BOOST_PYTHON_MODULE(vera)
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATE);
 
 
+
+  py::register_ptr_to_python<boost::shared_ptr<Structures::Document> >();
+
   py::class_<Structures::Tokens::TokenSequence>("TokenVector")
         .def(py::vector_indexing_suite<Structures::Tokens::TokenSequence>());
 
@@ -414,7 +472,25 @@ BOOST_PYTHON_MODULE(vera)
 
   py::def("getAllLines", &Structures::SourceLines::getAllLines, 
       py::return_value_policy<py::reference_existing_object>());
+  initialize_ = true;
+};
 
+struct Startup
+{
+    Startup()
+    : main_module(py::import("__main__"))
+    , main_namespace(main_module.attr("__dict__"))
+    {
+
+    }
+
+    void exec(const std::string& fileName)
+    {
+      py::exec_file(fileName.c_str(), main_namespace, main_namespace);
+    }
+
+    py::object main_module ;
+    py::object main_namespace;
 };
 
 void Interpreter::executePython(const DirectoryName & root, 
@@ -422,20 +498,20 @@ void Interpreter::executePython(const DirectoryName & root,
 {
     try
     {
-        PyImport_AppendInittab("vera", initvera);
-        Py_Initialize();
+      PyImport_AppendInittab("vera", initvera);
 
-        py::object main_module = py::import("__main__");
-        py::object main_namespace = main_module.attr("__dict__");
-        main_namespace["vera"] = py::import("vera");
+      if (!modules)
+      {
+         modules = boost::make_shared<struct Startup>();
+      }
 
-        py::exec_file(fileName.c_str(), main_namespace, main_namespace);
+      modules->exec(fileName);
+
     }
     catch (py::error_already_set const&)
     {
         PyErr_Print();
     }
-    Py_Finalize();
 }
 #endif
 

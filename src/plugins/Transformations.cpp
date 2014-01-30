@@ -17,7 +17,9 @@ namespace Plugins
 void Transformations::executeTransformation(const TransformationName & name)
 {
     const RootDirectory::DirectoryName veraRoot = RootDirectory::getRootDirectory();
-    Interpreter::execute(veraRoot, Interpreter::transformation, name);
+    Interpreter& interpreter = Interpreter::get_mutable_instance();
+
+    interpreter.execute(veraRoot, Interpreter::transformation, name);
 }
 
 }

@@ -122,14 +122,9 @@ StatementOfParensArguments::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfParensArguments builder(statement, it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfParensArguments builder(statement, it, end);
-  }
-
-  return successful;
+  return true;
 }
 
 } // Vera namespace

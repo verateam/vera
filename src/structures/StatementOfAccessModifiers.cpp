@@ -179,21 +179,13 @@ StatementOfAccessModifiers::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfAccessModifiers builder(statement.add(), it, end);
 
-  if (isValid(it, end))
+  if (it < end)
   {
-    StatementOfAccessModifiers builder(statement.add(), it, end);
-
-    if (it < end)
-    {
-      ++it;
-    }
-
-    successful = true;
+    ++it;
   }
-
-  return successful;
+  return true;
 }
 
 bool

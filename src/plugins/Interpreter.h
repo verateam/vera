@@ -9,12 +9,14 @@
 #define INTERPRETER_H_INCLUDED
 
 #include <stdexcept>
-
+#include <boost/serialization/singleton.hpp>
 
 namespace Vera
 {
 namespace Plugins
 {
+
+
 
 
 class ScriptError : public std::runtime_error
@@ -24,21 +26,30 @@ public:
 };
 
 
-class Interpreter
+class Interpreter : public boost::serialization::singleton<Interpreter>
 {
 public:
+
+
+
     enum ScriptType { rule, transformation };
 
     typedef std::string DirectoryName;
     typedef std::string ScriptName;
 
-    static void execute(const DirectoryName & root, 
+    Interpreter();
+
+    ~Interpreter();
+
+    void execute(const DirectoryName & root,
         ScriptType type, const ScriptName & name);
-    static void executeTcl(const DirectoryName & root, 
+    void executeTcl(const DirectoryName & root,
         ScriptType type, const ScriptName & name);
 #ifdef VERA_PYTHON
-    static void executePython(const DirectoryName & root, 
+
+     void executePython(const DirectoryName & root,
         ScriptType type, const ScriptName & name);
+
 #endif
 };
 

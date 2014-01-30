@@ -348,11 +348,11 @@ void Reports::writeCheckStyle(std::ostream & os, bool omitDuplicates)
 std::string Reports::xmlEscape(const std::string & msg)
 {
     std::string res = msg;
-    boost::algorithm::replace_all(res, "&",  "&amp;");
+    boost::algorithm::replace_all(res, "&", "&amp;");
     boost::algorithm::replace_all(res, "\"", "&quot;");
     boost::algorithm::replace_all(res, "\'", "&apos;");
-    boost::algorithm::replace_all(res, "<",  "&lt;");
-    boost::algorithm::replace_all(res, ">",  "&gt;");
+    boost::algorithm::replace_all(res, "<", "&lt;");
+    boost::algorithm::replace_all(res, ">", "&gt;");
     return res;
 }
 

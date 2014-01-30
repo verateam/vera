@@ -172,15 +172,9 @@ StatementOfIf::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfIf builder(statement.add(), it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfIf builder(statement.add(), it, end);
-    successful = true;
-  }
-
-  return successful;
+  return true;
 }
 
 } // Vera namespace

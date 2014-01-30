@@ -28,13 +28,16 @@ void Rules::executeRule(const RuleName & name)
 
     const Vera::Plugins::RootDirectory::DirectoryName veraRoot =
             Vera::Plugins::RootDirectory::getRootDirectory();
-    Interpreter::execute(veraRoot, Interpreter::rule, name);
+
+    Interpreter& interpreter = Interpreter::get_mutable_instance();
+    interpreter.execute(veraRoot, Interpreter::rule, name);
 }
 
 Rules::RuleName Rules::getCurrentRule()
 {
     return currentRule_;
 }
+
 
 }
 }

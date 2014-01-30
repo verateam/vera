@@ -262,28 +262,22 @@ StatementOfClass::create(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfClass builder(statement.add(), it, end);
 
-  if (isValid(it, end))
+  builder.initialize();
+  builder.parseName();
+  builder.addEachInvalidToken(it, end);
+
+  if (StatementOfTemplateParameters::isValid(it, end))
   {
-    StatementOfClass builder(statement.add(), it, end);
-
-    builder.initialize();
-    builder.parseName();
-    builder.addEachInvalidToken(it, end);
-
-    if (StatementOfTemplateParameters::isValid(it, end))
-    {
-      StatementOfTemplateParameters(builder.getCurrentStatement(), it, end);
-    }
-
-    builder.parseHeritage();
-    builder.parseScope();
-    builder.parseVariablesFromScopeToSemicolon();
-    successful = true;
+    StatementOfTemplateParameters(builder.getCurrentStatement(), it, end);
   }
 
-  return successful;
+  builder.parseHeritage();
+  builder.parseScope();
+  builder.parseVariablesFromScopeToSemicolon();
+
+  return true;
 }
 
 } // Vera namespace
