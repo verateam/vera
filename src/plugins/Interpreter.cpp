@@ -97,7 +97,7 @@ Tcl::object getAllLines(const std::string & sourceName)
     return obj;
 }
 
-Tcl::object getTokens(const std::string & sourceName, int fromLine, int fromColumn,
+Tcl::object getTokens(const std::string & sourceName, int fromLine, int fromColumn, 
     int toLine, int toColumn, const Tcl::object & filter)
 {
     Vera::Structures::Tokens::FilterSequence filterSeq;
@@ -109,7 +109,7 @@ Tcl::object getTokens(const std::string & sourceName, int fromLine, int fromColu
     }
 
     Vera::Structures::Tokens::TokenSequence tokenSeq =
-        Vera::Structures::Tokens::getTokens(sourceName,
+        Vera::Structures::Tokens::getTokens(sourceName, 
         fromLine, fromColumn, toLine, toColumn, filterSeq);
 
     Tcl::object ret;
@@ -150,7 +150,7 @@ namespace Vera
 namespace Plugins
 {
 
-void Interpreter::execute(const DirectoryName & root,
+void Interpreter::execute(const DirectoryName & root, 
     ScriptType type, const ScriptName & name)
 {
     std::string fileName = root + "/scripts/";
@@ -193,7 +193,7 @@ void Interpreter::execute(const DirectoryName & root,
     throw ScriptError(ss.str());
 }
 
-void Interpreter::executeTcl(const DirectoryName & root,
+void Interpreter::executeTcl(const DirectoryName & root, 
     ScriptType type, const std::string & fileName)
 {
     std::ifstream scriptFile(fileName.c_str());
@@ -264,8 +264,8 @@ struct py_seq_to_std_vector
   py_seq_to_std_vector()
   {
     py::converter::registry::push_back(
-      &convertible,
-      &construct,
+      &convertible, 
+      &construct, 
       py::type_id<std::vector<T> >());
   }
   static void* convertible(PyObject* object)
@@ -298,39 +298,93 @@ BOOST_PYTHON_MODULE(vera)
   py::class_<Structures::Token>("Token")
     .def(py::init<>())
     .def(py::init<std::string, int, int, std::string>())
-    // .def("__repr__", &Token::toString)
     .add_property("value", &Structures::Token::value_)
     .add_property("line", &Structures::Token::line_)
     .add_property("column", &Structures::Token::column_)
     .add_property("type", &Structures::Token::name_);
 
-  py::class_<Structures::Statement>("Statement")
-    //.def(py::init<Structures::Tokens::TokenSequence, Structures::Statement::StatementSequence>())
-    .def(py::init<>())
-    // .def("__repr__", &Token::toString)
-    .add_property("tokens", &Structures::Statement::tokenSequence_)
+  py::class_<Structures::Statement>("Statement", py::no_init)
+    .def(py::init<const Structures::Token&>())
+    .def("getParent", &Structures::Statement::getParent,
+      py::return_value_policy<py::reference_existing_object>())
+    .add_property("id", &Structures::Statement::id_)
     .add_property("statements", &Structures::Statement::statementSequence_)
-    .add_property("sequenceOfChilds", &Structures::Statement::childs_);
-
+    .add_property("type", &Structures::Statement::type_)
+    .def("getToken", &Structures::Statement::getToken,
+        py::return_value_policy<py::reference_existing_object>());
 
   py::class_<Structures::Document, boost::noncopyable>("Document", py::no_init)
-   // .def(py::init<std::string&, std::string& >())
-   // .def(py::init<void*, std::string&, std::string& >())
-    //.def("__init__", py::make_constructor(Vera::Structures::Document::createCppDocument))
-    .def("initialize", &Structures::Document::initialize)
+    .def("__init__", py::make_constructor(Vera::Structures::Document::create))
     .def("parse", &Structures::Document::parse)
-    .def("getRoot", &Structures::Document::getRoot);
+    .def("getRoot", &Structures::Document::getRoot,
+        py::return_value_policy<py::reference_existing_object>());
 
-//  py::class_<Structures::CppDocument>("CppDocument")
-//    .def(py::init<>())
-//    .def(py::init<Structures::CppDocument&>())
-//    .def("getRoot", &Structures::CppDocument::loadDocument);
-  //py::register_ptr_to_python< boost::shared_ptr<Structures::Document> >();
+  py::register_ptr_to_python<boost::shared_ptr<Structures::Document> >();
 
   py::enum_<Structures::Statement::TypeItem>("TypeItem")
-        .value("TYPE_ITEM_TOKEN",Structures::Statement::TYPE_ITEM_TOKEN)
-        .value("TYPE_ITEM_STATEMENT", Structures::Statement::TYPE_ITEM_STATEMENT)
-        ;
+    .value("TYPE_ITEM_TOKEN", Structures::Statement::TYPE_ITEM_TOKEN)
+    .value("TYPE_ITEM_STATEMENT", Structures::Statement::TYPE_ITEM_STATEMENT)
+    .value("TYPE_ITEM_STATEMENT_OF_IF",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_IF)
+    .value("TYPE_ITEM_STATEMENT_OF_FORLOOP",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_FORLOOP)
+    .value("TYPE_ITEM_STATEMENT_OF_WHILELOOP",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_WHILELOOP)
+    .value("TYPE_ITEM_STATEMENT_OF_TRYCATCHES",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_TRYCATCHES)
+    .value("TYPE_ITEM_STATEMENT_OF_CATCH",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_CATCH)
+    .value("TYPE_ITEM_STATEMENT_OF_DOWHILELOOP",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_DOWHILELOOP)
+    .value("TYPE_ITEM_STATEMENT_OF_WHILE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_WHILE)
+    .value("TYPE_ITEM_STATEMENT_OF_ELSE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_ELSE)
+    .value("TYPE_ITEM_STATEMENT_OF_SWITCH",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_SWITCH)
+    .value("TYPE_ITEM_STATEMENT_OF_NAMESPACE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE)
+    .value("TYPE_ITEM_STATEMENT_OF_STRUCT",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_STRUCT)
+    .value("TYPE_ITEM_STATEMENT_OF_ACCESSMODIFIERS",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_ACCESSMODIFIERS)
+    .value("TYPE_ITEM_STATEMENT_OF_DEFAULT",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_DEFAULT)
+    .value("TYPE_ITEM_STATEMENT_OF_CASE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_CASE)
+    .value("TYPE_ITEM_STATEMENT_OF_HERITAGE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_HERITAGE)
+    .value("TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST)
+    .value("TYPE_ITEM_STATEMENT_OF_OPERATORTERNARIO",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_OPERATORTERNARIO)
+    .value("TYPE_ITEM_STATEMENT_OF_EXTERN",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_EXTERN)
+    .value("TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS)
+    .value("TYPE_ITEM_STATEMENT_OF_ENUM",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_ENUM)
+    .value("TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS)
+    .value("TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS)
+    .value("TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS)
+    .value("TYPE_ITEM_STATEMENT_OF_PREPROCESSORLINE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_PREPROCESSORLINE)
+    .value("TYPE_ITEM_STATEMENT_OF_UNION",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_UNION)
+    .value("TYPE_ITEM_STATEMENT_OF_DEFINE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_DEFINE)
+    .value("TYPE_ITEM_STATEMENT_OF_CLASS",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_CLASS)
+    .value("TYPE_ITEM_STATEMENT_OF_TYPEDEF",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF)
+    .value("TYPE_ITEM_STATEMENT_OF_INCLUDE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_INCLUDE)
+    .value("TYPE_ITEM_STATEMENT_OF_TEMPLATE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATE);
+
 
   py::class_<Structures::Tokens::TokenSequence>("TokenVector")
         .def(py::vector_indexing_suite<Structures::Tokens::TokenSequence>());
@@ -338,18 +392,12 @@ BOOST_PYTHON_MODULE(vera)
   py::class_<Structures::Statement::StatementSequence>("StatementVector")
         .def(py::vector_indexing_suite<Structures::Statement::StatementSequence>());
 
-//  py::class_<Structures::Scope::ScopeSequence>("ScopeVector")
-//        .def(py::vector_indexing_suite<Structures::Scope::ScopeSequence>());
-
   py::class_<Structures::SourceLines::LineCollection>("StringVector")
           .def(py::vector_indexing_suite<Structures::SourceLines::LineCollection>());
 
-  py::class_<Structures::Statement::Statement::SequenceOfChilds>("SequenceOfChilds")
-          .def(py::vector_indexing_suite<Structures::Statement::SequenceOfChilds>());
-
+  py::def("getStatement", &Structures::StatementsBuilder::create);
 
   py::def("getEachTokenFromFile", &Structures::Tokens::getEachTokenFromFile);
-  py::def("getStatement", &Structures::StatementsBuilder::create);
 
   py::def("getTokens", &Structures::Tokens::getTokens);
 
@@ -361,17 +409,15 @@ BOOST_PYTHON_MODULE(vera)
 
   py::def("getLineCount", &Structures::SourceLines::getLineCount);
 
-  py::def("getLine", &Structures::SourceLines::getLine,
+  py::def("getLine", &Structures::SourceLines::getLine, 
       py::return_value_policy<py::reference_existing_object>());
 
-  py::def("getAllLines", &Structures::SourceLines::getAllLines,
+  py::def("getAllLines", &Structures::SourceLines::getAllLines, 
       py::return_value_policy<py::reference_existing_object>());
 
-  py::def("createCppDocument", &Structures::Document::createCppDocument,
-      py::return_value_policy<py::reference_existing_object>());
 };
 
-void Interpreter::executePython(const DirectoryName & root,
+void Interpreter::executePython(const DirectoryName & root, 
     ScriptType type, const std::string & fileName)
 {
     try

@@ -32,12 +32,12 @@ public:
     typedef std::string DirectoryName;
     typedef std::string ScriptName;
 
-    static void execute(const DirectoryName & root,
+    static void execute(const DirectoryName & root, 
         ScriptType type, const ScriptName & name);
-    static void executeTcl(const DirectoryName & root,
+    static void executeTcl(const DirectoryName & root, 
         ScriptType type, const ScriptName & name);
 #ifdef VERA_PYTHON
-    static void executePython(const DirectoryName & root,
+    static void executePython(const DirectoryName & root, 
         ScriptType type, const ScriptName & name);
 #endif
 };
