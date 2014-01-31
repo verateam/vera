@@ -7,6 +7,7 @@
 
 #include "StatementOfStruct.h"
 #include "IsTokenWithName.h"
+#include "StatementOfTemplateParameters.h"
 
 #include <vector>
 #include <map>
@@ -142,6 +143,7 @@ StatementOfStruct::parseScope(Tokens::TokenSequence::const_iterator& it,
   }
 
   Statement& current = add();
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS;
   StatementsBuilder branch(current);
 
   branch.push(*it);
@@ -331,7 +333,7 @@ StatementOfStruct::create(Statement& statement,
     hasName = true;
     isValid = true;
   }
-  else if (isValidWithoutName(it, end))
+  else
   {
     isValid = true;
   }
@@ -343,6 +345,11 @@ StatementOfStruct::create(Statement& statement,
     if (hasName)
     {
       builder.parseName(it, end);
+
+      if (StatementOfTemplateParameters::isValid(it, end))
+      {
+        StatementOfTemplateParameters(builder.getCurrentStatement(), it, end);
+      }
     }
 
     builder.parseHeritage(it, end);

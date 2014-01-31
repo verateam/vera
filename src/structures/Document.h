@@ -55,7 +55,7 @@ class Document
      * @param fileName The file name.
      */
     static void readConfigFile(const std::string& fileName);
-    
+
     /**
      * @brief Reads the config file which contains the "include" of the directories and the system.
      * This file also contains the predefined macros list.

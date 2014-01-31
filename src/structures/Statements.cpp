@@ -33,6 +33,8 @@
 #include "StatementOfTypedef.h"
 #include "StatementOfInclude.h"
 #include "StatementOfTemplate.h"
+#include "StatementOfFunction.h"
+#include "StatementOfOperator.h"
 
 #include "IsTokenWithName.h"
 
@@ -126,6 +128,8 @@ class StrategySelector
       factories_[boost::wave::T_PP_HHEADER] = &Vera::Structures::StatementOfInclude::create;
       factories_[boost::wave::T_PP_QHEADER] = &Vera::Structures::StatementOfInclude::create;
       factories_[boost::wave::T_TEMPLATE] = &Vera::Structures::StatementOfTemplate::create;
+      factories_ [boost::wave::T_OPERATOR] =
+            &Vera::Structures::StatementOfOperator::create;
     }
 
     /**
@@ -218,6 +222,8 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_PP_HHEADER] = &Vera::Structures::StatementOfInclude::isValid;
       verifiers_[boost::wave::T_PP_QHEADER] = &Vera::Structures::StatementOfInclude::isValid;
       verifiers_[boost::wave::T_TEMPLATE] = &Vera::Structures::StatementOfTemplate::isValid;
+      verifiers_[boost::wave::T_OPERATOR] =
+          &Vera::Structures::StatementOfOperator::isValid;
     }
 
     /**
@@ -655,6 +661,10 @@ StatementsBuilder::builder(Statement& response,
   {
     partial.parse(it, end);
   }
+  else if (StatementOfFunction::isValid(it, end))
+  {
+    partial.parse(it, end);
+  }
   else
   {
     StatementsBuilder branch(partial.add());
@@ -859,6 +869,8 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
   return successful;
 }
 
+static bool isFunction_ = false;
+
 void
 StatementsBuilder::parse(TokenSequenceConstIterator& it,
   TokenSequenceConstIterator& end)
@@ -881,6 +893,7 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
       id == boost::wave::T_PUBLIC ||
       id == boost::wave::T_PROTECTED ||
       id == boost::wave::T_PRIVATE ||
+      id == boost::wave::T_OPERATOR ||
       id == boost::wave::T_LESS)
         && isValid_(id)(it, end) == true)
     {
@@ -898,6 +911,16 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
       break;
     }
 
+    if (StatementOfFunction::isValid(it, end) == true && isFunction_ == false)
+    {
+      isFunction_ = true;
+      StatementOfFunction(statement_, it, end);
+      IS_EQUAL_BREAK(it, end);
+      isFunction_ = false;
+      break;
+    }
+
+
     if (id == boost::wave::T_RIGHTPAREN)
     {
       push(*it);
@@ -910,7 +933,9 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
       break;
     }
 
-    if (id == boost::wave::T_COLON)
+    if (id == boost::wave::T_COLON &&
+        isFunction_ == true &&
+        statement_.type_ == Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS)
     {
       push(*it);
       break;

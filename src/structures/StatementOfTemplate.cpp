@@ -50,6 +50,7 @@ StatementOfTemplate::StatementOfTemplate(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATE;
   initialize(it, end);
 }
 

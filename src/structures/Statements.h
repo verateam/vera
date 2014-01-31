@@ -60,6 +60,7 @@ struct Statement
       TYPE_ITEM_STATEMENT_OF_CASE,
       TYPE_ITEM_STATEMENT_OF_HERITAGE,
       TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST,
+      TYPE_ITEM_STATEMENT_OF_INITIALIZER_LIST,
       TYPE_ITEM_STATEMENT_OF_OPERATORTERNARIO,
       TYPE_ITEM_STATEMENT_OF_EXTERN,
       TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS,
@@ -73,6 +74,8 @@ struct Statement
       TYPE_ITEM_STATEMENT_OF_CLASS,
       TYPE_ITEM_STATEMENT_OF_TYPEDEF,
       TYPE_ITEM_STATEMENT_OF_INCLUDE,
+      TYPE_ITEM_STATEMENT_OF_FUNCTION,
+      TYPE_ITEM_STATEMENT_OF_OPERATOR,
       TYPE_ITEM_STATEMENT_OF_TEMPLATE
     };
 
@@ -158,6 +161,8 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfTypedef;
   friend class StatementOfInclude;
   friend class StatementOfTemplate;
+  friend class StatementOfFunction;
+  friend class StatementOfOperator;
   friend class Document;
 
   public:

@@ -144,6 +144,7 @@ StatementOfClass::parseScope()
   }
 
   Statement& current = add();
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS;
   StatementsBuilder branch(current);
 
   branch.push(*it_);
