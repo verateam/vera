@@ -44,6 +44,7 @@ struct Statement
     {
       TYPE_ITEM_TOKEN,
       TYPE_ITEM_STATEMENT,
+      TYPE_ITEM_ROOT,
       TYPE_ITEM_STATEMENT_OF_IF,
       TYPE_ITEM_STATEMENT_OF_FORLOOP,
       TYPE_ITEM_STATEMENT_OF_WHILELOOP,
@@ -82,12 +83,13 @@ struct Statement
     /**
      * @brief Statement collection type.
      */
+    typedef Statement* StatementPointer;
     typedef std::vector<Statement> StatementSequence;
 
     typedef std::vector<TypeItem> SequenceOfChilds;
 
     Statement(const Token& token)
-    : parent_(NULL)
+    : parent_(0)
     , doc_(NULL)
     , token_(token)
     , type_(TYPE_ITEM_TOKEN)
@@ -96,6 +98,10 @@ struct Statement
 
       id_ = ++id;
     }
+
+    ~Statement();
+
+    Statement(const Statement& object);
 
     void push(const Token& token);
 
@@ -110,7 +116,7 @@ struct Statement
     const Token& getToken();
 
 
-    Statement* getParent();
+    const Statement& getParent();
 
     /**
      * @brief This is the comparison operator required
@@ -123,7 +129,7 @@ struct Statement
 
   StatementSequence statementSequence_;
   Token token_;
-  Statement* parent_;
+  std::size_t parent_;
   std::size_t id_;
   Document* doc_;
   TypeItem type_;
@@ -188,8 +194,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @param it The const reference to the first iterator of the collection to be parsed.
      * @param end The const reference to the last iterator of the collection to be parsed.
      */
-    void builder(Statement& response,
-      Tokens::TokenSequence::const_iterator& it,
+    void builder(Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
     /**
@@ -198,6 +203,11 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @return The const reference to the token collection.
      */
     const Statement::StatementSequence& getScope();
+
+
+    static void addNodeToCollection(Statement& node);
+
+    static Statement* getNodeToCollection(std::size_t id);
 
 
     std::size_t getId() const;
@@ -276,20 +286,6 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      */
     bool parseHeritage(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
-
-    /**
-     * @brief Parses the given list in order to determine if it
-     * contains the token with the given id.
-     *
-     * @param it Defines the starting point of the statement.
-     * @param end Defines the ending point of the statement.
-     * @param id_ Defines the id of the last token.
-     * @return True if it contains the given last token. Otherwise false.
-     */
-//    bool paramentersWithLastToken(
-//      Tokens::TokenSequence::const_iterator& it,
-//      Tokens::TokenSequence::const_iterator& end,
-//      boost::wave::token_id id_);
 
     /**
      * @brief Parses the parameter on the given sentence.

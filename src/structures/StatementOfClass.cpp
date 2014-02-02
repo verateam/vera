@@ -54,7 +54,6 @@ StatementOfClass::StatementOfClass(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
-, name_(NULL)
 , scope_(NULL)
 , hieritance_(NULL)
 , variables_(NULL)
@@ -78,17 +77,6 @@ StatementOfClass::initialize()
   addEachInvalidToken(it_, end_);
 }
 
-const Statement&
-StatementOfClass::getStatementScope()
-{
-  if (scope_ == NULL)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return *scope_;
-}
-
 bool
 StatementOfClass::parseName()
 {
@@ -100,7 +88,7 @@ StatementOfClass::parseName()
   {
     push(*it_);
 
-    name_ = &(it_->value_);
+    name_ = it_->value_;
     ++it_;
     IS_EQUAL_RETURN_FALSE(it_, end_);
     addEachInvalidToken(it_, end_);
@@ -135,7 +123,7 @@ StatementOfClass::parseHeritage()
 bool
 StatementOfClass::parseScope()
 {
-  bool successful = false;
+ /* bool successful = false;
 
   IS_EQUAL_RETURN_FALSE(it_, end_);
   if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*it_) == false )
@@ -174,9 +162,9 @@ StatementOfClass::parseScope()
 //    ++it_;
 //  }
 
-  scope_ = &current;
-
-  return successful;
+  scope_ = &current;*/
+  StatementsBuilder::parseScope(it_, end_);
+  return true;
 }
 
 bool
@@ -263,7 +251,8 @@ StatementOfClass::create(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
-  StatementOfClass builder(statement.add(), it, end);
+  Statement& current = statement.add();
+  StatementOfClass builder(current , it, end);
 
   builder.initialize();
   builder.parseName();
@@ -271,7 +260,7 @@ StatementOfClass::create(Statement& statement,
 
   if (StatementOfTemplateParameters::isValid(it, end))
   {
-    StatementOfTemplateParameters(builder.getCurrentStatement(), it, end);
+    StatementOfTemplateParameters(current, it, end);
   }
 
   builder.parseHeritage();

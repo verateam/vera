@@ -104,7 +104,10 @@ Document::Document(const std::string& name)
 : fileName_(name)
 , root_(Token("root",0,0,"unknown"))
 {
+  StatementsBuilder::addNodeToCollection(root_);
+  root_.parent_ = root_.id_;
   root_.doc_ = this;
+  root_.type_ = Statement::TYPE_ITEM_ROOT;
 }
 
 static std::string toString(const std::string& path)
@@ -238,9 +241,8 @@ Document::parse()
 
     if (IsValidTokenForStatement()(*it) == true)
     {
-      Statement& branch = root_.add();
-      StatementsBuilder partial(branch);
-      partial.builder(branch, it, end);
+      StatementsBuilder partial(root_);
+      partial.parse(it, end);
     }
     else
     {

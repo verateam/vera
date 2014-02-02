@@ -69,7 +69,7 @@ StatementOfTemplate::initialize(Tokens::TokenSequence::const_iterator& it,
 
   addEachInvalidToken(it, end);
 
-  builder(current, it, end);
+  builder(it, end);
 }
 
 bool

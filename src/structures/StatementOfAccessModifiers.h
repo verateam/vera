@@ -39,14 +39,6 @@ class StatementOfAccessModifiers
       Tokens::TokenSequence::const_iterator& end);
 
     /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScope();
-
-    /**
      * @brief Determines if a new statement can be created from the given tokens.
      *
      * @param it The initial point of the statement.

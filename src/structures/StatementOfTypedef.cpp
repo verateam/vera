@@ -70,7 +70,6 @@ StatementOfTypedef::StatementOfTypedef(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
-, types_(NULL)
 {
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF;
   initialize(it, end);
@@ -276,7 +275,8 @@ StatementOfTypedef::create(Statement& statement,
     return false;
   }
 
-  Statement& current = StatementsBuilder(statement).add();
+  Statement& current = statement.add();
+
   StatementOfTypedef  root(current, it, end);
 
   OperationState status = OPERATION_STATE_UNKNOWN;
@@ -306,7 +306,10 @@ StatementOfTypedef::create(Statement& statement,
   {
     root.parseSignature(it, end);
   }
-
+  else
+  {
+    root.parse(it, end);
+  }
   return true;
 }
 

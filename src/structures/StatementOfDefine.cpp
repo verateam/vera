@@ -54,6 +54,7 @@ StatementOfDefine::StatementOfDefine(Statement& statement,
 : StatementsBuilder(statement)
 , scope_(NULL)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_DEFINE;
   initialize(it, end);
 }
 
@@ -126,15 +127,10 @@ StatementOfDefine::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfDefine builder(statement.add(), it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfDefine builder(statement, it, end);
-    successful = true;
-  }
 
-  return successful;
+  return true;
 }
 
 } // Vera namespace

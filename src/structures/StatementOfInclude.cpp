@@ -77,15 +77,9 @@ StatementOfInclude::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfInclude builder(statement.add(), it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfInclude builder(statement, it, end);
-    successful = true;
-  }
-
-  return successful;
+  return true;
 }
 
 } // Vera namespace

@@ -82,17 +82,6 @@ StatementOfExtern::initialize(Tokens::TokenSequence::const_iterator& it,
   parseScope(it, end);
 }
 
-const Statement&
-StatementOfExtern::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
-}
-
 bool
 StatementOfExtern::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
@@ -128,14 +117,9 @@ StatementOfExtern::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfExtern builder(StatementsBuilder(statement).add(), it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfExtern builder(StatementsBuilder(statement).add(), it, end);
-  }
-
-  return successful;
+  return true;
 }
 
 } // Vera namespace

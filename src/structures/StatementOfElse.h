@@ -26,19 +26,10 @@ class StatementOfElse
 : public StatementsBuilder
 {
   public:
-    StatementOfElse(const Statement& statement);
 
     StatementOfElse(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
-
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement::StatementSequence& getStatementScope();
 
     static bool isValid(Tokens::TokenSequence::const_iterator it,
         Tokens::TokenSequence::const_iterator end);

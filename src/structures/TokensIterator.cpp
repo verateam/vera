@@ -160,7 +160,7 @@ TokensIterator::isEnd() const
 bool
 TokensIterator::operator != (const TokensIterator& it) const
 {
-  return !equal(it);
+  return equal(it) == false;
 }
 
 }

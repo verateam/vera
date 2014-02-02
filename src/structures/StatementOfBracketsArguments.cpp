@@ -50,6 +50,7 @@ StatementOfBracketsArguments::StatementOfBracketsArguments(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS;
   initialize(it, end);
 }
 
@@ -60,46 +61,30 @@ StatementOfBracketsArguments::initialize(Tokens::TokenSequence::const_iterator& 
   Tokens::TokenSequence::const_iterator first;
   Tokens::TokenSequence::const_iterator second;
 
-  Statement& current = add();
-
-  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS;
-
   Tokens::TokenSequence::const_iterator endMatched = std::find_if(it+1,
     end, EndsWithCorrectPattern(LEFTBRACKET_TOKEN_NAME, RIGHTBRACKET_TOKEN_NAME));
 
-  StatementsBuilder partial(current);
-  partial.push(*it);
+  push(*it);
   ++it;
-  partial.addEachInvalidToken(it, endMatched);
+  addEachInvalidToken(it, endMatched);
 
   while (it < endMatched)
   {
-    partial.builder(current, it, endMatched);
+    builder(it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
-    partial.addEachInvalidToken(it, endMatched);
+    addEachInvalidToken(it, endMatched);
   }
 
   IS_EQUAL_RETURN(it, end);
 
-  partial.push(*it);
+  push(*it);
 
   if (it < end);
   {
     ++it;
   }
-}
-
-const Statement&
-StatementOfBracketsArguments::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
 }
 
 bool
@@ -114,14 +99,10 @@ StatementOfBracketsArguments::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
-
-  if (isValid(it, end) == true)
-  {
-    StatementOfBracketsArguments builder(statement, it, end);
-  }
-
-  return successful;
+  Statement& current = statement.add();
+  StatementOfBracketsArguments builder(current, it, end);
+  
+  return true;
 }
 
 } // Vera namespace

@@ -58,6 +58,9 @@ struct Token
     Token()
         : value_(""), line_(0), column_(0), name_("") {}
 
+    Token(const Token& item)
+        : value_(item.value_), line_(item.line_), column_(item.column_), name_(item.name_) {}
+
     bool operator==(Token const& t) const
     {
       return value_ == t.value_

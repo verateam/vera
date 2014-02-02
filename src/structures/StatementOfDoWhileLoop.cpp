@@ -82,32 +82,10 @@ StatementOfDoWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
   parseScope(it, end);
-  Statement& branch = current.statementSequence_.back();
+  Statement::StatementPointer branch = &current.statementSequence_.back();
 
-  branch.type_ = Statement::TYPE_ITEM_STATEMENT_OF_WHILE;
+  branch->type_ = Statement::TYPE_ITEM_STATEMENT_OF_WHILE;
   IS_EQUAL_RETURN(it, end);
-}
-
-const Statement&
-StatementOfDoWhileLoop::getArgumentStatementFromConditionalSentence()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_CONDITIONAL_ARGUMENTS);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
-}
-
-const Statement&
-StatementOfDoWhileLoop::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
 }
 
 bool
@@ -122,15 +100,8 @@ StatementOfDoWhileLoop::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
-
-  if (isValid(it, end) == true)
-  {
-    StatementOfDoWhileLoop builder(statement.add(), it, end);
-    successful = true;
-  }
-
-  return successful;
+  StatementOfDoWhileLoop builder(statement.add(), it, end);
+  return true;
 }
 
 } // Vera namespace

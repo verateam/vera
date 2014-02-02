@@ -73,7 +73,6 @@ StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
     ++endArguments;
   }
 
-  //builder(current,it, endArguments);
   parseScope(it, endArguments);
 
   IS_EQUAL_RETURN(it, end);
@@ -82,33 +81,7 @@ StatementOfForLoop::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
 
-  //builder(current,it, end);
   parseScope(it, end);
-
- // IS_EQUAL_RETURN(it, end);
- // parseScope(it, end);
-}
-
-const Statement&
-StatementOfForLoop::getArgumentStatementFromConditionalSentence()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_CONDITIONAL_ARGUMENTS);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
-}
-
-const Statement&
-StatementOfForLoop::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_FOR_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
 }
 
 bool
@@ -138,7 +111,7 @@ StatementOfForLoop::parseArguments(Tokens::TokenSequence::const_iterator& it,
     IS_EQUAL_RETURN_FALSE(it, end);
     StatementsBuilder partial(current);
 
-    partial.builder(current, it, endArguments);
+    partial.builder(it, endArguments);
   }
 
   current.push(*it);
@@ -173,11 +146,9 @@ StatementOfForLoop::create(Statement& statement,
 {
   bool successful = false;
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfForLoop builder(StatementsBuilder(statement).add(), it, end);
-    successful = true;
-  }
+
+  StatementOfForLoop builder(statement.add(), it, end);
+  successful = true;
 
   return successful;
 }

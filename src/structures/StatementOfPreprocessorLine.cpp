@@ -51,6 +51,7 @@ StatementOfPreprocessorLine::StatementOfPreprocessorLine(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_PREPROCESSORLINE;
   initialize(it, end);
 }
 
@@ -101,15 +102,9 @@ StatementOfPreprocessorLine::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfPreprocessorLine builder(statement.add(), it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfPreprocessorLine builder(statement, it, end);
-    successful = true;
-  }
-
-  return successful;
+  return true;
 }
 
 bool

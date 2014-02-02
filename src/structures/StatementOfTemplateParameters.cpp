@@ -59,7 +59,7 @@ StatementOfTemplateParameters::StatementOfTemplateParameters(Statement& statemen
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS;
   initialize(it, end);
 }
 
@@ -74,43 +74,29 @@ StatementOfTemplateParameters::initialize(Tokens::TokenSequence::const_iterator&
   Tokens::TokenSequence::const_iterator endMatched = std::find_if(it+1,
     end, EndsWithCorrectPattern(LESS_TOKEN_NAME, GREATER_TOKEN_NAME));
 
-  Statement& current = add();
-  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS;
-
-  StatementsBuilder partial(current);
-  partial.push(*it);
+  Statement& current = getCurrentStatement();
+  push(*it);
   ++it;
-  partial.addEachInvalidToken(it, endMatched);
+  addEachInvalidToken(it, endMatched);
 
   while (it < endMatched)
   {
-    partial.builder(current, it, endMatched);
+    builder(it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
-    partial.addEachInvalidToken(it, endMatched);
+    addEachInvalidToken(it, endMatched);
    // partial.push(*it);
   }
 
   IS_EQUAL_RETURN(it, end);
 
-  partial.push(*it);
+  push(*it);
 
   if (it < end)
   {
     ++it;
   }
-}
-
-const Statement&
-StatementOfTemplateParameters::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
 }
 
 //TODO fail
@@ -162,7 +148,8 @@ StatementOfTemplateParameters::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  StatementOfTemplateParameters builder(statement, it, end);
+  Statement& current = statement.add();
+  StatementOfTemplateParameters builder(current, it, end);
 
   return true;
 }

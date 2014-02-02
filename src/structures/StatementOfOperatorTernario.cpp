@@ -86,7 +86,7 @@ StatementOfOperatorTernario::initialize(Tokens::TokenSequence::const_iterator& i
 
     StatementsBuilder partial(current);
 
-    partial.builder(partial.getCurrentStatement(), it, second);
+    partial.builder(it, second);
   }
 
   {
@@ -94,24 +94,13 @@ StatementOfOperatorTernario::initialize(Tokens::TokenSequence::const_iterator& i
 
     push(*second);
     ++it;
-    partial.builder(partial.getCurrentStatement(), it, endMatched);
+    partial.builder(it, endMatched);
   }
 
   IS_EQUAL_RETURN(it, end);
   //--it;
   //IS_EQUAL_RETURN(it, end);
  // push(*it);
-}
-
-const Statement&
-StatementOfOperatorTernario::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
 }
 
 bool
@@ -143,10 +132,7 @@ StatementOfOperatorTernario::create(Statement& statement,
 {
   bool successful = false;
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfOperatorTernario builder(statement, it, end);
-  }
+  StatementOfOperatorTernario builder(statement, it, end);
 
   return successful;
 }

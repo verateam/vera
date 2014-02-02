@@ -54,8 +54,6 @@ StatementOfStruct::StatementOfStruct(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
-, name_(NULL)
-, scope_(NULL)
 , hieritance_(NULL)
 , variables_(NULL)
 {
@@ -73,17 +71,6 @@ StatementOfStruct::initialize(Tokens::TokenSequence::const_iterator& it,
   addEachInvalidToken(it, end);
 }
 
-const Statement&
-StatementOfStruct::getStatementScope()
-{
-  if (scope_ == NULL)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return *scope_;
-}
-
 bool
 StatementOfStruct::parseName(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
@@ -96,7 +83,7 @@ StatementOfStruct::parseName(Tokens::TokenSequence::const_iterator& it,
   {
     push(*it);
 
-    name_ = &(it->value_);
+    name_ = it->value_;
     ++it;
     IS_EQUAL_RETURN_FALSE(it, end);
     addEachInvalidToken(it, end);
@@ -159,7 +146,7 @@ StatementOfStruct::parseScope(Tokens::TokenSequence::const_iterator& it,
   while (it < rightBraceMached)
   {
     //TODO constructors??
-    branch.builder(current, it, rightBraceMached);
+    branch.builder(it, rightBraceMached);
     ++it;
     branch.addEachInvalidToken(it, rightBraceMached);
   }
@@ -176,8 +163,6 @@ StatementOfStruct::parseScope(Tokens::TokenSequence::const_iterator& it,
     branch.push(*it);
     ++it;
   }
-
-  scope_ = &current;
 
   return successful;
 }

@@ -32,30 +32,6 @@ class StatementOfIf
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
-    /**
-     * @brief Gets the arguments of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getArgumentStatementFromConditionalSentence();
-
-    /**
-     * @brief Gets the scope of the 'if' sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementIfScope();
-
-    /**
-     * @brief Gets the scope of the 'else' sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementElse();
-
     static bool isValid(Tokens::TokenSequence::const_iterator it,
         Tokens::TokenSequence::const_iterator end);
 

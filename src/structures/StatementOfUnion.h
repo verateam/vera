@@ -66,9 +66,7 @@ class StatementOfUnion
 
   private:
 
-    const std::string* name_;
-    Statement* scope_;
-    Statement* variables_;
+    std::string name_;
 };
 
 } // namespace Structures

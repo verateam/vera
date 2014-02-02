@@ -49,19 +49,6 @@ namespace Vera
 namespace Structures
 {
 
-StatementOfElse::StatementOfElse(const Statement& statement)
-: StatementsBuilder(const_cast<Statement&>(statement))
-{
-  const Statement& current = statement.statementSequence_.front();
-  const Token& token = current.token_;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
-}
-
 StatementOfElse::StatementOfElse(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
@@ -85,12 +72,6 @@ StatementOfElse::initialize(Tokens::TokenSequence::const_iterator& it,
   parseScope(it, end);
 }
 
-const Statement::StatementSequence&
-StatementOfElse::getStatementScope()
-{
-  return getCurrentStatement().statementSequence_;
-}
-
 bool
 StatementOfElse::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
@@ -103,15 +84,10 @@ StatementOfElse::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfElse builder(StatementsBuilder(statement).add(), it, end);
-    successful = true;
-  }
+  StatementOfElse builder(statement.add(), it, end);
 
-  return successful;
+  return true;
 }
 
 } // Vera namespace

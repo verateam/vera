@@ -76,13 +76,7 @@ StatementOfDefault::StatementOfDefault(Statement& statement,
 , it_(it)
 , end_(end)
 {
-  const Token& token = *it;
-
-  if (token.name_.compare(DEFAULT_TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_DEFAULT;
   initialize();
 }
 
@@ -127,7 +121,7 @@ StatementOfDefault::initialize()
     }
     else
     {
-      builder(current, it_, end_);
+      builder(it_, end_);
     }
 
     IS_EQUAL_BREAK(it_, end_);
@@ -139,17 +133,6 @@ StatementOfDefault::initialize()
 
     it_++;
   }
-}
-
-const Statement&
-StatementOfDefault::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
 }
 
 bool
@@ -179,22 +162,14 @@ StatementOfDefault::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfDefault  builder(statement.add(), it, end);
 
-  if (isValid(it, end))
+  if (it != end)
   {
-    //TODO
-    StatementOfDefault  builder(statement, it, end);
-
-    if (it != end)
-    {
-      --it;
-    }
-
-    successful = true;
+    --it;
   }
 
-  return successful;
+  return true;
 }
 
 } // Vera namespace

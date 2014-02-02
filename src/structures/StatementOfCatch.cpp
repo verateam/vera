@@ -41,19 +41,6 @@ namespace Vera
 namespace Structures
 {
 
-StatementOfCatch::StatementOfCatch(const Statement& statement)
-: StatementsBuilder(const_cast<Statement&>(statement))
-{
-  const Statement& current = statement.statementSequence_.front();
-
-  const Token& token = current.token_;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-}
-
 StatementOfCatch::StatementOfCatch(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
@@ -89,28 +76,6 @@ StatementOfCatch::initialize(Tokens::TokenSequence::const_iterator& it,
   parseScope(it, end);
 }
 
-const Statement&
-StatementOfCatch::getArguments()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_CONDITIONAL_ARGUMENTS);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
-}
-
-const Statement&
-StatementOfCatch::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
-}
-
 bool
 StatementOfCatch::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
@@ -123,15 +88,9 @@ StatementOfCatch::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfCatch builder(statement.add(), it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfCatch builder(StatementsBuilder(statement).add(), it, end);
-    successful = true;
-  }
-
-  return successful;
+  return true;
 }
 
 } // Vera namespace

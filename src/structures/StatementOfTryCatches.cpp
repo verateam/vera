@@ -86,8 +86,6 @@ StatementOfTryCatches::initialize(Tokens::TokenSequence::const_iterator& it,
 
       addEachInvalidToken(it, end);
       StatementOfCatch branch(current, it, end);
-
-      collection_.push_back(&current);
     }
     else
     {
@@ -97,31 +95,6 @@ StatementOfTryCatches::initialize(Tokens::TokenSequence::const_iterator& it,
   }
   while (itMatched != end && it != end);
 
-}
-
-
-StatementOfTryCatches::iteratorOfCatchStatements
-StatementOfTryCatches::begin()
-{
-  return collection_.begin();
-}
-
-StatementOfTryCatches::iteratorOfCatchStatements
-StatementOfTryCatches::end()
-{
-  return collection_.end();
-}
-
-
-const Statement&
-StatementOfTryCatches::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
 }
 
 bool StatementOfTryCatches::isValid(Tokens::TokenSequence::const_iterator it,
@@ -137,15 +110,10 @@ StatementOfTryCatches::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfTryCatches builder(StatementsBuilder(statement).add(), it, end);
-    successful = true;
-  }
+  StatementOfTryCatches builder(statement.add(), it, end);
 
-  return successful;
+  return true;
 }
 
 } // Vera namespace

@@ -31,14 +31,6 @@ class StatementOfStruct
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScope();
-
     static bool isValid(Tokens::TokenSequence::const_iterator it,
       Tokens::TokenSequence::const_iterator end);
 
@@ -69,10 +61,9 @@ class StatementOfStruct
 
   private:
 
-    const std::string* name_;
-    Statement* scope_;
-    Statement* hieritance_;
-    Statement* variables_;
+    std::string name_;
+    Statement::StatementPointer hieritance_;
+    Statement::StatementPointer variables_;
 };
 
 } // namespace Structures

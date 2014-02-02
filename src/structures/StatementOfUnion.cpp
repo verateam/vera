@@ -53,8 +53,6 @@ StatementOfUnion::StatementOfUnion(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
-, name_(NULL)
-, variables_(NULL)
 {
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_UNION;
   initialize(it, end);
@@ -70,17 +68,6 @@ StatementOfUnion::initialize(Tokens::TokenSequence::const_iterator& it,
   addEachInvalidToken(it, end);
 }
 
-const Statement&
-StatementOfUnion::getStatementScope()
-{
-  if (scope_ == NULL)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return *scope_;
-}
-
 bool
 StatementOfUnion::parseName(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
@@ -92,7 +79,7 @@ StatementOfUnion::parseName(Tokens::TokenSequence::const_iterator& it,
   {
     push(*it);
 
-    name_ = &(it->value_);
+    name_ = it->value_;
     ++it;
     IS_EQUAL_RETURN_FALSE(it, end);
     addEachInvalidToken(it, end);
@@ -110,7 +97,7 @@ StatementOfUnion::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::cons
 
   if (StatementsBuilder::parseVariablesFromScopeToSemicolon(it, end))
   {
-    variables_ = &getCurrentStatement().statementSequence_.back();
+    Statement* variables_ = &getCurrentStatement().statementSequence_.back();
     variables_->type_ = Statement::TYPE_ITEM_STATEMENT_OF_DECLARATION_LIST;
     successful = true;
   }
@@ -195,7 +182,7 @@ StatementOfUnion::create(Statement& statement,
     hasName = true;
     isValid = true;
   }
-  else if (isValidWithoutName(it, end))
+  else
   {
     hasName = false;
     isValid = true;
@@ -204,7 +191,7 @@ StatementOfUnion::create(Statement& statement,
   if (isValid)
   {
     //TODO
-    StatementOfUnion builder(StatementsBuilder(statement).add(), it, end);
+    StatementOfUnion builder(statement.add(), it, end);
 
     builder.initialize(it, end);
 

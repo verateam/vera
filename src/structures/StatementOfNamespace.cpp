@@ -92,17 +92,6 @@ StatementOfNamespace::initialize(Tokens::TokenSequence::const_iterator& it,
   parseScope(it, end);
 }
 
-const Statement&
-StatementOfNamespace::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
-}
-
 bool
 StatementOfNamespace::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)

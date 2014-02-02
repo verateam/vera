@@ -56,7 +56,7 @@ class StatementOfTypedef
   private:
 
     const std::vector<std::string> names_;
-    const Statement* types_;
+    Statement::StatementPointer types_;
 };
 
 } // namespace Structures

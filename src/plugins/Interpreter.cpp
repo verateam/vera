@@ -340,13 +340,6 @@ BOOST_PYTHON_MODULE(vera)
   if (initialize_)
      return;
 
-  boost::python::type_info info = boost::python::type_id<std::vector<Vera::Structures::Token> >();
-  boost::python::type_info info2 = boost::python::type_id<boost::shared_ptr<Structures::Document> >();
-  const boost::python::converter::registration* reg = boost::python::converter::registry::query(info);
-  const boost::python::converter::registration* reg2 = boost::python::converter::registry::query(info2);
-  REQUEST_REGISTER(Vera::Structures::Token)
-  REQUEST_REGISTER(Vera::Structures::Statement)
-
   py_seq_to_std_vector<std::string>();
 
 
@@ -358,15 +351,14 @@ BOOST_PYTHON_MODULE(vera)
     .add_property("column", &Structures::Token::column_)
     .add_property("type", &Structures::Token::name_);
 
-
-
   py::class_<Structures::Statement>("Statement", py::no_init)
     .def(py::init<const Structures::Token&>())
     .def("getParent", &Structures::Statement::getParent,
-      py::return_value_policy<py::reference_existing_object>())
+       py::return_value_policy<py::reference_existing_object>())
     .add_property("id", &Structures::Statement::id_)
     .add_property("statements", &Structures::Statement::statementSequence_)
     .add_property("type", &Structures::Statement::type_)
+    .add_property("parent", &Structures::Statement::parent_)
     .def("getToken", &Structures::Statement::getToken,
         py::return_value_policy<py::reference_existing_object>());
 
@@ -379,6 +371,7 @@ BOOST_PYTHON_MODULE(vera)
   py::enum_<Structures::Statement::TypeItem>("TypeItem")
     .value("TYPE_ITEM_TOKEN", Structures::Statement::TYPE_ITEM_TOKEN)
     .value("TYPE_ITEM_STATEMENT", Structures::Statement::TYPE_ITEM_STATEMENT)
+    .value("TYPE_ITEM_ROOT", Structures::Statement::TYPE_ITEM_ROOT)
     .value("TYPE_ITEM_STATEMENT_OF_IF",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_IF)
     .value("TYPE_ITEM_STATEMENT_OF_FORLOOP",
@@ -445,8 +438,6 @@ BOOST_PYTHON_MODULE(vera)
        Structures::Statement::TYPE_ITEM_STATEMENT_OF_OPERATOR)
     .value("TYPE_ITEM_STATEMENT_OF_TEMPLATE",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATE);
-
-
 
   py::register_ptr_to_python<boost::shared_ptr<Structures::Document> >();
 

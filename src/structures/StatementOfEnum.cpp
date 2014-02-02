@@ -119,18 +119,6 @@ StatementOfEnum::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const
   return successful;
 }
 
-
-const Statement&
-StatementOfEnum::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
-}
-
 bool
 StatementOfEnum::isValidWithName(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
@@ -190,18 +178,13 @@ StatementOfEnum::create(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfEnum branch(statement.add(), it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfEnum branch(StatementsBuilder(statement).add(), it, end);
+  branch.parseName(it, end);
+  branch.parseScope(it, end);
+  branch.parseVariablesFromScopeToSemicolon(it, end);
 
-    branch.parseName(it, end);
-    branch.parseScope(it, end);
-    branch.parseVariablesFromScopeToSemicolon(it, end);
-  }
-
-  return successful;
+  return true;
 }
 
 } // Vera namespace

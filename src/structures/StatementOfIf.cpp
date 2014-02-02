@@ -117,39 +117,6 @@ StatementOfIf::isElse(Tokens::TokenSequence::const_iterator& it)
   return token.name_.compare(ELSE_TOKEN_NAME) == 0;
 }
 
-const Statement&
-StatementOfIf::getArgumentStatementFromConditionalSentence()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_CONDITIONAL_ARGUMENTS);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
-}
-
-const Statement&
-StatementOfIf::getStatementIfScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_IF_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
-}
-
-const Statement&
-StatementOfIf::getStatementElse()
-{
-  if (getCurrentStatement().statementSequence_.size() < 3)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_ELSE_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[2];
-}
-
 bool StatementOfIf::isValid(Tokens::TokenSequence::const_iterator it,
     Tokens::TokenSequence::const_iterator end)
 {

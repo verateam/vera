@@ -54,7 +54,7 @@ StatementOfBracesArguments::StatementOfBracesArguments(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS;
   initialize(it, end);
 }
 
@@ -68,43 +68,28 @@ StatementOfBracesArguments::initialize(Tokens::TokenSequence::const_iterator& it
   Tokens::TokenSequence::const_iterator endMatched = std::find_if(it+1,
     end, EndsWithCorrectPattern(LEFTBRACE_TOKEN_NAME, RIGHTBRACE_TOKEN_NAME));
 
-  Statement& current = add();
-  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS;
-
-  StatementsBuilder partial(current);
-  partial.push(*it);
+  push(*it);
   ++it;
-  partial.addEachInvalidToken(it, endMatched);
+  addEachInvalidToken(it, endMatched);
 
   while (it < endMatched)
   {
-    partial.builder(current, it, endMatched);
+    builder(it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
-    partial.addEachInvalidToken(it, endMatched);
+    addEachInvalidToken(it, endMatched);
    // partial.push(*it);
   }
 
   IS_EQUAL_RETURN(it, end);
 
-  partial.push(*it);
+  push(*it);
 
   if (it < end)
   {
     ++it;
   }
-}
-
-const Statement&
-StatementOfBracesArguments::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
 }
 
 bool
@@ -119,7 +104,9 @@ StatementOfBracesArguments::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  StatementOfBracesArguments builder(statement, it, end);
+  Statement& current = statement.add();
+  //current.parent_ = &statement;
+  StatementOfBracesArguments builder(current, it, end);
 
   return true;
 }

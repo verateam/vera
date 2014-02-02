@@ -560,17 +560,36 @@ getTokenId(const Token& token)
 Statement&
 Statement::add()
 {
-  Token aux("branch",0,0,"unknown");
+  Statement branch(Token("branch",0,0,"unknown"));
+  branch.parent_ = id_;
+  branch.doc_ = doc_;
+  branch.type_ = TYPE_ITEM_STATEMENT;
 
-  statementSequence_.push_back(aux);
+  statementSequence_.push_back(branch);
 
-  Statement& child = statementSequence_.back();
+  StatementsBuilder::addNodeToCollection(statementSequence_.back());
 
-  child.parent_ = this;
-  child.doc_ = doc_;
-  child.type_ = TYPE_ITEM_STATEMENT;
+  return statementSequence_.back();
+}
 
-  return child;
+
+std::map<std::size_t, Statement*> statementsCollection_;
+
+Statement::Statement(const Statement& object)
+: parent_(object.parent_)
+, doc_(object.doc_)
+, token_(object.token_)
+, type_(object.type_)
+, id_(object.id_)
+{
+  StatementSequence::const_iterator it = object.statementSequence_.begin();
+  StatementSequence::const_iterator end = object.statementSequence_.end();
+
+  std::copy(it, end, std::back_inserter<StatementSequence>(statementSequence_));
+}
+
+Statement::~Statement()
+{
 }
 
 bool
@@ -591,13 +610,18 @@ Statement::operator==(const Statement& statement) const
 void
 Statement::push(const Token& token)
 {
-  statementSequence_.push_back(Statement(token));
+  Statement item(token);
+  item.parent_ = id_;
+  item.doc_ = doc_;
+
+  statementSequence_.push_back(item);
+  StatementsBuilder::addNodeToCollection(statementSequence_.back());
 }
 
-Statement*
+const Statement&
 Statement::getParent()
 {
-  return parent_;
+  return *StatementsBuilder::getNodeToCollection(parent_);
 }
 
 const Token&
@@ -605,6 +629,8 @@ Statement::getToken()
 {
   return token_;
 }
+
+static bool isFunction_ = false;
 
 Statement
 StatementsBuilder::create(Token token, Tokens::TokenSequence& tokenCollection)
@@ -640,12 +666,12 @@ StatementsBuilder::setCurrentStatement(Statement& current)
 Statement&
 StatementsBuilder::add()
 {
+
   return statement_.add();
 }
 
 void
-StatementsBuilder::builder(Statement& response,
-  Tokens::TokenSequence::const_iterator& it,
+StatementsBuilder::builder(Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
   if (it == end)
@@ -654,20 +680,20 @@ StatementsBuilder::builder(Statement& response,
   }
 
   boost::wave::token_id id = getTokenId(*it);
-  StatementsBuilder partial(response);
-
 
   if (isValid_.isHandled(id) == true && isValid_(id)(it, end) == true)
   {
-    partial.parse(it, end);
+    parse(it, end);
   }
   else if (StatementOfFunction::isValid(it, end))
   {
-    partial.parse(it, end);
+    parse(it, end);
   }
   else
   {
-    StatementsBuilder branch(partial.add());
+    Statement& current = statement_.add();
+    //current.parent_ = &statement_;
+    StatementsBuilder branch(current);
 
     branch.parse(it, end);
   }
@@ -739,7 +765,7 @@ StatementsBuilder::parseScope(Tokens::TokenSequence::const_iterator& it,
   }
   else
   {
-    builder(statement_, it, end);
+    builder(it, end);
   }
 }
 
@@ -787,7 +813,7 @@ StatementsBuilder::parseHeritage(Tokens::TokenSequence::const_iterator& it,
 
   while (it < endLeftbrace)
   {
-    builder(current, it, endLeftbrace);
+    builder(it, endLeftbrace);
 
     IS_EQUAL_BREAK(it, endLeftbrace);
     ++it;
@@ -816,7 +842,7 @@ StatementsBuilder::parseListScope(Tokens::TokenSequence::const_iterator& it,
       end,
       IsTokenWithId(boost::wave::T_COMMA));
 
-    scope.builder(current, it, endItem);
+    scope.builder(it, endItem);
 
     scope.push(*it);
     ++it;
@@ -849,7 +875,7 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
 
   while (it < semicolonMatched)
   {
-    partial.builder(current, it, semicolonMatched);
+    partial.builder(it, semicolonMatched);
 
     IS_EQUAL_BREAK(it, semicolonMatched);
     ++it;
@@ -869,7 +895,6 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
   return successful;
 }
 
-static bool isFunction_ = false;
 
 void
 StatementsBuilder::parse(TokenSequenceConstIterator& it,
@@ -914,7 +939,7 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
     if (StatementOfFunction::isValid(it, end) == true && isFunction_ == false)
     {
       isFunction_ = true;
-      StatementOfFunction(statement_, it, end);
+      StatementOfFunction::create(statement_, it, end);
       IS_EQUAL_BREAK(it, end);
       isFunction_ = false;
       break;
@@ -947,12 +972,26 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
       break;
     }
 
-//  TODO
-//    if (id == boost::wave::T_COMMA)
-//    {
-//      push(*it);
-//      break;
-//    }
+    //  TODO
+    if (id == boost::wave::T_COMMA)
+    {
+      Statement* node = getNodeToCollection(statement_.parent_);
+      if (node)
+      {
+      Statement::TypeItem type =  node->type_;
+
+      if (type == Statement::TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS ||
+          type == Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS ||
+          type == Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS ||
+          type == Statement::TYPE_ITEM_STATEMENT_OF_INITIALIZER_LIST ||
+          type == Statement::TYPE_ITEM_STATEMENT_OF_ENUM ||
+          type == Statement::TYPE_ITEM_STATEMENT_OF_HERITAGE)
+      {
+        push(*it);
+        break;
+      }
+      }
+    }
 
     push(*it);
     ++it;
@@ -963,6 +1002,24 @@ bool
 StatementsBuilder::requiredContinue()
 {
   return false;
+}
+
+void StatementsBuilder::addNodeToCollection(Statement& node)
+{
+  statementsCollection_[node.id_] = &node;
+}
+
+Statement*
+StatementsBuilder::getNodeToCollection(std::size_t id)
+{
+  std::map<std::size_t, Statement*>::iterator it = statementsCollection_.find(id);
+
+  if (it == statementsCollection_.end())
+  {
+    return NULL;
+  }
+
+  return statementsCollection_[id];
 }
 
 }

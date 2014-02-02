@@ -31,14 +31,6 @@ class StatementOfEnum
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScope();
-
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
@@ -66,7 +58,7 @@ class StatementOfEnum
         Tokens::TokenSequence::const_iterator& end);
 
   private:
-    Statement* variables_;
+    Statement::StatementPointer variables_;
 
 };
 

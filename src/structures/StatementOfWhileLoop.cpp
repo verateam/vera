@@ -71,28 +71,6 @@ StatementOfWhileLoop::initialize(Tokens::TokenSequence::const_iterator& it,
   IS_EQUAL_RETURN(it, end);
 }
 
-const Statement&
-StatementOfWhileLoop::getArgumentStatementFromConditionalSentence()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_CONDITIONAL_ARGUMENTS);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
-}
-
-const Statement&
-StatementOfWhileLoop::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
-}
-
 bool
 StatementOfWhileLoop::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
@@ -133,15 +111,8 @@ StatementOfWhileLoop::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
-
-  if (isValid(it, end) == true)
-  {
-    StatementOfWhileLoop builder(StatementsBuilder(statement).add(), it, end);
-    successful = true;
-  }
-
-  return successful;
+  StatementOfWhileLoop builder(statement.add(), it, end);
+  return true;
 }
 
 } // Vera namespace

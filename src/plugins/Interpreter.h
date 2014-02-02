@@ -30,8 +30,6 @@ class Interpreter : public boost::serialization::singleton<Interpreter>
 {
 public:
 
-
-
     enum ScriptType { rule, transformation };
 
     typedef std::string DirectoryName;

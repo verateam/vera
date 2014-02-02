@@ -81,7 +81,7 @@ StatementOfParensArguments::initialize(Tokens::TokenSequence::const_iterator& it
 
   while (it < endMatched)
   {
-    partial.builder(current, it, endMatched);
+    partial.builder(it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
@@ -97,17 +97,6 @@ StatementOfParensArguments::initialize(Tokens::TokenSequence::const_iterator& it
   {
     ++it;
   }
-}
-
-const Statement&
-StatementOfParensArguments::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
 }
 
 bool

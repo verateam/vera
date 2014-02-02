@@ -27,32 +27,12 @@ class StatementOfTryCatches
 : public StatementsBuilder
 {
   public:
-    typedef std::vector<Statement*> listOfCatchSentences;
-    typedef listOfCatchSentences::const_iterator     iteratorOfCatchStatements;
 
     StatementOfTryCatches(Statement& statement,
       Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
-    iteratorOfCatchStatements begin();
 
-    iteratorOfCatchStatements end();
-
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScope();
-
-    /**
-     * @brief Gets the scope of the current sentence.
-     *
-     * @return The const reference to the Statement structure
-     * which contains the associated tokens.
-     */
-    const Statement& getStatementScopeOfTry();
 
     static bool isValid(Tokens::TokenSequence::const_iterator it,
         Tokens::TokenSequence::const_iterator end);
@@ -65,10 +45,6 @@ class StatementOfTryCatches
 
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
-
-  private:
-
-    listOfCatchSentences collection_;
 
 };
 

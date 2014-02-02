@@ -95,7 +95,7 @@ StatementOfAccessModifiers::initialize()
 {
   Statement& current = getCurrentStatement();
 
-  current.push(*it_);
+  push(*it_);
   ++it_;
   IS_EQUAL_RETURN(it_, end_);
 
@@ -106,7 +106,7 @@ StatementOfAccessModifiers::initialize()
     return;
   }
 
-  current.push(*it_);
+  push(*it_);
 
   if (canAdvance(it_+1, end_) == false)
   {
@@ -126,7 +126,7 @@ StatementOfAccessModifiers::initialize()
     }
     else
     {
-      builder(current, it_, end_);
+      builder(it_, end_);
     }
 
     IS_EQUAL_BREAK(it_, end_);
@@ -138,17 +138,6 @@ StatementOfAccessModifiers::initialize()
 
     it_++;
   }
-}
-
-const Statement&
-StatementOfAccessModifiers::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
 }
 
 bool
@@ -179,7 +168,9 @@ StatementOfAccessModifiers::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  StatementOfAccessModifiers builder(statement.add(), it, end);
+  Statement& current = statement.add();
+
+  StatementOfAccessModifiers builder(current, it, end);
 
   if (it < end)
   {

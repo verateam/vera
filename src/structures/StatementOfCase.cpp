@@ -107,8 +107,6 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
   parse(it, end);
   ++it;
 
-  StatementsBuilder partial(current);
-
   push(*it);
   ++it;
 
@@ -134,7 +132,7 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
     }
     else
     {
-      builder(current, it, end);
+      builder(it, end);
     }
 
     IS_EQUAL_BREAK(it, end);
@@ -147,17 +145,6 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
   }
 }
 
-const Statement&
-StatementOfCase::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
-}
-
 bool
 StatementOfCase::isValid(
     Tokens::TokenSequence::const_iterator it,
@@ -167,6 +154,7 @@ StatementOfCase::isValid(
   {
     return false;
   }
+
   ++it;
 
   Tokens::TokenSequence::const_iterator colonMatched =
@@ -182,19 +170,13 @@ StatementOfCase::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  Statement& current = statement.add();
+  StatementOfCase builder(current, it, end);
 
-  if (isValid(it, end) == true)
-  {
-    Statement& current = StatementsBuilder(statement).add();
-    StatementOfCase builder(current, it, end);
-    successful = true;
+  if (it != end)
+    --it;
 
-    if (it != end)
-      --it;
-  }
-
-  return successful;
+  return true;
 }
 
 } // Vera namespace

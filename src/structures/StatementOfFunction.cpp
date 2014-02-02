@@ -194,9 +194,9 @@ StatementOfFunction::isValid(Tokens::TokenSequence::const_iterator it,
       leftbrace,
       IsTokenWithName(LEFTPAREN_TOKEN_NAME));
 
-  IS_EQUAL_RETURN_FALSE(leftparen, leftbrace)
 
-
+  if (leftbrace <= leftparen)
+    return false;
 
   Tokens::TokenSequence::const_iterator rightparen  = std::find_if(leftparen+1,
       leftbrace,
@@ -247,11 +247,9 @@ StatementOfFunction::create(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfFunction branch(statement.add(), it, end);
 
-  StatementOfFunction branch(StatementsBuilder(statement).add(), it, end);
-
-  return successful;
+  return true;
 }
 
 } // Vera namespace

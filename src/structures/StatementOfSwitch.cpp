@@ -58,14 +58,6 @@ StatementOfSwitch::StatementOfSwitch(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
-  const Token& token = *it;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_SWITCH;
   initialize(it, end);
 }
@@ -88,28 +80,6 @@ StatementOfSwitch::initialize(Tokens::TokenSequence::const_iterator& it,
   parseScope(it, end);
 }
 
-const Statement&
-StatementOfSwitch::getArgument()
-{
-  if (getCurrentStatement().statementSequence_.size() == 0)
-  {
-    throw StatementsError(WITHOUT_CONDITIONAL_ARGUMENTS);
-  }
-
-  return getCurrentStatement().statementSequence_[0];
-}
-
-const Statement&
-StatementOfSwitch::getStatementScope()
-{
-  if (getCurrentStatement().statementSequence_.size() < 2)
-  {
-    throw StatementsError(WITHOUT_STATEMENT_SCOPE);
-  }
-
-  return getCurrentStatement().statementSequence_[1];
-}
-
 bool
 StatementOfSwitch::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
@@ -122,15 +92,10 @@ StatementOfSwitch::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  bool successful = false;
+  StatementOfSwitch builder(statement.add(), it, end);
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfSwitch builder(StatementsBuilder(statement).add(), it, end);
-    successful = true;
-  }
 
-  return successful;
+  return true;
 }
 
 } // Vera namespace
