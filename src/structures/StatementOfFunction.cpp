@@ -120,8 +120,9 @@ StatementOfFunction::initialize(Tokens::TokenSequence::const_iterator& it,
       leftbrace,
       IsTokenWithName(COLON_TOKEN_NAME));
 
-  ++rightparen;
-  parseArguments(it, rightparen);
+  parse(it, leftparen);
+
+  parseArguments(it, end);
 
   addEachInvalidToken(it, end);
 
@@ -146,8 +147,9 @@ StatementOfFunction::initialize(Tokens::TokenSequence::const_iterator& it,
       push(*it);
     }
   }
-  ++rightbrace;
-  parseScope(it, rightbrace);
+
+  parseScope(it, end);
+  (void)it;
 
 }
 

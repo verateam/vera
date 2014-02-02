@@ -56,7 +56,7 @@ StatementOfParensArguments::StatementOfParensArguments(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS;
   initialize(it, end);
 }
 
@@ -67,36 +67,33 @@ StatementOfParensArguments::initialize(Tokens::TokenSequence::const_iterator& it
   Tokens::TokenSequence::const_iterator first;
   Tokens::TokenSequence::const_iterator second;
 
-  struct Statement& current = add();
-
-  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS;
-
   Tokens::TokenSequence::const_iterator endMatched = std::find_if(it+1,
     end, EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
 
-  class StatementsBuilder partial(current);
-  partial.push(*it);
+  push(*it);
   ++it;
-  partial.addEachInvalidToken(it, endMatched);
+  addEachInvalidToken(it, endMatched);
+
 
   while (it < endMatched)
   {
-    partial.builder(it, endMatched);
+    builder(it, endMatched);
 
     IS_EQUAL_BREAK(it, endMatched);
     ++it;
 
-    partial.addEachInvalidToken(it, endMatched);
+    addEachInvalidToken(it, endMatched);
   }
+
+  if (endMatched < end)
+  {
+    push(*it);
+    ++it;
+  }
+
 
   IS_EQUAL_RETURN(it, end);
 
-  partial.push(*it);
-
-  if (it < end)
-  {
-    ++it;
-  }
 }
 
 bool
@@ -111,7 +108,7 @@ StatementOfParensArguments::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  StatementOfParensArguments builder(statement, it, end);
+  StatementOfParensArguments builder(statement.add(), it, end);
 
   return true;
 }

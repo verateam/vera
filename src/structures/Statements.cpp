@@ -692,7 +692,6 @@ StatementsBuilder::builder(Tokens::TokenSequence::const_iterator& it,
   else
   {
     Statement& current = statement_.add();
-    //current.parent_ = &statement_;
     StatementsBuilder branch(current);
 
     branch.parse(it, end);
@@ -746,7 +745,7 @@ StatementsBuilder::parseArguments(Tokens::TokenSequence::const_iterator& it,
 
   Tokens::TokenSequence::const_iterator endArguments = (rightLimit < end)? rightLimit + 1 : end;
 
-  parse(it, endArguments);
+  StatementOfParensArguments::create(statement_, it, endArguments);
 
   return IsTokenWithId(boost::wave::T_RIGHTPAREN)(*rightLimit);
 }

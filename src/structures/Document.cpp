@@ -242,7 +242,11 @@ Document::parse()
     if (IsValidTokenForStatement()(*it) == true)
     {
       StatementsBuilder partial(root_);
-      partial.parse(it, end);
+      partial.builder(it, end);
+      if(it != end && IsValidTokenForStatement()(*it) == false)
+      {
+        root_.push(*it);
+      }
     }
     else
     {
