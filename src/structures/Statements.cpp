@@ -973,25 +973,11 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
     }
 
     //  TODO
-    if (id == boost::wave::T_COMMA)
-    {
-      Statement* node = getNodeToCollection(statement_.parent_);
-      if (node)
-      {
-      Statement::TypeItem type =  node->type_;
-
-      if (type == Statement::TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS ||
-          type == Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS ||
-          type == Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS ||
-          type == Statement::TYPE_ITEM_STATEMENT_OF_INITIALIZER_LIST ||
-          type == Statement::TYPE_ITEM_STATEMENT_OF_ENUM ||
-          type == Statement::TYPE_ITEM_STATEMENT_OF_HERITAGE)
-      {
-        push(*it);
-        break;
-      }
-      }
-    }
+//    if (id == boost::wave::T_COMMA)
+//    {
+//      push(*it);
+//      break;
+//    }
 
     push(*it);
     ++it;
