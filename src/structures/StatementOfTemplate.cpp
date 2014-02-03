@@ -65,9 +65,11 @@ StatementOfTemplate::initialize(Tokens::TokenSequence::const_iterator& it,
 
   addEachInvalidToken(it, end);
 
-  StatementOfTemplateParameters::create(current, it, end);
-
-  addEachInvalidToken(it, end);
+  if (StatementOfTemplateParameters::isValid(it, end) == true)
+  {
+    StatementOfTemplateParameters::create(current, it, end);
+    addEachInvalidToken(it, end);
+  }
 
   builder(it, end);
 }

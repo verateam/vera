@@ -38,6 +38,5 @@ Rules::RuleName Rules::getCurrentRule()
     return currentRule_;
 }
 
-
 }
 }

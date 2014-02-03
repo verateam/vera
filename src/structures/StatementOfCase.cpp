@@ -104,8 +104,10 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
   addEachInvalidToken(it, end);
   IS_EQUAL_RETURN(it, end);
 
-  parse(it, end);
-  ++it;
+  Tokens::TokenSequence::const_iterator colonMatched =
+    std::find_if(it, end, IsTokenWithName(COLON_TOKEN_NAME));
+
+  parse(it, colonMatched);
 
   push(*it);
   ++it;
@@ -118,9 +120,33 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
 
-  Tokens::TokenSequence::const_iterator itMatched = end;
+  if (it->line_ < 374 && it->line_ >300)
+  {
+    IS_EQUAL_RETURN(it, end);
+    IS_EQUAL_RETURN(it, end);
+    IS_EQUAL_RETURN(it, end);
+  }
 
-  while(it != end)
+  Tokens::TokenSequence::const_iterator caseMatched = std::find_if(it,
+      end,
+      IsTokenWithName(CASE_TOKEN_NAME));
+
+  Tokens::TokenSequence::const_iterator defaultMatched = std::find_if(it,
+      end,
+      IsTokenWithName(DEFAULT_TOKEN_NAME));
+
+  Tokens::TokenSequence::const_iterator endMatched = end;
+
+  if (caseMatched < defaultMatched)
+  {
+    endMatched = caseMatched;
+  }
+  else
+  {
+    endMatched = defaultMatched;
+  }
+
+  while(it < endMatched)
   {
     if (IsValidTokenForStatement()(*it) == false)
     {
@@ -128,20 +154,24 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
     }
     else if (it->name_.compare(LEFTBRACE_TOKEN_NAME) == 0)
     {
-      parseScope(it, end);
+      parseScope(it, endMatched);
     }
     else
     {
-      builder(it, end);
+      builder(it, endMatched);
     }
 
-    IS_EQUAL_BREAK(it, end);
+    IS_EQUAL_BREAK(it, endMatched);
 
-    if (canAdvance(it+1, end) == false)
+    if (canAdvance(it+1, endMatched) == false)
     {
       break;
     }
-    it++;
+
+    if (it < endMatched)
+    {
+      it++;
+    }
   }
 }
 
@@ -173,13 +203,12 @@ StatementOfCase::create(Statement& statement,
   Statement& current = statement.add();
   StatementOfCase builder(current, it, end);
 
-  if (it != end)
-    --it;
+  //if (it != end)
+   // --it;
 
   return true;
 }
 
 } // Vera namespace
 } // Structures namespace
-
 

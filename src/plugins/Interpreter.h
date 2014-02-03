@@ -17,8 +17,6 @@ namespace Plugins
 {
 
 
-
-
 class ScriptError : public std::runtime_error
 {
 public:

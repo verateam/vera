@@ -102,7 +102,7 @@ StatementOfFunction::initialize(Tokens::TokenSequence::const_iterator& it,
   if (operatorMatched < leftbrace &&
       StatementOfOperator::isValid(operatorMatched, leftbrace)== true)
   {
-    parseScope(it, operatorMatched);
+    parse(it, operatorMatched);
     Statement& current = getCurrentStatement();
 
     StatementOfOperator::create(current, it, leftbrace);

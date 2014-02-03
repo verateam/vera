@@ -72,13 +72,7 @@ StatementOfIf::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
 
-  if (StatementOfParensArguments::isValid(it, end) == false)
-  {
-    return;
-  }
-
-  Statement& current = getCurrentStatement();
-  StatementOfParensArguments(current, it, end);
+  parseArguments(it,end);
 
   IS_EQUAL_RETURN(it, end);
   addEachInvalidToken(it, end);

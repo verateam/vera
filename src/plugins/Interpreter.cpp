@@ -21,7 +21,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-
 #ifdef VERA_PYTHON
 #include <boost/python.hpp>
 #include <boost/python/make_constructor.hpp>
