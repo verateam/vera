@@ -1,3 +1,9 @@
+vera++ (1.2.1-2) unstable; urgency=low
+
+  * Removed dependency to pandoc which prevents migration to testing
+
+ -- Vincent Hobeïka <vincent.hobeika@gmail.com>  Tue, 04 Feb 2014 13:23:48 +0100
+
 vera++ (1.2.1-1) unstable; urgency=low
 
   * Fixed watch files
