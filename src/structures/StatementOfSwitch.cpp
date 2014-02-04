@@ -94,7 +94,6 @@ StatementOfSwitch::create(Statement& statement,
 {
   StatementOfSwitch builder(statement.add(), it, end);
 
-
   return true;
 }
 

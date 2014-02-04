@@ -111,7 +111,7 @@ StatementOfOperator::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  StatementOfOperator builder(statement, it, end);
+  StatementOfOperator builder(statement.add(), it, end);
 
   return true;
 }

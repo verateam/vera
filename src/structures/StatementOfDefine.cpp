@@ -84,15 +84,15 @@ StatementOfDefine::initialize(Tokens::TokenSequence::const_iterator& it,
 
   ++it;
 
-  IS_EQUAL_RETURN(it, end);
+  IS_EQUAL_RETURN(it, endMatched);
 
   if (it->name_.compare(LEFTPAREN_TOKEN_NAME) == 0)
   {
     Tokens::TokenSequence::const_iterator rightParenMatched = std::find_if(it + 1,
-      end,
+      endMatched,
       EndsWithCorrectPattern(LEFTPAREN_TOKEN_NAME, RIGHTPAREN_TOKEN_NAME));
 
-    if (rightParenMatched < end)
+    if (rightParenMatched < endMatched)
     {
       ++rightParenMatched;
     }
@@ -100,9 +100,9 @@ StatementOfDefine::initialize(Tokens::TokenSequence::const_iterator& it,
     parseScope(it, rightParenMatched);
   }
 
-  addEachInvalidToken(it, end);
+  addEachInvalidToken(it, endMatched);
 
-  IS_EQUAL_RETURN(it, end);
+  IS_EQUAL_RETURN(it, endMatched);
 
   StatementsBuilder branches(add());
 
@@ -111,7 +111,7 @@ StatementOfDefine::initialize(Tokens::TokenSequence::const_iterator& it,
     branches.push(*it);
   }
 
-  IS_EQUAL_RETURN(it, end);
+  IS_EQUAL_RETURN(it, endMatched);
 }
 
 bool

@@ -169,6 +169,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfTemplate;
   friend class StatementOfFunction;
   friend class StatementOfOperator;
+  friend class StatementOfPreprocessorDirectives;
   friend class Document;
 
   public:

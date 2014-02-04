@@ -85,11 +85,20 @@ class Document
 
     //static void registerStruct(StatementOfStruct );
 
+    void initialize();
+
   private:
 
     std::string fileName_;
     Statement root_;
     Tokens::TokenSequence collection_;
+};
+
+
+class Documents
+{
+  public:
+   void initialize();
 };
 
 } // namespace Structures

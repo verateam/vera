@@ -76,29 +76,24 @@ std::map<std::size_t, StatementOfStruct> structures_;
 std::map<std::string, boost::shared_prt<Document>> documents_;
 std::vector<std::size_t, std::string> namespaces_;
 */
-
-struct Startup
-{
-    Startup()
-    : isInitialize_(false)
-    {
-    }
-
-    void initialize()
-    {
-      isInitialize_ = true;
-      const SourceFiles::FileNameSet& files = SourceFiles::getAllFileNames();
-      for (SourceFiles::FileNameSet::const_iterator it =  files.begin(); it != files.end();  ++it )
-      {
-
-        Document::create(*it);
-      }
-    }
-
-    bool isInitialize_;
-} startup_;
-
 } // unname namespace
+
+
+void
+Documents::initialize()
+{
+   const SourceFiles::FileNameSet& files = SourceFiles::getAllFileNames();
+
+   for (SourceFiles::FileNameSet::const_iterator it = files.begin(); it != files.end();  ++it )
+   {
+     std::string fileName = *it;
+     Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName);
+
+     boost::shared_ptr<Document> doc = boost::make_shared<Document>(fileName);
+     doc->initialize();
+     documents_[fileName] = doc;
+   }
+}
 
 Document::Document(const std::string& name)
 : fileName_(name)
@@ -108,6 +103,17 @@ Document::Document(const std::string& name)
   root_.parent_ = root_.id_;
   root_.doc_ = this;
   root_.type_ = Statement::TYPE_ITEM_ROOT;
+}
+
+void
+Document::initialize()
+{
+ Tokens::TokenSequence& collection = collection_;
+ Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName_);
+
+ std::copy(tokens.begin(), tokens.end(), std::back_inserter(collection_));
+
+ parse();
 }
 
 static std::string toString(const std::string& path)
@@ -264,11 +270,6 @@ Document::getRoot()
 boost::shared_ptr<Document>
 Document::create(std::string fileName)
 {
-  if (startup_.isInitialize_ == false)
-  {
-    startup_.initialize();
-  }
-
   DocumentSequence::const_iterator it = documents_.find(fileName);
 
   if (it != documents_.end())
@@ -276,17 +277,7 @@ Document::create(std::string fileName)
     return it->second;
   }
 
-  Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName);
-
-  boost::shared_ptr<Document> doc = boost::make_shared<Document>(fileName);
-  Tokens::TokenSequence& collection = doc->collection_;
-
-  std::copy(tokens.begin(), tokens.end(), std::back_inserter(collection));
-  documents_[fileName] = doc;
-
-  doc->parse();
-
-  return doc;
+  return boost::shared_ptr<Document>();
 }
 
 } // Vera namespace

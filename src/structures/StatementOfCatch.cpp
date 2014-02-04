@@ -46,14 +46,6 @@ StatementOfCatch::StatementOfCatch(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-
-  const Token& token = *it;
-
-  if (token.name_.compare(TOKEN_NAME) != 0)
-  {
-    throw StatementsError(IS_NOT_TOKEN);
-  }
-
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_CATCH;
   initialize(it, end);
 }
@@ -70,8 +62,10 @@ StatementOfCatch::initialize(Tokens::TokenSequence::const_iterator& it,
     return;
   }
 
+  addEachInvalidToken(it, end);
+
   IS_EQUAL_RETURN(it, end);
-  ++it;
+
 
   parseScope(it, end);
 }
@@ -80,7 +74,7 @@ bool
 StatementOfCatch::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
- return true;
+ return it->name_.compare(TOKEN_NAME) == 0;
 }
 
 bool

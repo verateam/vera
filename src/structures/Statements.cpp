@@ -35,6 +35,7 @@
 #include "StatementOfTemplate.h"
 #include "StatementOfFunction.h"
 #include "StatementOfOperator.h"
+#include "StatementOfPreprocessorDirectives.h"
 
 #include "IsTokenWithName.h"
 
@@ -130,6 +131,15 @@ class StrategySelector
       factories_[boost::wave::T_TEMPLATE] = &Vera::Structures::StatementOfTemplate::create;
       factories_ [boost::wave::T_OPERATOR] =
             &Vera::Structures::StatementOfOperator::create;
+      factories_[boost::wave::T_PP_UNDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_WARNING] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_IF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_IFDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_IFNDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_PRAGMA] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      factories_ [boost::wave::T_PP_ERROR] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      factories_ [boost::wave::T_PP_ENDIF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      factories_ [boost::wave::T_PP_ELIF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
     }
 
     /**
@@ -224,6 +234,16 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_TEMPLATE] = &Vera::Structures::StatementOfTemplate::isValid;
       verifiers_[boost::wave::T_OPERATOR] =
           &Vera::Structures::StatementOfOperator::isValid;
+      verifiers_[boost::wave::T_PP_UNDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_WARNING] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_IF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_IFDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_IFNDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_PRAGMA] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ERROR] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ENDIF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ELIF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ELSE] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
     }
 
     /**

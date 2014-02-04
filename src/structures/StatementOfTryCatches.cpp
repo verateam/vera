@@ -80,12 +80,14 @@ StatementOfTryCatches::initialize(Tokens::TokenSequence::const_iterator& it,
 
     IS_EQUAL_BREAK(itMatched, end);
 
-    if (itMatched->name_.compare(CATCH_TOKEN_NAME) == 0)
+    if (StatementOfCatch::isValid(itMatched, end) == true)
     {
-      Statement& current = add();
-
       addEachInvalidToken(it, end);
-      StatementOfCatch branch(current, it, end);
+
+      Statement& current = getCurrentStatement();
+
+
+      StatementOfCatch::create(current, it, end);
     }
     else
     {
