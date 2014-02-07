@@ -7,18 +7,6 @@
 @author   richard.bastos
 
 @date     Jan 28, 2014
-@revision $Revision: 1$
-
-@copyright 2013 Smartmatic Corp. All Rights Reserved.
-
-@section LICENSE
-
-Confidential Information of Smartmatic Labs. Not for disclosure or
-distribution prior written consent. This software contains code, techniques
-and know-how which is confidential and proprietary to Smartmatic
-
-Use of this software is subject to the terms of an end user license
-agreement.
 """
 import sys
 import re
