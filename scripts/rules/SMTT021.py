@@ -2,7 +2,7 @@
 """
 @file SMTT021
 
-@brief Verify if all related scopes has braces or not.
+@brief Verify that all the scopes, in the same statement, has braces or do not have braces at all.
 
 @author   richard.bastos
 
@@ -34,7 +34,7 @@ class Inspector:
 
   def rule (self, branch):
     token = branch.getToken()
-    vera.report(self.fileName, token.line, "All related scopes has braces or not.") 
+    vera.report(self.fileName, token.line, "In the same statement, has braces or do not have braces at all") 
 
    # def verifyIf(self, branch):
    #  listBraces =elseBranch (item for item in branch.statements if  self.isBranch(item)  and item.type != vera.TypeItem.TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS)

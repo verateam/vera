@@ -163,12 +163,6 @@ StatementOfDefault::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& end)
 {
   StatementOfDefault  builder(statement.add(), it, end);
-
-  if (it != end)
-  {
-    --it;
-  }
-
   return true;
 }
 

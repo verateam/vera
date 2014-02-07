@@ -56,34 +56,6 @@ target_link_libraries(vera
   ${Boost_LIBRARIES})
 if(VERA_PYTHON)
   target_link_libraries(vera ${PYTHON_LIBRARIES})
-
-#Build tests
-if (TESTING_ENABLED)
-  set (PROJECT_TEST_NAME test-vera++)
-  file (GLOB_RECURSE TEST_SRC_FILES ../unitTests/*.cpp structures/Statement*.cpp)
-
-  find_package (GTest)
-  find_package (Threads REQUIRED)
-  #find_package (GoogleMocks)
-
-  include_directories (SYSTEM ${GTEST_INCLUDE_DIR})
-  include_directories (SYSTEM -I./)
-  #include_directories (SYSTEM ${GOOGLE_MOCKS_INCLUDE_DIRS})
-
-  add_executable (${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
-  target_link_libraries (${PROJECT_TEST_NAME}
- ${GTEST_MAIN_LIBRARY} 
- ${GTEST_BOTH_LIBRARIES}
- ${PYTHON_LIBRARIES}
- ${TCL_LIBRARY}
- ${Boost_LIBRARIES}
- ${CMAKE_THREAD_LIBS_INIT}
- ${GTEST_LIBRARY})
-#${GOOGLE_MOCKS_LIBRARIES})
-
-  gtest_add_tests (${PROJECT_TEST_NAME} "" ${TEST_SRC_FILES})
-endif ()
-
 endif()
 
 if(WIN32)
@@ -122,5 +94,3 @@ include(../cmake/use_vera++.cmake)
 add_vera_targets(*.h *.cpp
   RECURSE
   ROOT "${CMAKE_SOURCE_DIR}")
-
-

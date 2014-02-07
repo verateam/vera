@@ -75,8 +75,9 @@ StatementOfSwitch::initialize(Tokens::TokenSequence::const_iterator& it,
   }
 
   IS_EQUAL_RETURN(it, end);
-  ++it;
+  addEachInvalidToken(it, end);
 
+  IS_EQUAL_RETURN(it, end);
   parseScope(it, end);
 }
 

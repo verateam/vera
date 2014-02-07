@@ -9,6 +9,7 @@
 #include "Exclusions.h"
 #include "Reports.h"
 #include "Parameters.h"
+#include "../plugins/Messages.h"
 #include "../structures/SourceFiles.h"
 #include "../structures/SourceLines.h"
 #include "../structures/Tokens.h"
@@ -357,7 +358,9 @@ BOOST_PYTHON_MODULE(vera)
     .add_property("id", &Structures::Statement::id_)
     .add_property("statements", &Structures::Statement::statementSequence_)
     .add_property("type", &Structures::Statement::type_)
-    .add_property("parent", &Structures::Statement::parent_)
+    .add_property("parentId", &Structures::Statement::parentId_)
+    .def("getParent", &Structures::Statement::getParent,
+        py::return_internal_reference<>())
     .def("getToken", &Structures::Statement::getToken,
         py::return_value_policy<py::reference_existing_object>());
 
@@ -429,6 +432,14 @@ BOOST_PYTHON_MODULE(vera)
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_CLASS)
     .value("TYPE_ITEM_STATEMENT_OF_TYPEDEF",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF)
+    .value("TYPE_ITEM_STATEMENT_OF_TYPEDEF_SIGNATURE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF_SIGNATURE)
+    .value("TYPE_ITEM_STATEMENT_OF_TYPEDEF_STRUCT",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF_STRUCT)
+    .value("TYPE_ITEM_STATEMENT_OF_TYPEDEF_UNION",
+       Structures::Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF_UNION)
+    .value("TYPE_ITEM_STATEMENT_OF_TYPEDEF_ENUM",
+          Structures::Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF_ENUM)
     .value("TYPE_ITEM_STATEMENT_OF_INCLUDE",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_INCLUDE)
     .value("TYPE_ITEM_STATEMENT_OF_FUNCTION",
@@ -501,6 +512,11 @@ void Interpreter::executePython(const DirectoryName & root,
          modules = boost::make_shared<struct Startup>();
       }
 
+      std::stringstream out;
+
+      out << "exec: "<<fileName<<std::endl;
+
+      Plugins::Message::get_mutable_instance().show(out.str());
       modules->exec(fileName);
 
     }

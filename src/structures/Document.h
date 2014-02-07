@@ -20,7 +20,6 @@
 #include <boost/wave.hpp>
 #include <boost/wave/cpplexer/cpp_lex_token.hpp>    // token class
 #include <boost/wave/cpplexer/cpp_lex_iterator.hpp> // lexer class
-#include <boost/python/object.hpp>
 #include <boost/smart_ptr.hpp>
 
 typedef boost::wave::cpplexer::lex_token<> token_type;

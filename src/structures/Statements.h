@@ -74,6 +74,10 @@ struct Statement
       TYPE_ITEM_STATEMENT_OF_DEFINE,
       TYPE_ITEM_STATEMENT_OF_CLASS,
       TYPE_ITEM_STATEMENT_OF_TYPEDEF,
+      TYPE_ITEM_STATEMENT_OF_TYPEDEF_SIGNATURE,
+      TYPE_ITEM_STATEMENT_OF_TYPEDEF_STRUCT,
+      TYPE_ITEM_STATEMENT_OF_TYPEDEF_UNION,
+      TYPE_ITEM_STATEMENT_OF_TYPEDEF_ENUM,
       TYPE_ITEM_STATEMENT_OF_INCLUDE,
       TYPE_ITEM_STATEMENT_OF_FUNCTION,
       TYPE_ITEM_STATEMENT_OF_OPERATOR,
@@ -89,10 +93,11 @@ struct Statement
     typedef std::vector<TypeItem> SequenceOfChilds;
 
     Statement(const Token& token)
-    : parent_(0)
+    : parentId_(0)
     , doc_(NULL)
     , token_(token)
     , type_(TYPE_ITEM_TOKEN)
+    , parent(NULL)
     {
       static std::size_t id = 0;
 
@@ -116,7 +121,7 @@ struct Statement
     const Token& getToken();
 
 
-    const Statement& getParent();
+    Statement* getParent();
 
     /**
      * @brief This is the comparison operator required
@@ -129,10 +134,13 @@ struct Statement
 
   StatementSequence statementSequence_;
   Token token_;
-  std::size_t parent_;
+  std::size_t parentId_;
   std::size_t id_;
   Document* doc_;
   TypeItem type_;
+  Statement* parent;
+
+
 };
 
 /**

@@ -8,6 +8,7 @@
 #include "config.h"
 #include "structures/SourceFiles.h"
 #include "plugins/Profiles.h"
+#include "plugins/Messages.h"
 #include "plugins/Rules.h"
 #include "plugins/Exclusions.h"
 #include "plugins/Transformations.h"
@@ -132,40 +133,44 @@ int boost_main(int argc, char * argv[])
     namespace po = boost::program_options;
     po::options_description visibleOptions("Options");
     visibleOptions.add_options()
-        ("profile,p", po::value(&profile), "execute all rules from the given profile")
-        ("rule,R", po::value(&rules), "execute the given rule (note: the .tcl extension is added"
+        ("profile, p", po::value(&profile), "execute all rules from the given profile")
+        ("rule, R", po::value(&rules), "execute the given rule (note: the .tcl extension is added"
             " automatically. can be used many times.)")
         ("transform", po::value(&transform), "execute the given transformation")
-        ("std-report,o", po::value(&stdreports), "write the standard (gcc-like) report to this"
+        ("std-report, o", po::value(&stdreports), "write the standard (gcc-like) report to this"
             "file. Default is standard or error output depending on the options."
             " (note: may be used many times.)")
-        ("vc-report,v", po::value(&vcreports), "write the Visual C report to this file."
+        ("vc-report, v", po::value(&vcreports), "write the Visual C report to this file."
             " Not used by default. (note: may be used many times.)")
-        ("xml-report,x", po::value(&xmlreports), "write the XML report to this file."
+        ("xml-report, x", po::value(&xmlreports), "write the XML report to this file."
             " Not used by default. (note: may be used many times.)")
-        ("checkstyle-report,c", po::value(&checkstylereports),
+        ("checkstyle-report, c", po::value(&checkstylereports), 
             "write the checkstyle report to this file."
             " Not used by default. (note: may be used many times.)")
-        ("show-rule,s", "include rule name in each report")
-        ("no-duplicate,d", "do not duplicate messages if a single rule is violated many times in a"
+        ("show-rule, s", "include rule name in each report")
+        ("no-duplicate, d", "do not duplicate messages if a single rule is violated many times in a"
             " single line of code")
-        ("warning,w", "reports are marked as warning and generated on error output")
-        ("error,e", "reports are marked as error and generated on error output."
+        ("warning, w", "reports are marked as warning and generated on error output")
+        ("error, e", "reports are marked as error and generated on error output."
             " A non zero exit code is used when one or more reports are generated.")
-        ("quiet,q", "don't display the reports")
-        ("summary,S", "display the number of reports and the number of processed files")
+        ("quiet, q", "don't display the reports")
+        ("summary, S", "display the number of reports and the number of processed files")
         ("parameters", po::value(&parameterFiles), "read parameters from file"
             " (note: can be used many times)")
-        ("parameter,P", po::value(&parameters), "provide parameters to the scripts as name=value"
+        ("parameter, P", po::value(&parameters), "provide parameters to the scripts as name=value"
             " (note: can be used many times)")
         ("exclusions", po::value(&exclusionFiles), "read exclusions from file"
             " (note: can be used many times)")
-        ("inputs,i", po::value(&inputFiles), "the inputs are read from that file (note: one file"
+        ("inputs, i", po::value(&inputFiles), "the inputs are read from that file (note: one file"
             " per line. can be used many times.)")
-        ("root,r", po::value(&veraRoot), "use the given directory as the vera root directory")
-        ("config-file-preprocessing,r", po::value(&preprocessingConfigFile),"Specifies a config file which contains the"
-         "\"include\" directories of the project and the system. This file also contains the predefined macros list.")
-        ("help,h", "show this help message and exit")
+        ("root, r", po::value(&veraRoot), "use the given directory as the vera root directory")
+        ("verbose", "Print descriptions of the parser and processing.")
+        ("config-file-preprocessing, r",
+            po::value(&preprocessingConfigFile),
+            "Specifies a config file which contains the"
+         "\"include\" directories of the project and the system.\
+          This file also contains the predefined macros list.")
+        ("help, h", "show this help message and exit")
         ("version", "show vera++'s version and exit");
 
     // don't call it "input", as is may seems more logical, in order to get an error when
@@ -202,6 +207,12 @@ int boost_main(int argc, char * argv[])
     {
         std::cout << VERA_VERSION << '\n';
         return EXIT_SUCCESS;
+    }
+
+    if (vm.count("verbose"))
+    {
+      Vera::Plugins::Message& manager = Vera::Plugins::Message::get_mutable_instance();
+      manager.setStandardProvider();
     }
 
     try
@@ -308,10 +319,12 @@ int boost_main(int argc, char * argv[])
                 std::cerr << visibleOptions << std::endl;
                 return EXIT_FAILURE;
             }
+
             foreach (const std::string & r, rules)
             {
                 Vera::Plugins::Rules::executeRule(r);
             }
+
         }
         else if (vm.count("transform"))
         {
@@ -326,6 +339,8 @@ int boost_main(int argc, char * argv[])
         }
         else
         {
+            Vera::Structures::Documents docs;
+            docs.initialize();
             Vera::Plugins::Profiles::executeProfile(profile);
         }
 

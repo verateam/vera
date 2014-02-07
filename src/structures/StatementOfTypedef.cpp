@@ -167,7 +167,7 @@ StatementOfTypedef::parseSignature(Tokens::TokenSequence::const_iterator& it,
   }
 
   {
-    Statement& current = getCurrentStatement();
+    Statement& current = add();
     StatementOfParensArguments branch(current, it, semicolonMatched);
   }
 
@@ -285,6 +285,7 @@ StatementOfTypedef::create(Statement& statement,
 
   if (status != OPERATION_STATE_INVALID)
   {
+    current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF_UNION;
     return status == OPERATION_STATE_SUCCESSFUL;
   }
 
@@ -292,6 +293,7 @@ StatementOfTypedef::create(Statement& statement,
 
   if (status != OPERATION_STATE_INVALID)
   {
+    current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF_STRUCT;
     return status == OPERATION_STATE_SUCCESSFUL;
   }
 
@@ -299,11 +301,13 @@ StatementOfTypedef::create(Statement& statement,
 
   if (status != OPERATION_STATE_INVALID)
   {
+    current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF_ENUM;
     return status == OPERATION_STATE_SUCCESSFUL;
   }
 
   if (root.isSignature(it, end) == true)
   {
+    current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_TYPEDEF_SIGNATURE;
     root.parseSignature(it, end);
   }
   else

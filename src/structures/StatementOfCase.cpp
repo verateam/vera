@@ -120,33 +120,7 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
 
   IS_EQUAL_RETURN(it, end);
 
-  if (it->line_ < 374 && it->line_ >300)
-  {
-    IS_EQUAL_RETURN(it, end);
-    IS_EQUAL_RETURN(it, end);
-    IS_EQUAL_RETURN(it, end);
-  }
-
-  Tokens::TokenSequence::const_iterator caseMatched = std::find_if(it,
-      end,
-      IsTokenWithName(CASE_TOKEN_NAME));
-
-  Tokens::TokenSequence::const_iterator defaultMatched = std::find_if(it,
-      end,
-      IsTokenWithName(DEFAULT_TOKEN_NAME));
-
-  Tokens::TokenSequence::const_iterator endMatched = end;
-
-  if (caseMatched < defaultMatched)
-  {
-    endMatched = caseMatched;
-  }
-  else
-  {
-    endMatched = defaultMatched;
-  }
-
-  while(it < endMatched)
+  while(it < end)
   {
     if (IsValidTokenForStatement()(*it) == false)
     {
@@ -154,21 +128,21 @@ StatementOfCase::initialize(Tokens::TokenSequence::const_iterator& it,
     }
     else if (it->name_.compare(LEFTBRACE_TOKEN_NAME) == 0)
     {
-      parseScope(it, endMatched);
+      parseScope(it, end);
     }
     else
     {
-      builder(it, endMatched);
+      builder(it, end);
     }
 
-    IS_EQUAL_BREAK(it, endMatched);
+    IS_EQUAL_BREAK(it, end);
 
-    if (canAdvance(it+1, endMatched) == false)
+    if (canAdvance(it+1, end) == false)
     {
       break;
     }
 
-    if (it < endMatched)
+    if (it < end)
     {
       it++;
     }
@@ -202,9 +176,6 @@ StatementOfCase::create(Statement& statement,
 {
   Statement& current = statement.add();
   StatementOfCase builder(current, it, end);
-
-  //if (it != end)
-   // --it;
 
   return true;
 }

@@ -96,50 +96,49 @@ class StrategySelector
      */
     StrategySelector()
     {
-      factories_[boost::wave::T_IF] = &Vera::Structures::StatementOfIf::create;
-      factories_[boost::wave::T_FOR] = &Vera::Structures::StatementOfForLoop::create;
-      factories_[boost::wave::T_TRY] = &Vera::Structures::StatementOfTryCatches::create;
-      factories_[boost::wave::T_DO] = &Vera::Structures::StatementOfDoWhileLoop::create;
-      factories_[boost::wave::T_CATCH]= &Vera::Structures::StatementOfCatch::create;
-      factories_[boost::wave::T_ELSE] = &Vera::Structures::StatementOfElse::create;
-      factories_[boost::wave::T_CASE] = &Vera::Structures::StatementOfCase::create;
-      factories_[boost::wave::T_DEFAULT] = &Vera::Structures::StatementOfDefault::create;
-      factories_[boost::wave::T_SWITCH] = &Vera::Structures::StatementOfSwitch::create;
-      factories_[boost::wave::T_WHILE] = &Vera::Structures::StatementOfWhileLoop::create;
-      factories_[boost::wave::T_NAMESPACE] = &Vera::Structures::StatementOfNamespace::create;
-      factories_[boost::wave::T_STRUCT] = &Vera::Structures::StatementOfStruct::create;
-      factories_[boost::wave::T_PUBLIC] = &Vera::Structures::StatementOfAccessModifiers::create;
-      factories_[boost::wave::T_PROTECTED] = &Vera::Structures::StatementOfAccessModifiers::create;
-      factories_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::create;
-      factories_[boost::wave::T_QUESTION_MARK] =
-        &Vera::Structures::StatementOfOperatorTernario::create;
-      factories_[boost::wave::T_COLON] = &Vera::Structures::StatementOfOperatorTernario::create;
-      factories_[boost::wave::T_LESS] = &Vera::Structures::StatementOfTemplateParameters::create;
-      factories_[boost::wave::T_EXTERN] = &Vera::Structures::StatementOfExtern::create;
-      factories_[boost::wave::T_ENUM] = &Vera::Structures::StatementOfEnum::create;
-      factories_[boost::wave::T_LEFTPAREN] = &Vera::Structures::StatementOfParensArguments::create;
-      factories_[boost::wave::T_LEFTBRACKET] =
-        &Vera::Structures::StatementOfBracketsArguments::create;
-      factories_[boost::wave::T_LEFTBRACE] = &Vera::Structures::StatementOfBracesArguments::create;
-      factories_[boost::wave::T_UNION] = &Vera::Structures::StatementOfUnion::create;
-      factories_[boost::wave::T_CLASS] = &Vera::Structures::StatementOfClass::create;
-      factories_[boost::wave::T_PP_LINE] = &Vera::Structures::StatementOfPreprocessorLine::create;
-      factories_[boost::wave::T_PP_DEFINE] = &Vera::Structures::StatementOfDefine::create;
-      factories_[boost::wave::T_TYPEDEF] = &Vera::Structures::StatementOfTypedef::create;
-      factories_[boost::wave::T_PP_HHEADER] = &Vera::Structures::StatementOfInclude::create;
-      factories_[boost::wave::T_PP_QHEADER] = &Vera::Structures::StatementOfInclude::create;
-      factories_[boost::wave::T_TEMPLATE] = &Vera::Structures::StatementOfTemplate::create;
-      factories_ [boost::wave::T_OPERATOR] =
-            &Vera::Structures::StatementOfOperator::create;
-      factories_[boost::wave::T_PP_UNDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
-      factories_[boost::wave::T_PP_WARNING] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
-      factories_[boost::wave::T_PP_IF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
-      factories_[boost::wave::T_PP_IFDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
-      factories_[boost::wave::T_PP_IFNDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
-      factories_[boost::wave::T_PP_PRAGMA] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
-      factories_ [boost::wave::T_PP_ERROR] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
-      factories_ [boost::wave::T_PP_ENDIF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
-      factories_ [boost::wave::T_PP_ELIF] = &Vera::Structures::StatementOfPreprocessorDirectives::create;
+      using namespace Vera::Structures;
+
+      factories_[boost::wave::T_IF] = &StatementOfIf::create;
+      factories_[boost::wave::T_FOR] = &StatementOfForLoop::create;
+      factories_[boost::wave::T_TRY] = &StatementOfTryCatches::create;
+      factories_[boost::wave::T_DO] = &StatementOfDoWhileLoop::create;
+      factories_[boost::wave::T_CATCH]= &StatementOfCatch::create;
+      factories_[boost::wave::T_ELSE] = &StatementOfElse::create;
+      factories_[boost::wave::T_CASE] = &StatementOfCase::create;
+      factories_[boost::wave::T_DEFAULT] = &StatementOfDefault::create;
+      factories_[boost::wave::T_SWITCH] = &StatementOfSwitch::create;
+      factories_[boost::wave::T_WHILE] = &StatementOfWhileLoop::create;
+      factories_[boost::wave::T_NAMESPACE] = &StatementOfNamespace::create;
+      factories_[boost::wave::T_STRUCT] = &StatementOfStruct::create;
+      factories_[boost::wave::T_PUBLIC] = &StatementOfAccessModifiers::create;
+      factories_[boost::wave::T_PROTECTED] = &StatementOfAccessModifiers::create;
+      factories_[boost::wave::T_PRIVATE] = &StatementOfAccessModifiers::create;
+      factories_[boost::wave::T_QUESTION_MARK] = &StatementOfOperatorTernario::create;
+      factories_[boost::wave::T_COLON] = &StatementOfOperatorTernario::create;
+      factories_[boost::wave::T_LESS] = &StatementOfTemplateParameters::create;
+      factories_[boost::wave::T_EXTERN] = &StatementOfExtern::create;
+      factories_[boost::wave::T_ENUM] = &StatementOfEnum::create;
+      factories_[boost::wave::T_LEFTPAREN] = &StatementOfParensArguments::create;
+      factories_[boost::wave::T_LEFTBRACKET] = &StatementOfBracketsArguments::create;
+      factories_[boost::wave::T_LEFTBRACE] = &StatementOfBracesArguments::create;
+      factories_[boost::wave::T_UNION] = &StatementOfUnion::create;
+      factories_[boost::wave::T_CLASS] = &StatementOfClass::create;
+      factories_[boost::wave::T_PP_LINE] = &StatementOfPreprocessorLine::create;
+      factories_[boost::wave::T_PP_DEFINE] = &StatementOfDefine::create;
+      factories_[boost::wave::T_TYPEDEF] = &StatementOfTypedef::create;
+      factories_[boost::wave::T_PP_HHEADER] = &StatementOfInclude::create;
+      factories_[boost::wave::T_PP_QHEADER] = &StatementOfInclude::create;
+      factories_[boost::wave::T_TEMPLATE] = &StatementOfTemplate::create;
+      factories_ [boost::wave::T_OPERATOR] = &StatementOfOperator::create;
+      factories_[boost::wave::T_PP_UNDEF] = &StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_WARNING] = &StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_IF] = &StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_IFDEF] =  &StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_IFNDEF] = &StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_PRAGMA] = &StatementOfPreprocessorDirectives::create;
+      factories_ [boost::wave::T_PP_ERROR] = &StatementOfPreprocessorDirectives::create;
+      factories_ [boost::wave::T_PP_ENDIF] =  &StatementOfPreprocessorDirectives::create;
+      factories_ [boost::wave::T_PP_ELIF] = &StatementOfPreprocessorDirectives::create;
     }
 
     /**
@@ -199,51 +198,50 @@ class SelectorOfVerifiers
      */
     SelectorOfVerifiers ()
     {
-      verifiers_[boost::wave::T_IF] = &Vera::Structures::StatementOfIf::isValid;
-      verifiers_[boost::wave::T_FOR] = &Vera::Structures::StatementOfForLoop::isValid;
-      verifiers_[boost::wave::T_TRY] = &Vera::Structures::StatementOfTryCatches::isValid;
-      verifiers_[boost::wave::T_DO] = &Vera::Structures::StatementOfDoWhileLoop::isValid;
-      verifiers_[boost::wave::T_CATCH] = &Vera::Structures::StatementOfCatch::isValid;
-      verifiers_[boost::wave::T_ELSE] = &Vera::Structures::StatementOfElse::isValid;
-      verifiers_[boost::wave::T_CASE] = &Vera::Structures::StatementOfCase::isValid;
-      verifiers_[boost::wave::T_DEFAULT] = &Vera::Structures::StatementOfDefault::isValid;
-      verifiers_[boost::wave::T_SWITCH] = &Vera::Structures::StatementOfSwitch::isValid;
-      verifiers_[boost::wave::T_WHILE] = &Vera::Structures::StatementOfWhileLoop::isValid;
-      verifiers_[boost::wave::T_NAMESPACE] = &Vera::Structures::StatementOfNamespace::isValid;
-      verifiers_[boost::wave::T_STRUCT] = &Vera::Structures::StatementOfStruct::isValid;
-      verifiers_[boost::wave::T_PUBLIC] = &Vera::Structures::StatementOfAccessModifiers::isValid;
-      verifiers_[boost::wave::T_PROTECTED] = &Vera::Structures::StatementOfAccessModifiers::isValid;
-      verifiers_[boost::wave::T_PRIVATE] = &Vera::Structures::StatementOfAccessModifiers::isValid;
-      verifiers_[boost::wave::T_QUESTION_MARK] =
-         &Vera::Structures::StatementOfOperatorTernario::isValid;
-      verifiers_[boost::wave::T_COLON] = &Vera::Structures::StatementOfOperatorTernario::isValid;
-      verifiers_[boost::wave::T_LESS] = &Vera::Structures::StatementOfTemplateParameters::isValid;
-      verifiers_[boost::wave::T_EXTERN] = &Vera::Structures::StatementOfExtern::isValid;
-      verifiers_[boost::wave::T_ENUM] = &Vera::Structures::StatementOfEnum::isValid;
-      verifiers_[boost::wave::T_LEFTPAREN] = &Vera::Structures::StatementOfParensArguments::isValid;
-      verifiers_[boost::wave::T_LEFTBRACKET] =
-        &Vera::Structures::StatementOfBracketsArguments::isValid;
-      verifiers_[boost::wave::T_LEFTBRACE] = &Vera::Structures::StatementOfBracesArguments::isValid;
-      verifiers_[boost::wave::T_UNION] = &Vera::Structures::StatementOfUnion::isValid;
-      verifiers_[boost::wave::T_PP_LINE] = &Vera::Structures::StatementOfPreprocessorLine::isValid;
-      verifiers_[boost::wave::T_PP_DEFINE] = &Vera::Structures::StatementOfDefine::isValid;
-      verifiers_[boost::wave::T_CLASS] = &Vera::Structures::StatementOfClass::isValid;
-      verifiers_[boost::wave::T_TYPEDEF] = &Vera::Structures::StatementOfTypedef::isValid;
-      verifiers_[boost::wave::T_PP_HHEADER] = &Vera::Structures::StatementOfInclude::isValid;
-      verifiers_[boost::wave::T_PP_QHEADER] = &Vera::Structures::StatementOfInclude::isValid;
-      verifiers_[boost::wave::T_TEMPLATE] = &Vera::Structures::StatementOfTemplate::isValid;
-      verifiers_[boost::wave::T_OPERATOR] =
-          &Vera::Structures::StatementOfOperator::isValid;
-      verifiers_[boost::wave::T_PP_UNDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_WARNING] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_IF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_IFDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_IFNDEF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_PRAGMA] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_ERROR] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_ENDIF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_ELIF] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_ELSE] = &Vera::Structures::StatementOfPreprocessorDirectives::isValid;
+      using namespace Vera::Structures;
+
+      verifiers_[boost::wave::T_IF] = &StatementOfIf::isValid;
+      verifiers_[boost::wave::T_FOR] = &StatementOfForLoop::isValid;
+      verifiers_[boost::wave::T_TRY] = &StatementOfTryCatches::isValid;
+      verifiers_[boost::wave::T_DO] = &StatementOfDoWhileLoop::isValid;
+      verifiers_[boost::wave::T_CATCH] = &StatementOfCatch::isValid;
+      verifiers_[boost::wave::T_ELSE] = &StatementOfElse::isValid;
+      verifiers_[boost::wave::T_CASE] = &StatementOfCase::isValid;
+      verifiers_[boost::wave::T_DEFAULT] = &StatementOfDefault::isValid;
+      verifiers_[boost::wave::T_SWITCH] = &StatementOfSwitch::isValid;
+      verifiers_[boost::wave::T_WHILE] = &StatementOfWhileLoop::isValid;
+      verifiers_[boost::wave::T_NAMESPACE] = &StatementOfNamespace::isValid;
+      verifiers_[boost::wave::T_STRUCT] = &StatementOfStruct::isValid;
+      verifiers_[boost::wave::T_PUBLIC] = &StatementOfAccessModifiers::isValid;
+      verifiers_[boost::wave::T_PROTECTED] = &StatementOfAccessModifiers::isValid;
+      verifiers_[boost::wave::T_PRIVATE] = &StatementOfAccessModifiers::isValid;
+      verifiers_[boost::wave::T_QUESTION_MARK] = &StatementOfOperatorTernario::isValid;
+      verifiers_[boost::wave::T_COLON] = &StatementOfOperatorTernario::isValid;
+      verifiers_[boost::wave::T_LESS] = &StatementOfTemplateParameters::isValid;
+      verifiers_[boost::wave::T_EXTERN] = &StatementOfExtern::isValid;
+      verifiers_[boost::wave::T_ENUM] = &StatementOfEnum::isValid;
+      verifiers_[boost::wave::T_LEFTPAREN] = &StatementOfParensArguments::isValid;
+      verifiers_[boost::wave::T_LEFTBRACKET] = &StatementOfBracketsArguments::isValid;
+      verifiers_[boost::wave::T_LEFTBRACE] = &StatementOfBracesArguments::isValid;
+      verifiers_[boost::wave::T_UNION] = &StatementOfUnion::isValid;
+      verifiers_[boost::wave::T_PP_LINE] = &StatementOfPreprocessorLine::isValid;
+      verifiers_[boost::wave::T_PP_DEFINE] = &StatementOfDefine::isValid;
+      verifiers_[boost::wave::T_CLASS] = &StatementOfClass::isValid;
+      verifiers_[boost::wave::T_TYPEDEF] = &StatementOfTypedef::isValid;
+      verifiers_[boost::wave::T_PP_HHEADER] = &StatementOfInclude::isValid;
+      verifiers_[boost::wave::T_PP_QHEADER] = &StatementOfInclude::isValid;
+      verifiers_[boost::wave::T_TEMPLATE] = &StatementOfTemplate::isValid;
+      verifiers_[boost::wave::T_OPERATOR] = &StatementOfOperator::isValid;
+      verifiers_[boost::wave::T_PP_UNDEF] = &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_WARNING] = &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_IF] =&StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_IFDEF] =  &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_IFNDEF] =  &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_PRAGMA] = &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ERROR] = &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ENDIF] = &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ELIF] = &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ELSE] = &StatementOfPreprocessorDirectives::isValid;
     }
 
     /**
@@ -580,8 +578,9 @@ getTokenId(const Token& token)
 Statement&
 Statement::add()
 {
-  Statement branch(Token("branch",0,0,"unknown"));
-  branch.parent_ = id_;
+  Statement branch(Token("branch", 0, 0, "unknown"));
+  branch.parentId_ = id_;
+  branch.parent = this;
   branch.doc_ = doc_;
   branch.type_ = TYPE_ITEM_STATEMENT;
 
@@ -596,11 +595,12 @@ Statement::add()
 std::map<std::size_t, Statement*> statementsCollection_;
 
 Statement::Statement(const Statement& object)
-: parent_(object.parent_)
+: parentId_(object.parentId_)
 , doc_(object.doc_)
 , token_(object.token_)
 , type_(object.type_)
 , id_(object.id_)
+, parent(object.parent)
 {
   StatementSequence::const_iterator it = object.statementSequence_.begin();
   StatementSequence::const_iterator end = object.statementSequence_.end();
@@ -615,7 +615,7 @@ Statement::~Statement()
 bool
 Statement::operator==(const Statement& statement) const
 {
-  bool isEqual = token_ == statement.token_ && parent_ == statement.parent_;
+  bool isEqual = token_ == statement.token_ && parentId_ == statement.parentId_ && parent == statement.parent;
 
   if (isEqual && statementSequence_.size() == statement.statementSequence_.size())
   {
@@ -631,17 +631,18 @@ void
 Statement::push(const Token& token)
 {
   Statement item(token);
-  item.parent_ = id_;
+  item.parentId_ = id_;
+  item.parent = this;
   item.doc_ = doc_;
 
   statementSequence_.push_back(item);
   StatementsBuilder::addNodeToCollection(statementSequence_.back());
 }
 
-const Statement&
+Statement*
 Statement::getParent()
 {
-  return *StatementsBuilder::getNodeToCollection(parent_);
+  return parent;
 }
 
 const Token&
@@ -712,6 +713,7 @@ StatementsBuilder::builder(Tokens::TokenSequence::const_iterator& it,
   else
   {
     Statement& current = statement_.add();
+
     StatementsBuilder branch(current);
 
     branch.parse(it, end);
@@ -738,7 +740,7 @@ StatementsBuilder::addEachInvalidToken(Tokens::TokenSequence::const_iterator& it
     end,
     IsValidTokenForStatement());
 
-  for(;it < itMatched; ++it)
+  for (;it < itMatched; ++it)
   {
     statement_.push(*it);
   }
@@ -979,10 +981,14 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
 
     if (id == boost::wave::T_COLON &&
         isFunction_ == true &&
-        statement_.type_ == Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS)
+        statement_.parent != NULL)
     {
-      push(*it);
-      break;
+      if (statement_.parent->type_ == Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS &&
+          statement_.parent->parent->type_ != Statement::TYPE_ITEM_STATEMENT_OF_UNION)
+      {
+        push(*it);
+        break;
+      }
     }
 
     if (id == boost::wave::T_SEMICOLON)

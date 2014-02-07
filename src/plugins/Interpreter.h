@@ -33,7 +33,7 @@ public:
     typedef std::string DirectoryName;
     typedef std::string ScriptName;
 
-    Interpreter();
+
 
     ~Interpreter();
 
@@ -41,6 +41,9 @@ public:
         ScriptType type, const ScriptName & name);
     void executeTcl(const DirectoryName & root,
         ScriptType type, const ScriptName & name);
+
+protected:
+    Interpreter();
 #ifdef VERA_PYTHON
 
      void executePython(const DirectoryName & root,

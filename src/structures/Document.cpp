@@ -20,6 +20,7 @@
 #include <boost/function.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include "SourceFiles.h"
+#include "../plugins/Messages.h"
 
 #define SYSTEM_INCLUDE_LABEL "sysInclude"
 #define INCLUDE_LABEL "include"
@@ -100,7 +101,8 @@ Document::Document(const std::string& name)
 , root_(Token("root",0,0,"unknown"))
 {
   StatementsBuilder::addNodeToCollection(root_);
-  root_.parent_ = root_.id_;
+  root_.parentId_ = root_.id_;
+  root_.parent = &root_;
   root_.doc_ = this;
   root_.type_ = Statement::TYPE_ITEM_ROOT;
 }
@@ -235,9 +237,15 @@ Document::readConfigFile(const std::string& fileName)
 void
 Document::parse()
 {
+
   Tokens::TokenSequence::const_iterator it = collection_.begin();
   Tokens::TokenSequence::const_iterator end = collection_.end();
 
+  std::stringstream out;
+
+  out << "Parse: "<<fileName_<<std::endl;
+
+  Plugins::Message::get_mutable_instance().show(out.str());
   for (;it < end; ++it)
   {
     if (it->name_ == EOF_TOKEN_NAME)
@@ -249,7 +257,7 @@ Document::parse()
     {
       StatementsBuilder partial(root_);
       partial.builder(it, end);
-      if(it != end && IsValidTokenForStatement()(*it) == false)
+      if (it != end && IsValidTokenForStatement()(*it) == false)
       {
         root_.push(*it);
       }
