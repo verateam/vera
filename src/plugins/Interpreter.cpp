@@ -354,13 +354,11 @@ BOOST_PYTHON_MODULE(vera)
   py::class_<Structures::Statement>("Statement", py::no_init)
     .def(py::init<const Structures::Token&>())
     .def("getParent", &Structures::Statement::getParent,
-       py::return_value_policy<py::reference_existing_object>())
+        py::return_internal_reference<>())
     .add_property("id", &Structures::Statement::id_)
     .add_property("statements", &Structures::Statement::statementSequence_)
     .add_property("type", &Structures::Statement::type_)
     .add_property("parentId", &Structures::Statement::parentId_)
-    .def("getParent", &Structures::Statement::getParent,
-        py::return_internal_reference<>())
     .def("getToken", &Structures::Statement::getToken,
         py::return_value_policy<py::reference_existing_object>());
 
@@ -394,8 +392,12 @@ BOOST_PYTHON_MODULE(vera)
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_SWITCH)
     .value("TYPE_ITEM_STATEMENT_OF_NAMESPACE",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE)
+    .value("TYPE_ITEM_STATEMENT_OF_NAMESPACE_UNNAME",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE_UNNAME)
     .value("TYPE_ITEM_STATEMENT_OF_STRUCT",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_STRUCT)
+    .value("TYPE_ITEM_STATEMENT_OF_STRUCT_UNNAME",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_STRUCT_UNNAME)
     .value("TYPE_ITEM_STATEMENT_OF_ACCESSMODIFIERS",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_ACCESSMODIFIERS)
     .value("TYPE_ITEM_STATEMENT_OF_DEFAULT",
@@ -416,6 +418,8 @@ BOOST_PYTHON_MODULE(vera)
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS)
     .value("TYPE_ITEM_STATEMENT_OF_ENUM",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_ENUM)
+    .value("TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME)
     .value("TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS)
     .value("TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS",
@@ -426,6 +430,8 @@ BOOST_PYTHON_MODULE(vera)
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_PREPROCESSORLINE)
     .value("TYPE_ITEM_STATEMENT_OF_UNION",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_UNION)
+    .value("TYPE_ITEM_STATEMENT_OF_UNION_UNNAME",
+       Structures::Statement::TYPE_ITEM_STATEMENT_OF_UNION_UNNAME)
     .value("TYPE_ITEM_STATEMENT_OF_DEFINE",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_DEFINE)
     .value("TYPE_ITEM_STATEMENT_OF_CLASS",
@@ -447,7 +453,9 @@ BOOST_PYTHON_MODULE(vera)
     .value("TYPE_ITEM_STATEMENT_OF_OPERATOR",
        Structures::Statement::TYPE_ITEM_STATEMENT_OF_OPERATOR)
     .value("TYPE_ITEM_STATEMENT_OF_TEMPLATE",
-        Structures::Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATE);
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATE)
+    .value("TYPE_ITEM_STATEMENT_OF_ASSIGN",
+      Structures::Statement::TYPE_ITEM_STATEMENT_OF_ASSIGN);
 
   py::register_ptr_to_python<boost::shared_ptr<Structures::Document> >();
 
@@ -459,6 +467,9 @@ BOOST_PYTHON_MODULE(vera)
 
   py::class_<Structures::SourceLines::LineCollection>("StringVector")
           .def(py::vector_indexing_suite<Structures::SourceLines::LineCollection>());
+
+  py::def("getNodeToCollection", &Structures::StatementsBuilder::getNodeToCollection,
+      py::return_internal_reference<>());
 
   py::def("getStatement", &Structures::StatementsBuilder::create);
 

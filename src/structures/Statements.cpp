@@ -39,6 +39,7 @@
 #include "StatementOfAssign.h"
 
 #include "IsTokenWithName.h"
+#include "../plugins/Messages.h"
 
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -134,6 +135,7 @@ class StrategySelector
       factories_[boost::wave::T_PP_UNDEF] = &StatementOfPreprocessorDirectives::create;
       factories_[boost::wave::T_PP_WARNING] = &StatementOfPreprocessorDirectives::create;
       factories_[boost::wave::T_PP_IF] = &StatementOfPreprocessorDirectives::create;
+      factories_[boost::wave::T_PP_ELSE] = &StatementOfPreprocessorDirectives::create;
       factories_[boost::wave::T_PP_IFDEF] =  &StatementOfPreprocessorDirectives::create;
       factories_[boost::wave::T_PP_IFNDEF] = &StatementOfPreprocessorDirectives::create;
       factories_[boost::wave::T_PP_PRAGMA] = &StatementOfPreprocessorDirectives::create;
@@ -237,6 +239,7 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_PP_UNDEF] = &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_WARNING] = &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_IF] =&StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ELSE] =&StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_IFDEF] =  &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_IFNDEF] =  &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_PRAGMA] = &StatementOfPreprocessorDirectives::isValid;
@@ -642,10 +645,10 @@ Statement::push(const Token& token)
   StatementsBuilder::addNodeToCollection(statementSequence_.back());
 }
 
-Statement*
+const Statement&
 Statement::getParent()
 {
-  return parent_;
+  return *parent_;
 }
 
 const Token&
@@ -1000,12 +1003,16 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
       break;
     }
 
-    //  TODO
+#ifdef ENABLE_COMMA_BREAK
+
+    //  TODO The statements related to multiple variables declaration could not be assembled correctly.
     if (id == boost::wave::T_COMMA)
     {
       push(*it);
       break;
     }
+
+#endif
 
     push(*it);
     ++it;
@@ -1023,6 +1030,74 @@ void StatementsBuilder::addNodeToCollection(Statement& node)
   statementsCollection_[node.id_] = &node;
 }
 
+#define CASE_TYPE(item) \
+{ \
+  case Vera::Structures::Statement::TYPE_##item: \
+     return "TYPE_"#item; \
+} 
+
+
+static std::string
+typesToString(Statement::TypeItem type)
+{
+  using Vera::Structures::Statement;
+
+  switch(type)
+  {
+    CASE_TYPE(ITEM_TOKEN)
+    CASE_TYPE(ITEM_STATEMENT)
+    CASE_TYPE(ITEM_ROOT)
+    CASE_TYPE(ITEM_STATEMENT_OF_IF)
+    CASE_TYPE(ITEM_STATEMENT_OF_FORLOOP)
+    CASE_TYPE(ITEM_STATEMENT_OF_WHILELOOP)
+    CASE_TYPE(ITEM_STATEMENT_OF_TRYCATCHES)
+    CASE_TYPE(ITEM_STATEMENT_OF_CATCH)
+    CASE_TYPE(ITEM_STATEMENT_OF_DOWHILELOOP)
+    CASE_TYPE(ITEM_STATEMENT_OF_WHILE)
+    CASE_TYPE(ITEM_STATEMENT_OF_ELSE)
+    CASE_TYPE(ITEM_STATEMENT_OF_SWITCH)
+    CASE_TYPE(ITEM_STATEMENT_OF_NAMESPACE)
+    CASE_TYPE(ITEM_STATEMENT_OF_NAMESPACE_UNNAME)
+    CASE_TYPE(ITEM_STATEMENT_OF_STRUCT)
+    CASE_TYPE(ITEM_STATEMENT_OF_STRUCT_UNNAME)
+    CASE_TYPE(ITEM_STATEMENT_OF_ACCESSMODIFIERS)
+    CASE_TYPE(ITEM_STATEMENT_OF_DEFAULT)
+    CASE_TYPE(ITEM_STATEMENT_OF_CASE)
+    CASE_TYPE(ITEM_STATEMENT_OF_HERITAGE)
+    CASE_TYPE(ITEM_STATEMENT_OF_DECLARATION_LIST)
+    CASE_TYPE(ITEM_STATEMENT_OF_INITIALIZER_LIST)
+    CASE_TYPE(ITEM_STATEMENT_OF_OPERATORTERNARIO)
+    CASE_TYPE(ITEM_STATEMENT_OF_EXTERN)
+    CASE_TYPE(ITEM_STATEMENT_OF_TEMPLATEPARAMETERS)
+    CASE_TYPE(ITEM_STATEMENT_OF_ENUM)
+    CASE_TYPE(ITEM_STATEMENT_OF_ENUM_UNNAME)
+    CASE_TYPE(ITEM_STATEMENT_OF_PARENSARGUMENTS)
+    CASE_TYPE(ITEM_STATEMENT_OF_BRACKETSARGUMENTS)
+    CASE_TYPE(ITEM_STATEMENT_OF_BRACESARGUMENTS)
+    CASE_TYPE(ITEM_STATEMENT_OF_PREPROCESSORLINE)
+    CASE_TYPE(ITEM_STATEMENT_OF_UNION)
+    CASE_TYPE(ITEM_STATEMENT_OF_UNION_UNNAME)
+    CASE_TYPE(ITEM_STATEMENT_OF_DEFINE)
+    CASE_TYPE(ITEM_STATEMENT_OF_CLASS)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_SIGNATURE)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_STRUCT)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_UNION)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_ENUM)
+    CASE_TYPE(ITEM_STATEMENT_OF_INCLUDE)
+    CASE_TYPE(ITEM_STATEMENT_OF_FUNCTION)
+    CASE_TYPE(ITEM_STATEMENT_OF_OPERATOR)
+    CASE_TYPE(ITEM_STATEMENT_OF_TEMPLATE)
+    CASE_TYPE(ITEM_STATEMENT_OF_ASSIGN)
+
+    default:
+      break;
+  }
+
+  return "";
+}
+
+
 Statement*
 StatementsBuilder::getNodeToCollection(std::size_t id)
 {
@@ -1032,6 +1107,11 @@ StatementsBuilder::getNodeToCollection(std::size_t id)
   {
     return NULL;
   }
+
+  std::stringstream out;
+  out << "Parent: "<<typesToString(statementsCollection_[id]->type_)<<std::endl;
+
+  Plugins::Message::get_mutable_instance().show(out.str());
 
   return statementsCollection_[id];
 }

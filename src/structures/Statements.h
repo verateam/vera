@@ -126,7 +126,7 @@ struct Statement
     const Token& getToken();
 
 
-    Statement* getParent();
+    const Statement& getParent();
 
     /**
      * @brief This is the comparison operator required
@@ -223,7 +223,6 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     static void addNodeToCollection(Statement& node);
 
     static Statement* getNodeToCollection(std::size_t id);
-
 
     std::size_t getId() const;
 

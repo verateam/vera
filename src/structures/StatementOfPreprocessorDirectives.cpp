@@ -88,7 +88,7 @@ StatementOfPreprocessorDirectives::isValid(
       it->name_.compare(PP_IFNDEF_TOKEN_NAME) == 0 ||
       it->name_.compare(PP_UNDEF_TOKEN_NAME) == 0 ||
       it->name_.compare(PP_IF_TOKEN_NAME) == 0 ||
-      it->name_.compare(PP_ENDIF_TOKEN_NAME) == 0 ;
+      it->name_.compare(PP_ENDIF_TOKEN_NAME) == 0;
 }
 
 bool

@@ -21,6 +21,8 @@
 #define RIGHTPAREN_TOKEN_NAME  "rightparen"
 #define LEFTBRACE_TOKEN_NAME   "leftbrace"
 #define RIGHTBRACE_TOKEN_NAME  "rightbrace"
+#define LESS_TOKEN_NAME       "less"
+#define GREATER_TOKEN_NAME    "greater"
 #define SEMICOLON_TOKEN_NAME   "semicolon"
 #define COLON_TOKEN_NAME       "colon"
 #define IS_EQUAL_RETURN(left, right) \
@@ -268,6 +270,20 @@ StatementOfStruct::isValidWithName(Tokens::TokenSequence::const_iterator it,
       end,
       IsValidTokenForStatement());
 
+  if (StatementOfTemplateParameters::isValid(itMatched, end) == true)
+  {
+    ++itMatched;
+    itMatched = std::find_if(itMatched,
+      end,
+      EndsWithCorrectPattern(LESS_TOKEN_NAME, GREATER_TOKEN_NAME));
+
+    ++itMatched;
+
+    itMatched = std::find_if(itMatched,
+        end,
+        IsValidTokenForStatement());
+  }
+
   if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched) == true)
   {
     return true;
@@ -337,7 +353,9 @@ StatementOfStruct::create(Statement& statement,
 
       if (StatementOfTemplateParameters::isValid(it, end))
       {
-        StatementOfTemplateParameters(builder.getCurrentStatement(), it, end);
+        StatementOfTemplateParameters(builder.add(), it, end);
+
+        builder.addEachInvalidToken(it, end);
       }
     }
 
