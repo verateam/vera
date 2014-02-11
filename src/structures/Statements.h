@@ -55,7 +55,9 @@ struct Statement
       TYPE_ITEM_STATEMENT_OF_ELSE,
       TYPE_ITEM_STATEMENT_OF_SWITCH,
       TYPE_ITEM_STATEMENT_OF_NAMESPACE,
+      TYPE_ITEM_STATEMENT_OF_NAMESPACE_UNNAME,
       TYPE_ITEM_STATEMENT_OF_STRUCT,
+      TYPE_ITEM_STATEMENT_OF_STRUCT_UNNAME,
       TYPE_ITEM_STATEMENT_OF_ACCESSMODIFIERS,
       TYPE_ITEM_STATEMENT_OF_DEFAULT,
       TYPE_ITEM_STATEMENT_OF_CASE,
@@ -66,11 +68,13 @@ struct Statement
       TYPE_ITEM_STATEMENT_OF_EXTERN,
       TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS,
       TYPE_ITEM_STATEMENT_OF_ENUM,
+      TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME,
       TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS,
       TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS,
       TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS,
       TYPE_ITEM_STATEMENT_OF_PREPROCESSORLINE,
       TYPE_ITEM_STATEMENT_OF_UNION,
+      TYPE_ITEM_STATEMENT_OF_UNION_UNNAME,
       TYPE_ITEM_STATEMENT_OF_DEFINE,
       TYPE_ITEM_STATEMENT_OF_CLASS,
       TYPE_ITEM_STATEMENT_OF_TYPEDEF,
@@ -81,7 +85,8 @@ struct Statement
       TYPE_ITEM_STATEMENT_OF_INCLUDE,
       TYPE_ITEM_STATEMENT_OF_FUNCTION,
       TYPE_ITEM_STATEMENT_OF_OPERATOR,
-      TYPE_ITEM_STATEMENT_OF_TEMPLATE
+      TYPE_ITEM_STATEMENT_OF_TEMPLATE,
+      TYPE_ITEM_STATEMENT_OF_ASSIGN
     };
 
     /**
@@ -97,7 +102,7 @@ struct Statement
     , doc_(NULL)
     , token_(token)
     , type_(TYPE_ITEM_TOKEN)
-    , parent(NULL)
+    , parent_(NULL)
     {
       static std::size_t id = 0;
 
@@ -138,7 +143,7 @@ struct Statement
   std::size_t id_;
   Document* doc_;
   TypeItem type_;
-  Statement* parent;
+  Statement* parent_;
 
 
 };
@@ -178,6 +183,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfFunction;
   friend class StatementOfOperator;
   friend class StatementOfPreprocessorDirectives;
+  friend class StatementOfAssign;
   friend class Document;
 
   public:
