@@ -36,6 +36,7 @@
 #include "StatementOfFunction.h"
 #include "StatementOfOperator.h"
 #include "StatementOfPreprocessorDirectives.h"
+#include "StatementOfAssign.h"
 
 #include "IsTokenWithName.h"
 
@@ -139,6 +140,7 @@ class StrategySelector
       factories_ [boost::wave::T_PP_ERROR] = &StatementOfPreprocessorDirectives::create;
       factories_ [boost::wave::T_PP_ENDIF] =  &StatementOfPreprocessorDirectives::create;
       factories_ [boost::wave::T_PP_ELIF] = &StatementOfPreprocessorDirectives::create;
+      factories_ [boost::wave::T_ASSIGN] = &StatementOfAssign::create;
     }
 
     /**
@@ -242,6 +244,7 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_PP_ENDIF] = &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_ELIF] = &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_ELSE] = &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_ASSIGN] = &StatementOfAssign::isValid;
     }
 
     /**
@@ -580,7 +583,7 @@ Statement::add()
 {
   Statement branch(Token("branch", 0, 0, "unknown"));
   branch.parentId_ = id_;
-  branch.parent = this;
+  branch.parent_ = this;
   branch.doc_ = doc_;
   branch.type_ = TYPE_ITEM_STATEMENT;
 
@@ -600,7 +603,7 @@ Statement::Statement(const Statement& object)
 , token_(object.token_)
 , type_(object.type_)
 , id_(object.id_)
-, parent(object.parent)
+, parent_(object.parent_)
 {
   StatementSequence::const_iterator it = object.statementSequence_.begin();
   StatementSequence::const_iterator end = object.statementSequence_.end();
@@ -615,7 +618,7 @@ Statement::~Statement()
 bool
 Statement::operator==(const Statement& statement) const
 {
-  bool isEqual = token_ == statement.token_ && parentId_ == statement.parentId_ && parent == statement.parent;
+  bool isEqual = token_ == statement.token_ && parentId_ == statement.parentId_ && parent_ == statement.parent_;
 
   if (isEqual && statementSequence_.size() == statement.statementSequence_.size())
   {
@@ -632,7 +635,7 @@ Statement::push(const Token& token)
 {
   Statement item(token);
   item.parentId_ = id_;
-  item.parent = this;
+  item.parent_ = this;
   item.doc_ = doc_;
 
   statementSequence_.push_back(item);
@@ -642,7 +645,7 @@ Statement::push(const Token& token)
 Statement*
 Statement::getParent()
 {
-  return parent;
+  return parent_;
 }
 
 const Token&
@@ -981,10 +984,10 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
 
     if (id == boost::wave::T_COLON &&
         isFunction_ == true &&
-        statement_.parent != NULL)
+        statement_.parent_ != NULL)
     {
-      if (statement_.parent->type_ == Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS &&
-          statement_.parent->parent->type_ != Statement::TYPE_ITEM_STATEMENT_OF_UNION)
+      if (statement_.parent_->type_ == Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS &&
+          statement_.parent_->parent_->type_ != Statement::TYPE_ITEM_STATEMENT_OF_UNION)
       {
         push(*it);
         break;
@@ -998,11 +1001,11 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
     }
 
     //  TODO
-//    if (id == boost::wave::T_COMMA)
-//    {
-//      push(*it);
-//      break;
-//    }
+    if (id == boost::wave::T_COMMA)
+    {
+      push(*it);
+      break;
+    }
 
     push(*it);
     ++it;

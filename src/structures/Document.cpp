@@ -63,20 +63,15 @@ std::vector<std::string> preDefines_;
 std::vector<std::string> types_;
 std::vector<std::string> structures_;
 typedef std::map< std::string, boost::shared_ptr<Document> > DocumentSequence;
-typedef std::map< std::size_t, StatementOfDefine> StatementOfDefineSequence;
+typedef std::map<std::size_t, StatementOfDefine> StatementOfDefineSequence;
 typedef std::map< std::size_t, StatementOfStruct> StatementOfStructSequence;
-typedef std::map< std::size_t, StatementOfEnum> StatementOfEnumSequence;
-typedef std::map< std::size_t, StatementOfUnion> StatementOfUnionSequence;
+typedef std::map<std::size_t, StatementOfEnum> StatementOfEnumSequence;
+typedef std::map<std::size_t, StatementOfUnion> StatementOfUnionSequence;
 DocumentSequence documents_;
 StatementOfDefineSequence defines_;
 StatementOfEnumSequence enums_;
 StatementOfUnionSequence unions_;
-/*
- *
-std::map<std::size_t, StatementOfStruct> structures_;
-std::map<std::string, boost::shared_prt<Document>> documents_;
-std::vector<std::size_t, std::string> namespaces_;
-*/
+
 } // unname namespace
 
 
@@ -102,7 +97,7 @@ Document::Document(const std::string& name)
 {
   StatementsBuilder::addNodeToCollection(root_);
   root_.parentId_ = root_.id_;
-  root_.parent = &root_;
+  root_.parent_ = &root_;
   root_.doc_ = this;
   root_.type_ = Statement::TYPE_ITEM_ROOT;
 }

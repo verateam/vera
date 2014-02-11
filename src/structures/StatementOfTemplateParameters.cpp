@@ -148,7 +148,24 @@ StatementOfTemplateParameters::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
+  Statement::StatementSequence::reverse_iterator rit = statement.statementSequence_.rbegin();
+  Statement::StatementSequence::reverse_iterator rend = statement.statementSequence_.rend();
+  Statement* lastItem = NULL;
+
+  for (;rit != rend; ++rit)
+  {
+    Statement& item = *rit;
+    if (IsValidTokenForStatement()(item.token_) == true)
+    {
+      lastItem = &item;
+      break;
+    }
+  }
+
   Statement& current = statement.add();
+  current.parent_ = lastItem;
+  current.parentId_ = lastItem->id_;
+
   StatementOfTemplateParameters builder(current, it, end);
 
   return true;

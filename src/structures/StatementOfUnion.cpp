@@ -54,7 +54,7 @@ StatementOfUnion::StatementOfUnion(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_UNION;
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_UNION_UNNAME;
   initialize(it, end);
 }
 
@@ -65,6 +65,10 @@ StatementOfUnion::initialize(Tokens::TokenSequence::const_iterator& it,
   push(*it);
   ++it;
   
+  Statement& current = getCurrentStatement();
+
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_UNION;
+
   addEachInvalidToken(it, end);
 }
 

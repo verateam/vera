@@ -54,7 +54,7 @@ StatementOfEnum::StatementOfEnum(Statement& statement,
 : StatementsBuilder(statement)
 , variables_(NULL)
 {
-  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_ENUM;
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME;
   initialize(it, end);
 }
 
@@ -64,6 +64,11 @@ StatementOfEnum::parseName(Tokens::TokenSequence::const_iterator& it,
 {
   push(*it);
   ++it;
+
+  Statement& current = getCurrentStatement();
+
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_ENUM;
+
   return true;
 }
 

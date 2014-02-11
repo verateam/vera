@@ -54,7 +54,7 @@ StatementOfNamespace::StatementOfNamespace(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 {
-  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE;
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE_UNNAME;
   initialize(it, end);
 }
 
@@ -76,6 +76,9 @@ StatementOfNamespace::initialize(Tokens::TokenSequence::const_iterator& it,
     push(*it);
 
     name_ = it->value_;
+
+    current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE;
+
     ++it;
     IS_EQUAL_RETURN(it, end);
   }

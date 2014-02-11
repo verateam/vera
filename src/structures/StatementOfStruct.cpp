@@ -57,7 +57,7 @@ StatementOfStruct::StatementOfStruct(Statement& statement,
 , hieritance_(NULL)
 , variables_(NULL)
 {
-  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_STRUCT;
+  statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_STRUCT_UNNAME;
   initialize(it, end);
 }
 
@@ -78,6 +78,10 @@ StatementOfStruct::parseName(Tokens::TokenSequence::const_iterator& it,
   bool successful = false;
 
   IS_EQUAL_RETURN_FALSE(it, end);
+
+  Statement& current = getCurrentStatement();
+
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_STRUCT;
 
   if (IsTokenWithName(IDENTIFIER_TOKEN_NAME)(*it) == true )
   {
