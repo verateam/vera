@@ -7,10 +7,12 @@
 
 #include "StatementOfUnion.h"
 #include "IsTokenWithName.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
 #include <algorithm>
+
 
 #define IS_NOT_TOKEN "the first element of the collection is not a token of 'struct' type."
 #define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
@@ -53,8 +55,13 @@ StatementOfUnion::StatementOfUnion(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
+, id_(statement.id_)
 {
+
+  name_ = getDefaultName();
+
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_UNION_UNNAME;
+
   initialize(it, end);
 }
 
@@ -147,6 +154,18 @@ StatementOfUnion::isValidWithName(Tokens::TokenSequence::const_iterator it,
   return IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched);
 }
 
+const std::string&
+StatementOfUnion::getName()
+{
+  return name_;
+}
+
+std::size_t
+StatementOfUnion::getId()
+{
+  return id_;
+}
+
 bool
 StatementOfUnion::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
@@ -197,6 +216,7 @@ StatementOfUnion::create(Statement& statement,
     //TODO
     StatementOfUnion builder(statement.add(), it, end);
 
+    statement.doc_->enableUnion();
     builder.initialize(it, end);
 
     if (hasName)
@@ -207,6 +227,9 @@ StatementOfUnion::create(Statement& statement,
     builder.parseScope(it, end);
     builder.parseVariablesFromScopeToSemicolon(it, end);
     successful = true;
+    statement.doc_->disableUnion();
+
+    statement.doc_->addUnion(builder.getName(), builder.getId());
   }
 
   return successful;

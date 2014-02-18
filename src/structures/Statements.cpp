@@ -40,7 +40,9 @@
 
 #include "IsTokenWithName.h"
 #include "../plugins/Messages.h"
+#include "Document.h"
 
+#include <boost/thread/mutex.hpp>
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <vector>
@@ -76,6 +78,72 @@
       return false;\
     }\
   }
+
+#define CASE_TYPE(item) \
+{ \
+  case Vera::Structures::Statement::TYPE_##item: \
+     return "TYPE_"#item; \
+}
+
+
+static std::string
+typesToString(Vera::Structures::Statement::TypeItem type)
+{
+  switch(type)
+  {
+    CASE_TYPE(ITEM_TOKEN)
+    CASE_TYPE(ITEM_STATEMENT)
+    CASE_TYPE(ITEM_ROOT)
+    CASE_TYPE(ITEM_STATEMENT_OF_IF)
+    CASE_TYPE(ITEM_STATEMENT_OF_FORLOOP)
+    CASE_TYPE(ITEM_STATEMENT_OF_WHILELOOP)
+    CASE_TYPE(ITEM_STATEMENT_OF_TRYCATCHES)
+    CASE_TYPE(ITEM_STATEMENT_OF_CATCH)
+    CASE_TYPE(ITEM_STATEMENT_OF_DOWHILELOOP)
+    CASE_TYPE(ITEM_STATEMENT_OF_WHILE)
+    CASE_TYPE(ITEM_STATEMENT_OF_ELSE)
+    CASE_TYPE(ITEM_STATEMENT_OF_SWITCH)
+    CASE_TYPE(ITEM_STATEMENT_OF_NAMESPACE)
+    CASE_TYPE(ITEM_STATEMENT_OF_NAMESPACE_UNNAME)
+    CASE_TYPE(ITEM_STATEMENT_OF_STRUCT)
+    CASE_TYPE(ITEM_STATEMENT_OF_STRUCT_UNNAME)
+    CASE_TYPE(ITEM_STATEMENT_OF_ACCESSMODIFIERS)
+    CASE_TYPE(ITEM_STATEMENT_OF_DEFAULT)
+    CASE_TYPE(ITEM_STATEMENT_OF_CASE)
+    CASE_TYPE(ITEM_STATEMENT_OF_HERITAGE)
+    CASE_TYPE(ITEM_STATEMENT_OF_DECLARATION_LIST)
+    CASE_TYPE(ITEM_STATEMENT_OF_INITIALIZER_LIST)
+    CASE_TYPE(ITEM_STATEMENT_OF_OPERATORTERNARIO)
+    CASE_TYPE(ITEM_STATEMENT_OF_EXTERN)
+    CASE_TYPE(ITEM_STATEMENT_OF_TEMPLATEPARAMETERS)
+    CASE_TYPE(ITEM_STATEMENT_OF_ENUM)
+    CASE_TYPE(ITEM_STATEMENT_OF_ENUM_UNNAME)
+    CASE_TYPE(ITEM_STATEMENT_OF_PARENSARGUMENTS)
+    CASE_TYPE(ITEM_STATEMENT_OF_BRACKETSARGUMENTS)
+    CASE_TYPE(ITEM_STATEMENT_OF_BRACESARGUMENTS)
+    CASE_TYPE(ITEM_STATEMENT_OF_PREPROCESSORLINE)
+    CASE_TYPE(ITEM_STATEMENT_OF_UNION)
+    CASE_TYPE(ITEM_STATEMENT_OF_UNION_UNNAME)
+    CASE_TYPE(ITEM_STATEMENT_OF_DEFINE)
+    CASE_TYPE(ITEM_STATEMENT_OF_CLASS)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_SIGNATURE)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_STRUCT)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_UNION)
+    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_ENUM)
+    CASE_TYPE(ITEM_STATEMENT_OF_INCLUDE)
+    CASE_TYPE(ITEM_STATEMENT_OF_FUNCTION)
+    CASE_TYPE(ITEM_STATEMENT_OF_OPERATOR)
+    CASE_TYPE(ITEM_STATEMENT_OF_TEMPLATE)
+    CASE_TYPE(ITEM_STATEMENT_OF_ASSIGN)
+
+    default:
+      break;
+  }
+
+  return "";
+}
+
 
 namespace
 {
@@ -238,8 +306,8 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_OPERATOR] = &StatementOfOperator::isValid;
       verifiers_[boost::wave::T_PP_UNDEF] = &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_WARNING] = &StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_IF] =&StatementOfPreprocessorDirectives::isValid;
-      verifiers_[boost::wave::T_PP_ELSE] =&StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_IF] = &StatementOfPreprocessorDirectives::isValid;
+      verifiers_[boost::wave::T_PP_ELSE] = &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_IFDEF] =  &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_IFNDEF] =  &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_PRAGMA] = &StatementOfPreprocessorDirectives::isValid;
@@ -581,41 +649,73 @@ getTokenId(const Token& token)
 
 } //unname namespace
 
-Statement&
-Statement::add()
+Statement::Statement(const Statement& object)
 {
-  Statement branch(Token("branch", 0, 0, "unknown"));
-  branch.parentId_ = id_;
-  branch.parent_ = this;
-  branch.doc_ = doc_;
-  branch.type_ = TYPE_ITEM_STATEMENT;
-
-  statementSequence_.push_back(branch);
-
-  StatementsBuilder::addNodeToCollection(statementSequence_.back());
-
-  return statementSequence_.back();
+  this->operator=(object);
 }
 
+Statement&
+Statement::operator=(const Statement& object)
 
-std::map<std::size_t, Statement*> statementsCollection_;
-
-Statement::Statement(const Statement& object)
-: parentId_(object.parentId_)
-, doc_(object.doc_)
-, token_(object.token_)
-, type_(object.type_)
-, id_(object.id_)
-, parent_(object.parent_)
 {
+  if(this == &object)
+  {
+     return *this;
+  }
+
+  parentId_ = object.parentId_;
+  parent_ = object.parent_;
+  doc_ = object.doc_;
+  token_ = object.token_;
+  type_ = object.type_;
+  id_ = object.id_;
+
   StatementSequence::const_iterator it = object.statementSequence_.begin();
   StatementSequence::const_iterator end = object.statementSequence_.end();
 
   std::copy(it, end, std::back_inserter<StatementSequence>(statementSequence_));
+
+  return *this;
 }
+
+Statement::Statement()
+: token_("",0,0,"")
+, parentId_(0)
+, doc_(NULL)
+, type_(TYPE_ITEM_TOKEN)
+, parent_(NULL)
+{
+
+  id_ = 0;
+}
+
+Statement::Statement(const Token& token)
+: parentId_(0)
+, doc_(NULL)
+, token_(token)
+, type_(TYPE_ITEM_TOKEN)
+, parent_(NULL)
+{
+  static std::size_t id = 0;
+
+  id_ = ++id;
+}
+
 
 Statement::~Statement()
 {
+}
+
+Statement&
+Statement::getFront()
+{
+  return statementSequence_.front();
+}
+
+Statement&
+Statement::getBack()
+{
+  return statementSequence_.back();
 }
 
 bool
@@ -633,21 +733,41 @@ Statement::operator==(const Statement& statement) const
   return isEqual && id_ == statement.id_;
 }
 
+Statement&
+Statement::add()
+{
+  Statement branch(Token("branch", 0, 0, "unknown"));
+
+  branch.parentId_ = id_;
+  branch.parent_ = this;
+  branch.doc_ = doc_;
+  branch.type_ = TYPE_ITEM_STATEMENT;
+
+  statementSequence_.push_back(branch);
+
+  return statementSequence_.back();
+}
+
 void
 Statement::push(const Token& token)
 {
   Statement item(token);
+
   item.parentId_ = id_;
   item.parent_ = this;
   item.doc_ = doc_;
 
   statementSequence_.push_back(item);
-  StatementsBuilder::addNodeToCollection(statementSequence_.back());
 }
 
 const Statement&
 Statement::getParent()
 {
+  std::stringstream out;
+  out << "Parent: "<<typesToString(parent_->type_)<<std::endl;
+
+  Plugins::Message::get_mutable_instance().show(out.str());
+
   return *parent_;
 }
 
@@ -656,8 +776,6 @@ Statement::getToken()
 {
   return token_;
 }
-
-static bool isFunction_ = false;
 
 Statement
 StatementsBuilder::create(Token token, Tokens::TokenSequence& tokenCollection)
@@ -889,6 +1007,8 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
   Tokens::TokenSequence::const_iterator semicolonMatched =
     std::find_if(it, end, IsTokenWithName(SEMICOLON_TOKEN_NAME));
 
+  IS_EQUAL_RETURN_FALSE(semicolonMatched, end);
+
   if (it == semicolonMatched)
   {
     push(*it);
@@ -921,7 +1041,6 @@ StatementsBuilder::parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::con
 
   return successful;
 }
-
 
 void
 StatementsBuilder::parse(TokenSequenceConstIterator& it,
@@ -963,15 +1082,14 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
       break;
     }
 
-    if (StatementOfFunction::isValid(it, end) == true && isFunction_ == false)
+    if (StatementOfFunction::isValid(it, end) == true && statement_.doc_->isFunction() == false)
     {
-      isFunction_ = true;
       StatementOfFunction::create(statement_, it, end);
+
       IS_EQUAL_BREAK(it, end);
-      isFunction_ = false;
+
       break;
     }
-
 
     if (id == boost::wave::T_RIGHTPAREN)
     {
@@ -986,15 +1104,11 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
     }
 
     if (id == boost::wave::T_COLON &&
-        isFunction_ == true &&
-        statement_.parent_ != NULL)
+        statement_.doc_->isFunction() == true &&
+        statement_.doc_->isUnion() == false)
     {
-      if (statement_.parent_->type_ == Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS &&
-          statement_.parent_->parent_->type_ != Statement::TYPE_ITEM_STATEMENT_OF_UNION)
-      {
-        push(*it);
-        break;
-      }
+      push(*it);
+      break;
     }
 
     if (id == boost::wave::T_SEMICOLON)
@@ -1025,95 +1139,92 @@ StatementsBuilder::requiredContinue()
   return false;
 }
 
-void StatementsBuilder::addNodeToCollection(Statement& node)
+bool
+StatementsBuilder::isSignature(const Statement& root)
 {
-  statementsCollection_[node.id_] = &node;
-}
+  Statement::StatementSequence::const_iterator it = root.statementSequence_.begin();
+  Statement::StatementSequence::const_iterator end = root.statementSequence_.end();
 
-#define CASE_TYPE(item) \
-{ \
-  case Vera::Structures::Statement::TYPE_##item: \
-     return "TYPE_"#item; \
-} 
-
-
-static std::string
-typesToString(Statement::TypeItem type)
-{
-  using Vera::Structures::Statement;
-
-  switch(type)
+  if (root.type_ == Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATE)
   {
-    CASE_TYPE(ITEM_TOKEN)
-    CASE_TYPE(ITEM_STATEMENT)
-    CASE_TYPE(ITEM_ROOT)
-    CASE_TYPE(ITEM_STATEMENT_OF_IF)
-    CASE_TYPE(ITEM_STATEMENT_OF_FORLOOP)
-    CASE_TYPE(ITEM_STATEMENT_OF_WHILELOOP)
-    CASE_TYPE(ITEM_STATEMENT_OF_TRYCATCHES)
-    CASE_TYPE(ITEM_STATEMENT_OF_CATCH)
-    CASE_TYPE(ITEM_STATEMENT_OF_DOWHILELOOP)
-    CASE_TYPE(ITEM_STATEMENT_OF_WHILE)
-    CASE_TYPE(ITEM_STATEMENT_OF_ELSE)
-    CASE_TYPE(ITEM_STATEMENT_OF_SWITCH)
-    CASE_TYPE(ITEM_STATEMENT_OF_NAMESPACE)
-    CASE_TYPE(ITEM_STATEMENT_OF_NAMESPACE_UNNAME)
-    CASE_TYPE(ITEM_STATEMENT_OF_STRUCT)
-    CASE_TYPE(ITEM_STATEMENT_OF_STRUCT_UNNAME)
-    CASE_TYPE(ITEM_STATEMENT_OF_ACCESSMODIFIERS)
-    CASE_TYPE(ITEM_STATEMENT_OF_DEFAULT)
-    CASE_TYPE(ITEM_STATEMENT_OF_CASE)
-    CASE_TYPE(ITEM_STATEMENT_OF_HERITAGE)
-    CASE_TYPE(ITEM_STATEMENT_OF_DECLARATION_LIST)
-    CASE_TYPE(ITEM_STATEMENT_OF_INITIALIZER_LIST)
-    CASE_TYPE(ITEM_STATEMENT_OF_OPERATORTERNARIO)
-    CASE_TYPE(ITEM_STATEMENT_OF_EXTERN)
-    CASE_TYPE(ITEM_STATEMENT_OF_TEMPLATEPARAMETERS)
-    CASE_TYPE(ITEM_STATEMENT_OF_ENUM)
-    CASE_TYPE(ITEM_STATEMENT_OF_ENUM_UNNAME)
-    CASE_TYPE(ITEM_STATEMENT_OF_PARENSARGUMENTS)
-    CASE_TYPE(ITEM_STATEMENT_OF_BRACKETSARGUMENTS)
-    CASE_TYPE(ITEM_STATEMENT_OF_BRACESARGUMENTS)
-    CASE_TYPE(ITEM_STATEMENT_OF_PREPROCESSORLINE)
-    CASE_TYPE(ITEM_STATEMENT_OF_UNION)
-    CASE_TYPE(ITEM_STATEMENT_OF_UNION_UNNAME)
-    CASE_TYPE(ITEM_STATEMENT_OF_DEFINE)
-    CASE_TYPE(ITEM_STATEMENT_OF_CLASS)
-    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF)
-    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_SIGNATURE)
-    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_STRUCT)
-    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_UNION)
-    CASE_TYPE(ITEM_STATEMENT_OF_TYPEDEF_ENUM)
-    CASE_TYPE(ITEM_STATEMENT_OF_INCLUDE)
-    CASE_TYPE(ITEM_STATEMENT_OF_FUNCTION)
-    CASE_TYPE(ITEM_STATEMENT_OF_OPERATOR)
-    CASE_TYPE(ITEM_STATEMENT_OF_TEMPLATE)
-    CASE_TYPE(ITEM_STATEMENT_OF_ASSIGN)
+    for (;it != end; ++it)
+    {
+      if (it->type_ == Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS)
+      {
+        break;
+      }
 
-    default:
-      break;
+      if (it->type_ != Statement::TYPE_ITEM_TOKEN)
+      {
+        return false;
+      }
+    }
+
+    for (;it != end; ++it)
+    {
+      if (it->type_ != Statement::TYPE_ITEM_TOKEN)
+      {
+        break;
+      }
+    }
+
+    if (it->type_ == Statement::TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS)
+    {
+      ++it;
+
+      for (;it != end; ++it)
+      {
+        if (it->type_ != Statement::TYPE_ITEM_TOKEN)
+        {
+          break;
+        }
+      }
+    }
+
+    if (it != end)
+    {
+      return isSignature(*it);
+    }
   }
 
-  return "";
-}
-
-
-Statement*
-StatementsBuilder::getNodeToCollection(std::size_t id)
-{
-  std::map<std::size_t, Statement*>::iterator it = statementsCollection_.find(id);
-
-  if (it == statementsCollection_.end())
+  if (root.type_ == Statement::TYPE_ITEM_STATEMENT)
   {
-    return NULL;
+    bool hasArguments = false;
+
+    for (;it != end; ++it)
+    {
+      if (it->type_  == Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS)
+      {
+        hasArguments = true;
+        ++it;
+        break;
+      }
+    }
+
+    const Statement& lastItem = root.statementSequence_.back();
+
+    if (lastItem.type_ == Statement::TYPE_ITEM_STATEMENT_OF_ASSIGN && hasArguments == true)
+    {
+      return true;
+    }
+
+    if (IsTokenWithId(boost::wave::T_SEMICOLON)(lastItem.token_) == true && hasArguments == true)
+    {
+      return true;
+    }
   }
 
+  return false;
+}
+
+std::string
+StatementsBuilder::getDefaultName()
+{
   std::stringstream out;
-  out << "Parent: "<<typesToString(statementsCollection_[id]->type_)<<std::endl;
 
-  Plugins::Message::get_mutable_instance().show(out.str());
+  out<<"_"<<statement_.id_<<"__";
 
-  return statementsCollection_[id];
+  return out.str();
 }
 
 }

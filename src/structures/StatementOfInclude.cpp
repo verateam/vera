@@ -7,6 +7,7 @@
 
 #include "StatementOfInclude.h"
 #include "IsTokenWithName.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
@@ -61,6 +62,10 @@ StatementOfInclude::initialize(Tokens::TokenSequence::const_iterator& it,
 
   push(*it);
 
+  std::string content = it->value_;
+
+  current.doc_->parseHeader(getPath(*it));
+
   ++it;
 }
 
@@ -81,6 +86,26 @@ StatementOfInclude::create(Statement& statement,
 
   return true;
 }
+
+std::string
+StatementOfInclude::getPath (const Token& item)
+{
+  std::string content = item.value_;
+
+  char endChar = (item.name_.compare(TOKEN_NAME) == 0 ? '>' : '\"');
+  char beginChar = (item.name_.compare(TOKEN_NAME) == 0 ? '<' : '\"');
+
+  std::size_t end = content.find_last_of(endChar);
+
+  std::size_t begin = content.find_last_of(beginChar);
+
+  if (begin != std::string::npos && end != std::string::npos) {
+    std::string filePath(content.substr(begin+1, end-begin-1).c_str());
+  }
+
+ return "";
+}
+
 
 } // Vera namespace
 } // Structures namespace

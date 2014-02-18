@@ -13,6 +13,7 @@
 #include "StatementOfClass.h"
 #include "StatementOfTemplateParameters.h"
 #include "StatementOfParensArguments.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
@@ -66,6 +67,31 @@ namespace Vera
 namespace Structures
 {
 
+static std::string getIdentifier(const Statement& current)
+{
+  Statement::StatementSequence::const_iterator it = current.statementSequence_.begin();
+  Statement::StatementSequence::const_iterator end = current.statementSequence_.end();
+
+  for (; it != end; ++it)
+  {
+    if (it->type_ == Statement::TYPE_ITEM_STATEMENT)
+    {
+      return getIdentifier(*it);
+    }
+
+    if (it->type_ == Statement::TYPE_ITEM_TOKEN)
+    {
+      const Token& token = it->token_;
+
+      if (token.name_.compare("identifier") == 0)
+      {
+        return token.value_;
+      }
+    }
+  }
+
+}
+
 StatementOfTypedef::StatementOfTypedef(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
@@ -94,10 +120,7 @@ StatementOfTypedef::isSignature(Tokens::TokenSequence::const_iterator it,
     end,
     IsTokenWithName(SEMICOLON_TOKEN_NAME));
 
-  if (semicolonMatched == end)
-  {
-    return false;
-  }
+  IS_EQUAL_RETURN_FALSE(semicolonMatched, end);
 
   Tokens::TokenSequence::const_iterator leftParenMatched = std::find_if(it,
     semicolonMatched,
@@ -146,6 +169,8 @@ void
 StatementOfTypedef::parseSignature(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
+  std::string name = getDefaultName();
+
   Tokens::TokenSequence::const_iterator semicolonMatched = std::find_if(it,
     end,
     IsTokenWithName(SEMICOLON_TOKEN_NAME));
@@ -169,12 +194,19 @@ StatementOfTypedef::parseSignature(Tokens::TokenSequence::const_iterator& it,
   {
     Statement& current = add();
     StatementOfParensArguments branch(current, it, semicolonMatched);
+
+    name = getIdentifier(current);
   }
 
   addEachInvalidToken(it, semicolonMatched);
 
+  parseScope(it, semicolonMatched);
+
+
   {
-    parseScope(it, semicolonMatched);
+    Statement& current = getCurrentStatement();
+
+    current.doc_->addTypedef(name, current.id_);
   }
 
   push(*it);
@@ -314,6 +346,7 @@ StatementOfTypedef::create(Statement& statement,
   {
     root.parse(it, end);
   }
+
   return true;
 }
 

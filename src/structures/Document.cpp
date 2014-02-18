@@ -8,6 +8,8 @@
 #include "Document.h"
 #include "IsTokenWithName.h"
 #include "TokensIterator.h"
+#include "SourceFiles.h"
+#include "../plugins/Messages.h"
 
 #include <vector>
 #include <map>
@@ -17,10 +19,11 @@
 #include <string>
 #include <vector>
 #include <boost/bind.hpp>
+#include <boost/thread.hpp>
 #include <boost/function.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
-#include "SourceFiles.h"
-#include "../plugins/Messages.h"
+#include <unistd.h>
+#include <boost/asio/io_service.hpp>
 
 #define SYSTEM_INCLUDE_LABEL "sysInclude"
 #define INCLUDE_LABEL "include"
@@ -62,9 +65,9 @@ std::vector<std::string> sysIncludes_;
 std::vector<std::string> preDefines_;
 std::vector<std::string> types_;
 std::vector<std::string> structures_;
-typedef std::map< std::string, boost::shared_ptr<Document> > DocumentSequence;
+typedef std::map<std::string, boost::shared_ptr<Document> > DocumentSequence;
 typedef std::map<std::size_t, StatementOfDefine> StatementOfDefineSequence;
-typedef std::map< std::size_t, StatementOfStruct> StatementOfStructSequence;
+typedef std::map<std::size_t, StatementOfStruct> StatementOfStructSequence;
 typedef std::map<std::size_t, StatementOfEnum> StatementOfEnumSequence;
 typedef std::map<std::size_t, StatementOfUnion> StatementOfUnionSequence;
 DocumentSequence documents_;
@@ -74,43 +77,139 @@ StatementOfUnionSequence unions_;
 
 } // unname namespace
 
-
 void
 Documents::initialize()
 {
-   const SourceFiles::FileNameSet& files = SourceFiles::getAllFileNames();
+  boost::asio::io_service ioService;
+  boost::asio::io_service::work work(ioService);
 
-   for (SourceFiles::FileNameSet::const_iterator it = files.begin(); it != files.end();  ++it )
-   {
-     std::string fileName = *it;
-     Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName);
+  const SourceFiles::FileNameSet& files = SourceFiles::getAllFileNames();
 
-     boost::shared_ptr<Document> doc = boost::make_shared<Document>(fileName);
-     doc->initialize();
-     documents_[fileName] = doc;
-   }
+  boost::thread_group threadPool;
+
+  //TODO: Pending improvement to handle the pool thread.
+
+  threadPool.create_thread(
+      boost::bind(&boost::asio::io_service::run, &ioService)
+  );
+
+  threadPool.create_thread(
+      boost::bind(&boost::asio::io_service::run, &ioService)
+  );
+
+  threadPool.create_thread(
+      boost::bind(&boost::asio::io_service::run, &ioService)
+  );
+
+  threadPool.create_thread(
+      boost::bind(&boost::asio::io_service::run, &ioService)
+  );
+
+  threadPool.create_thread(
+      boost::bind(&boost::asio::io_service::run, &ioService)
+  );
+
+  for (SourceFiles::FileNameSet::const_iterator it = files.begin();
+      it != files.end(); ++it)
+  {
+    std::string fileName = *it;
+    Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName);
+
+    ioService.post(boost::bind(&Documents::parse, this, fileName));
+  }
+
+  ioService.stop();
+
+  threadPool.join_all();
+}
+
+void
+Documents::parse(std::string fileName)
+{
+  boost::shared_ptr<Document> doc = Document::create (fileName);
+
+  doc->initialize();
 }
 
 Document::Document(const std::string& name)
-: fileName_(name)
-, root_(Token("root",0,0,"unknown"))
+    : fileName_(name)
+        , root_(Token("root", 0, 0, "unknown"))
+        , wasInitialized_(false)
+, isFunction_(false)
+, isUnion_(false)
 {
-  StatementsBuilder::addNodeToCollection(root_);
   root_.parentId_ = root_.id_;
-  root_.parent_ = &root_;
   root_.doc_ = this;
   root_.type_ = Statement::TYPE_ITEM_ROOT;
+
+  paths_.set_current_directory(name.c_str());
+
+  boost::filesystem::path path = paths_.get_current_directory();
+
+  std::stringstream out;
+
+  out << "Path: " << path.c_str() << std::endl;
+
+  addIncludePath(path.c_str());
+
+  Plugins::Message::get_mutable_instance().show(out.str());
 }
 
 void
 Document::initialize()
 {
- Tokens::TokenSequence& collection = collection_;
- Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName_);
+  boost::mutex::scoped_lock lock(mutex_);
 
- std::copy(tokens.begin(), tokens.end(), std::back_inserter(collection_));
+  if (wasInitialized_)
+  {
+    return;
+  }
 
- parse();
+  std::for_each(includes_.begin(),
+      includes_.end(),
+      boost::bind(&Document::addIncludePath,
+          boost::ref(*this),
+          _1));
+
+  std::for_each(sysIncludes_.begin(),
+      sysIncludes_.end(),
+      boost::bind(&Document::addSysIncludePath,
+          boost::ref(*this),
+          _1));
+
+  Tokens::TokenSequence& collection = collection_;
+  Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName_);
+
+  std::copy(tokens.begin(), tokens.end(), std::back_inserter(collection_));
+
+  parse();
+  wasInitialized_ = true;
+}
+
+bool
+Document::addIncludePath(const std::string& path)
+{
+  std::stringstream out;
+  bool response = paths_.add_include_path(path.c_str(), false);
+
+  out << "add include path: " <<path<< " "<< response <<std::endl;
+
+  Plugins::Message::get_mutable_instance().show(out.str());
+
+  return response;
+}
+
+bool
+Document::addSysIncludePath(const std::string& path)
+{
+  std::stringstream out;
+  bool response = paths_.add_include_path(path.c_str(), true);
+
+  out << "add sysInclude path: " <<path<< " "<< response <<std::endl;
+
+  Plugins::Message::get_mutable_instance().show(out.str());
+
+  return response;
 }
 
 static std::string toString(const std::string& path)
@@ -133,8 +232,8 @@ removeCommentsOfConfigFile(const std::string& line)
   {
     return response;
   }
-  std::string::size_type pos = line.find("#");
 
+  std::string::size_type pos = line.find("#");
 
   if (pos < line.size())
   {
@@ -151,9 +250,9 @@ removeCommentsOfConfigFile(const std::string& line)
 void addParameterToContext(const std::string& line)
 {
   if (line.empty())
-   {
-     return;
-   }
+  {
+    return;
+  }
 
   std::string::size_type pos = line.find("+=");
   if (pos != std::string::npos)
@@ -176,9 +275,9 @@ void addParameterToContext(const std::string& line)
   }
   else
   {
-      std::ostringstream ss;
-      ss << "Invalid parameter association: " << line;
-      throw Vera::Structures::DocumentError(ss.str());
+    std::ostringstream ss;
+    ss << "Invalid parameter association: " << line;
+    throw Vera::Structures::DocumentError(ss.str());
   }
 }
 
@@ -189,15 +288,15 @@ Document::readConfigFile(std::istream& in)
   int lineNumber = 0;
   while (std::getline(in, line))
   {
-      ++lineNumber;
+    ++lineNumber;
 
-      if (line.empty())
-      {
-          continue;
-      }
+    if (line.empty())
+    {
+      continue;
+    }
 
-      std::string content = removeCommentsOfConfigFile(line);
-      addParameterToContext(content);
+    std::string content = removeCommentsOfConfigFile(line);
+    addParameterToContext(content);
   }
 }
 
@@ -212,18 +311,18 @@ Document::readConfigFile(const std::string& fileName)
   std::ifstream file(fileName.c_str());
   if (file.is_open() == false)
   {
-      std::ostringstream ss;
-      ss << "Cannot open config file " << fileName << ": "
-         << strerror(errno);
-      throw DocumentError(ss.str());
+    std::ostringstream ss;
+    ss << "Cannot open config file " << fileName << ": "
+        << strerror(errno);
+    throw DocumentError(ss.str());
   }
 
   readConfigFile(file);
 
   if (file.bad())
   {
-      throw std::ios::failure(
-          "Cannot read from " + fileName + ": " + strerror(errno));
+    throw std::ios::failure(
+        "Cannot read from " + fileName + ": " + strerror(errno));
   }
 
   file.close();
@@ -232,16 +331,16 @@ Document::readConfigFile(const std::string& fileName)
 void
 Document::parse()
 {
-
   Tokens::TokenSequence::const_iterator it = collection_.begin();
   Tokens::TokenSequence::const_iterator end = collection_.end();
 
   std::stringstream out;
 
-  out << "Parse: "<<fileName_<<std::endl;
+  out << "Parse: " << fileName_ << std::endl;
 
   Plugins::Message::get_mutable_instance().show(out.str());
-  for (;it < end; ++it)
+
+  for (; it < end; ++it)
   {
     if (it->name_ == EOF_TOKEN_NAME)
     {
@@ -252,6 +351,13 @@ Document::parse()
     {
       StatementsBuilder partial(root_);
       partial.builder(it, end);
+
+      if (partial.isSignature(root_.getBack()))
+      {
+        root_.getBack().type_ =
+            Statement::TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION;
+      }
+
       if (it != end && IsValidTokenForStatement()(*it) == false)
       {
         root_.push(*it);
@@ -270,9 +376,13 @@ Document::getRoot()
   return root_;
 }
 
+boost::mutex _mutex_;
+
 boost::shared_ptr<Document>
 Document::create(std::string fileName)
 {
+  boost::mutex::scoped_lock lock(_mutex_);
+
   DocumentSequence::const_iterator it = documents_.find(fileName);
 
   if (it != documents_.end())
@@ -280,7 +390,145 @@ Document::create(std::string fileName)
     return it->second;
   }
 
+  const SourceFiles::FileNameSet& files = SourceFiles::getAllFileNames();
+
+  if (files.find(fileName) !=  files.end())
+  {
+    boost::shared_ptr<Document> doc = boost::make_shared < Document > (fileName);
+
+    documents_[fileName] = doc;
+
+    return doc;
+  }
+
   return boost::shared_ptr<Document>();
+}
+
+void
+Document::addDefine(std::string name, std::size_t id)
+{
+  defineMap_[id] = name;
+}
+void
+Document::addStruct(std::string name, std::size_t id)
+{
+  structMap_[id] = name;
+}
+
+void
+Document::addEnum(std::string name, std::size_t id)
+{
+  enumMap_[id] = name;
+}
+
+void
+Document::addClass(std::string name, std::size_t id)
+{
+  classMap_[id] = name;
+}
+
+void
+Document::addUnion(std::string name, std::size_t id)
+{
+  unionMap_[id] = name;
+}
+
+void
+Document::addTypedef(std::string name, std::size_t id)
+{
+  typedefMap_[id] = name;
+}
+
+Document::RegisterItems
+Document::getRegisterDefine()
+{
+  return defineMap_;
+}
+
+Document::RegisterItems
+Document::getRegisterStruct()
+{
+  return structMap_;
+}
+
+Document::RegisterItems
+Document::getRegisterEnum()
+{
+  return enumMap_;
+}
+
+Document::RegisterItems
+Document::getRegisterClass()
+{
+  return classMap_;
+}
+
+Document::RegisterItems
+Document::getRegisterTypedef()
+{
+  return typedefMap_;
+}
+
+void
+Document::parseHeader(const std::string& content)
+{
+  std::string file = content;
+  boost::filesystem::path path = paths_.get_current_directory();
+  std::string dir = "";
+
+  bool response = paths_.find_include_file(file, dir, false, NULL);
+
+  if (response == true)
+  {
+    std::stringstream out;
+
+    out << "header file: " << file << "  "<<content << content<< std::endl;
+
+    Plugins::Message::get_mutable_instance().show(out.str());
+
+    boost::shared_ptr<Document> doc = Document::create(file);
+
+    if (doc)
+    {
+      doc->initialize();
+    }
+  }
+}
+
+void
+Document::enableUnion()
+{
+  isUnion_ = true;
+}
+
+void
+Document::disableUnion()
+{
+  isUnion_ = false;
+}
+
+void
+Document::enableFunction()
+{
+  isFunction_ = true;
+}
+
+void
+Document::disableFunction()
+{
+  isFunction_ = false;
+}
+
+bool
+Document::isFunction()
+{
+  return isFunction_;
+}
+
+bool
+Document::isUnion()
+{
+  return isUnion_;
 }
 
 } // Vera namespace

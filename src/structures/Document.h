@@ -13,6 +13,8 @@
 #include "StatementOfStruct.h"
 #include "StatementOfUnion.h"
 #include "StatementOfEnum.h"
+#include <boost/thread/mutex.hpp>
+#include <boost/wave/util/cpp_include_paths.hpp>
 
 #include <string>
 #include <vector>
@@ -43,6 +45,10 @@ public:
 class Document
 : private boost::noncopyable
 {
+  public:
+
+    typedef std::map<std::size_t, std::string> RegisterItems;
+
   public:
 
     Document(const std::string& name);
@@ -82,15 +88,58 @@ class Document
      */
     static boost::shared_ptr<Document> create(std::string fileName);
 
-    //static void registerStruct(StatementOfStruct );
+    void addDefine(std::string name, std::size_t id);
+    void addStruct(std::string name, std::size_t id);
+    void addEnum(std::string name, std::size_t id);
+    void addClass(std::string name, std::size_t id);
+    void addUnion(std::string name, std::size_t id);
+    void addTypedef(std::string name, std::size_t id);
+
+
+    bool addIncludePath(const std::string& path);
+    bool addSysIncludePath(const std::string& path);
+
+    RegisterItems getRegisterDefine();
+    RegisterItems getRegisterStruct();
+    RegisterItems getRegisterEnum();
+    RegisterItems getRegisterClass();
+    RegisterItems getRegisterTypedef();
+
+    void parseHeader(const std::string& content);
 
     void initialize();
+
+    void enableUnion();
+
+    void disableUnion();
+
+    void enableFunction();
+
+    void disableFunction();
+
+
+    bool isFunction();
+
+    bool isUnion();
 
   private:
 
     std::string fileName_;
     Statement root_;
+    RegisterItems defineMap_;
+    RegisterItems structMap_;
+    RegisterItems enumMap_;
+    RegisterItems classMap_;
+    RegisterItems unionMap_;
+    RegisterItems typedefMap_;
+    boost::wave::util::include_paths paths_;
+
+
     Tokens::TokenSequence collection_;
+    bool wasInitialized_;
+    bool isFunction_;
+    bool isUnion_;
+    boost::mutex mutex_;
 };
 
 
@@ -98,6 +147,8 @@ class Documents
 {
   public:
    void initialize();
+
+   void parse(std::string fileName);
 };
 
 } // namespace Structures

@@ -55,10 +55,9 @@ StatementOfNamespace::StatementOfNamespace(Statement& statement,
 : StatementsBuilder(statement)
 {
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE_UNNAME;
-  initialize(it, end);
 }
 
-void
+bool
 StatementOfNamespace::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
@@ -69,7 +68,7 @@ StatementOfNamespace::initialize(Tokens::TokenSequence::const_iterator& it,
 
   addEachInvalidToken(it, end);
 
-  IS_EQUAL_RETURN(it, end);
+  IS_EQUAL_RETURN_FALSE(it, end);
 
   if (IsTokenWithName(IDENTIFIER_TOKEN_NAME)(*it) == true )
   {
@@ -80,7 +79,7 @@ StatementOfNamespace::initialize(Tokens::TokenSequence::const_iterator& it,
     current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE;
 
     ++it;
-    IS_EQUAL_RETURN(it, end);
+    IS_EQUAL_RETURN_FALSE(it, end);
   }
   else
   {
@@ -90,9 +89,66 @@ StatementOfNamespace::initialize(Tokens::TokenSequence::const_iterator& it,
   }
 
   addEachInvalidToken(it, end);
-  IS_EQUAL_RETURN(it, end);
+  IS_EQUAL_RETURN_FALSE(it, end);
 
-  parseScope(it, end);
+  return parseScope(it, end);
+}
+
+bool
+StatementOfNamespace::parseScope(Tokens::TokenSequence::const_iterator& it,
+    Tokens::TokenSequence::const_iterator& end)
+{
+  bool successful = false;
+
+  IS_EQUAL_RETURN_FALSE(it, end);
+  if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*it) == false )
+  {
+    return false;
+  }
+
+  Statement& current = add();
+  current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS;
+  StatementsBuilder branch(current);
+
+  branch.push(*it);
+
+  it++;
+
+  Tokens::TokenSequence::const_iterator rightBraceMached = std::find_if(it,
+    end,
+    EndsWithCorrectPattern(LEFTBRACE_TOKEN_NAME, RIGHTBRACE_TOKEN_NAME));
+
+  branch.addEachInvalidToken(it, end);
+
+  while (it < rightBraceMached)
+  {
+    branch.builder(it, rightBraceMached);
+
+    Statement& lastItem = current.getBack();
+
+    if (isSignature(lastItem))
+    {
+      lastItem.type_ = Statement::TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION;
+    }
+
+    ++it;
+    branch.addEachInvalidToken(it, rightBraceMached);
+  }
+
+  if (it >= end)
+  {
+    return false;
+  }
+
+  if (IsTokenWithName(RIGHTBRACE_TOKEN_NAME)(*it) == true)
+  {
+    successful = true;
+
+    branch.push(*it);
+    ++it;
+  }
+
+  return successful;
 }
 
 bool
@@ -137,12 +193,11 @@ StatementOfNamespace::create(Statement& statement,
 {
   bool successful = false;
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfNamespace builder(statement.add(), it, end);
-  }
 
-  return successful;
+  StatementOfNamespace builder(statement.add(), it, end);
+
+
+  return builder.initialize(it, end);
 }
 
 } // Vera namespace

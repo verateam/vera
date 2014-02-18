@@ -7,7 +7,7 @@
 
 #include "StatementOfEnum.h"
 #include "IsTokenWithName.h"
-
+#include "Document.h"
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -53,8 +53,14 @@ StatementOfEnum::StatementOfEnum(Statement& statement,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
 , variables_(NULL)
+, id_(statement.id_)
 {
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME;
+
+  std::stringstream out;
+
+  name_ = getDefaultName();
+
   initialize(it, end);
 }
 
@@ -62,6 +68,8 @@ bool
 StatementOfEnum::parseName(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
+  name_ = it->value_;
+
   push(*it);
   ++it;
 
@@ -171,6 +179,18 @@ StatementOfEnum::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
   return IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*itMatched);
 }
 
+const std::string&
+StatementOfEnum::getName()
+{
+  return name_;
+}
+
+std::size_t
+StatementOfEnum::getId()
+{
+  return id_;
+}
+
 bool
 StatementOfEnum::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
@@ -188,6 +208,8 @@ StatementOfEnum::create(Statement& statement,
   branch.parseName(it, end);
   branch.parseScope(it, end);
   branch.parseVariablesFromScopeToSemicolon(it, end);
+
+  statement.doc_->addEnum(branch.getName(), branch.getId());
 
   return true;
 }

@@ -72,6 +72,13 @@ StatementOfTemplate::initialize(Tokens::TokenSequence::const_iterator& it,
   }
 
   builder(it, end);
+
+  Statement& lastItem = current.getBack();
+
+  if (isSignature(lastItem) == true)
+  {
+    lastItem.type_ = Statement::TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION;
+  }
 }
 
 bool
@@ -89,11 +96,8 @@ StatementOfTemplate::create(Statement& statement,
 {
   bool successful = false;
 
-  if (isValid(it, end) == true)
-  {
-    StatementOfTemplate builder(statement.add(), it, end);
-    successful = true;
-  }
+  StatementOfTemplate builder(statement.add(), it, end);
+  successful = true;
 
   return successful;
 }

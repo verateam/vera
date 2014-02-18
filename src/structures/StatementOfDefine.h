@@ -38,6 +38,10 @@ class StatementOfDefine
         Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
+    const std::string& getName();
+
+    std::size_t getId();
+
   private:
 
     void initialize(Tokens::TokenSequence::const_iterator& it,
@@ -45,6 +49,7 @@ class StatementOfDefine
 
   private:
     std::string name_;
+    std::size_t id_;
     Tokens::TokenSequence*  scope_;
 };
 

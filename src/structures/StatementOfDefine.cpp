@@ -7,6 +7,7 @@
 
 #include "StatementOfDefine.h"
 #include "IsTokenWithName.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
@@ -52,10 +53,24 @@ StatementOfDefine::StatementOfDefine(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
+, id_(statement.id_)
 , scope_(NULL)
 {
+  name_ = getDefaultName();
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_DEFINE;
   initialize(it, end);
+}
+
+const std::string&
+StatementOfDefine::getName()
+{
+  return name_;
+}
+
+std::size_t
+StatementOfDefine::getId()
+{
+  return id_;
 }
 
 void
@@ -98,6 +113,8 @@ StatementOfDefine::initialize(Tokens::TokenSequence::const_iterator& it,
     }
 
     parseScope(it, rightParenMatched);
+
+    current.type_ = Statement::TYPE_ITEM_STATEMENT_OF_DEFINE_SIGNATURE;
   }
 
   addEachInvalidToken(it, endMatched);
@@ -129,7 +146,7 @@ StatementOfDefine::create(Statement& statement,
 {
   StatementOfDefine builder(statement.add(), it, end);
 
-
+  statement.doc_->addDefine(builder.getName(), builder.getId());
   return true;
 }
 

@@ -52,6 +52,10 @@ class StatementOfStruct
     bool parseScope(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
+    const std::string& getName();
+
+    std::size_t getId();
+
     bool parseVariablesFromScopeToSemicolon(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
@@ -62,6 +66,7 @@ class StatementOfStruct
   private:
 
     std::string name_;
+    std::size_t id_;
     Statement::StatementPointer hieritance_;
     Statement::StatementPointer variables_;
 };

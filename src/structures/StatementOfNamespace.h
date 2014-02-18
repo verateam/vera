@@ -41,7 +41,10 @@ class StatementOfNamespace
 
   private:
 
-    void initialize(Tokens::TokenSequence::const_iterator& it,
+    bool parseScope(Tokens::TokenSequence::const_iterator& it,
+        Tokens::TokenSequence::const_iterator& end);
+
+    bool initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
   private:

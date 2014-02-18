@@ -95,18 +95,21 @@ StatementOfAccessModifiers::initialize()
 {
   Statement& current = getCurrentStatement();
 
-  push(*it_);
-  ++it_;
-  IS_EQUAL_RETURN(it_, end_);
-
-  addEachInvalidToken(it_, end_);
-
-  if (it_->name_.compare(COLON_TOKEN_NAME) != 0)
   {
-    return;
-  }
+    StatementsBuilder partial(add());
+    partial.push(*it_);
+    ++it_;
+    IS_EQUAL_RETURN(it_, end_);
 
-  push(*it_);
+    partial.addEachInvalidToken(it_, end_);
+
+    if (it_->name_.compare(COLON_TOKEN_NAME) != 0)
+    {
+      return;
+    }
+
+    partial.push(*it_);
+  }
 
   if (canAdvance(it_+1, end_) == false)
   {
@@ -127,6 +130,13 @@ StatementOfAccessModifiers::initialize()
     else
     {
       builder(it_, end_);
+
+      Statement& lastItem = current.getBack();
+
+      if (isSignature(lastItem) == true)
+      {
+        lastItem.type_ = Statement::TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION;
+      }
     }
 
     IS_EQUAL_BREAK(it_, end_);

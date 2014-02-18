@@ -76,7 +76,9 @@ struct Statement
       TYPE_ITEM_STATEMENT_OF_UNION,
       TYPE_ITEM_STATEMENT_OF_UNION_UNNAME,
       TYPE_ITEM_STATEMENT_OF_DEFINE,
+      TYPE_ITEM_STATEMENT_OF_DEFINE_SIGNATURE,
       TYPE_ITEM_STATEMENT_OF_CLASS,
+      TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION,
       TYPE_ITEM_STATEMENT_OF_TYPEDEF,
       TYPE_ITEM_STATEMENT_OF_TYPEDEF_SIGNATURE,
       TYPE_ITEM_STATEMENT_OF_TYPEDEF_STRUCT,
@@ -97,21 +99,15 @@ struct Statement
 
     typedef std::vector<TypeItem> SequenceOfChilds;
 
-    Statement(const Token& token)
-    : parentId_(0)
-    , doc_(NULL)
-    , token_(token)
-    , type_(TYPE_ITEM_TOKEN)
-    , parent_(NULL)
-    {
-      static std::size_t id = 0;
+    Statement();
 
-      id_ = ++id;
-    }
+    Statement(const Token& token);
+
+    Statement(const Statement& object);
 
     ~Statement();
 
-    Statement(const Statement& object);
+    Statement& operator=(const Statement& object);
 
     void push(const Token& token);
 
@@ -125,8 +121,10 @@ struct Statement
 
     const Token& getToken();
 
-
     const Statement& getParent();
+    
+    Statement& getFront();
+    Statement& getBack();
 
     /**
      * @brief This is the comparison operator required
@@ -144,8 +142,6 @@ struct Statement
   Document* doc_;
   TypeItem type_;
   Statement* parent_;
-
-
 };
 
 /**
@@ -209,7 +205,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
      * @param it The const reference to the first iterator of the collection to be parsed.
      * @param end The const reference to the last iterator of the collection to be parsed.
      */
-    void builder(Tokens::TokenSequence::const_iterator& it,
+     void builder(Tokens::TokenSequence::const_iterator& it,
       Tokens::TokenSequence::const_iterator& end);
 
     /**
@@ -220,11 +216,13 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
     const Statement::StatementSequence& getScope();
 
 
-    static void addNodeToCollection(Statement& node);
+    /*static void addNodeToCollection(Statement& node);*/
 
     static Statement* getNodeToCollection(std::size_t id);
 
     std::size_t getId() const;
+
+    bool isSignature(const Statement& root);
 
   protected:
 
@@ -236,6 +234,7 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
 
 
     void push(const Token& token);
+
 
     /**
      * @brief Gets the parent of the current statement.
@@ -333,8 +332,9 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
 
     virtual bool requiredContinue();
 
-  protected:
+    std::string getDefaultName();
 
+  protected:
 
     std::size_t id_;
 

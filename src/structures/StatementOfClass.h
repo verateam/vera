@@ -42,6 +42,10 @@ class StatementOfClass
 
     bool parseScope();
 
+    const std::string& getName();
+
+    std::size_t getId();
+
     bool parseVariablesFromScopeToSemicolon();
 
     static bool create(Statement& statement,
@@ -51,6 +55,7 @@ class StatementOfClass
   private:
 
     std::string name_;
+    std::size_t id_;
     Statement::StatementPointer scope_;
     Statement::StatementPointer hieritance_;
     Statement::StatementPointer variables_;

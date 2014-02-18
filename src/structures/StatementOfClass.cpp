@@ -8,6 +8,7 @@
 #include "StatementOfClass.h"
 #include "IsTokenWithName.h"
 #include "StatementOfTemplateParameters.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
@@ -56,6 +57,7 @@ StatementOfClass::StatementOfClass(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
+, id_(statement.id_)
 , scope_(NULL)
 , hieritance_(NULL)
 , variables_(NULL)
@@ -68,6 +70,9 @@ StatementOfClass::StatementOfClass(Statement& statement,
   {
     throw StatementsError(IS_NOT_TOKEN);
   }
+
+  name_ = getDefaultName();
+
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_CLASS;
 }
 
@@ -106,6 +111,7 @@ StatementOfClass::parseHeritage()
   bool successful = false;
 
   IS_EQUAL_RETURN_FALSE(it_, end_);
+
   if (IsTokenWithName(COLON_TOKEN_NAME)(*it_) == true )
   {
     StatementsBuilder partial(add());
@@ -122,10 +128,22 @@ StatementOfClass::parseHeritage()
   return successful;
 }
 
+const std::string&
+StatementOfClass::getName()
+{
+  return name_;
+}
+
+std::size_t
+StatementOfClass::getId()
+{
+  return id_;
+}
+
 bool
 StatementOfClass::parseScope()
 {
- /* bool successful = false;
+  bool successful = false;
 
   IS_EQUAL_RETURN_FALSE(it_, end_);
   if (IsTokenWithName(LEFTBRACE_TOKEN_NAME)(*it_) == false )
@@ -139,7 +157,7 @@ StatementOfClass::parseScope()
 
   branch.push(*it_);
 
-  it_++;
+  ++it_;
 
   Tokens::TokenSequence::const_iterator rightBraceMached = std::find_if(it_,
     end_,
@@ -149,24 +167,33 @@ StatementOfClass::parseScope()
 
   while (it_ < rightBraceMached)
   {
-    //TODO constructors??
-    branch.parse(it_, rightBraceMached);
+    branch.builder(it_, rightBraceMached);
 
+    Statement& lastItem = current.getBack();
+
+    if (isSignature(lastItem))
+    {
+      lastItem.type_ = Statement::TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION;
+    }
+
+    ++it_;
     branch.addEachInvalidToken(it_, rightBraceMached);
+  }
+
+  if (it_ >= end_)
+  {
+    return false;
+  }
+
+  if (IsTokenWithName(RIGHTBRACE_TOKEN_NAME)(*it_) == true)
+  {
+    successful = true;
 
     branch.push(*it_);
     ++it_;
   }
 
-//  if (it_ < end_)
-//  {
-//    branch.push(*it_);
-//    ++it_;
-//  }
-
-  scope_ = &current;*/
-  StatementsBuilder::parseScope(it_, end_);
-  return true;
+  return successful;
 }
 
 bool
@@ -239,8 +266,7 @@ StatementOfClass::isValid(Tokens::TokenSequence::const_iterator it,
     return false;
   }
 
-  Token aux("", 0, 0, "");
-  Statement auxiliar(aux);
+  Statement auxiliar;
   StatementsBuilder partial(auxiliar);
 
   if (partial.parseHeritage(itMatched, end) == false)
@@ -284,6 +310,8 @@ StatementOfClass::create(Statement& statement,
   builder.parseHeritage();
   builder.parseScope();
   builder.parseVariablesFromScopeToSemicolon();
+
+  statement.doc_->addClass(builder.getName(), builder.getId());
 
   return true;
 }

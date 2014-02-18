@@ -8,6 +8,7 @@
 #include "StatementOfStruct.h"
 #include "IsTokenWithName.h"
 #include "StatementOfTemplateParameters.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
@@ -58,8 +59,12 @@ StatementOfStruct::StatementOfStruct(Statement& statement,
 : StatementsBuilder(statement)
 , hieritance_(NULL)
 , variables_(NULL)
+, id_(statement.id_)
 {
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_STRUCT_UNNAME;
+
+  name_ = getDefaultName();
+
   initialize(it, end);
 }
 
@@ -151,8 +156,15 @@ StatementOfStruct::parseScope(Tokens::TokenSequence::const_iterator& it,
 
   while (it < rightBraceMached)
   {
-    //TODO constructors??
     branch.builder(it, rightBraceMached);
+
+    Statement& lastItem = current.getBack();
+
+    if (isSignature(lastItem))
+    {
+      lastItem.type_ = Statement::TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION;
+    }
+
     ++it;
     branch.addEachInvalidToken(it, rightBraceMached);
   }
@@ -218,8 +230,8 @@ StatementOfStruct::isValidWithoutName(Tokens::TokenSequence::const_iterator it,
     return false;
   }
 
-  Token aux("",0,0,"");
-  Statement auxiliar(aux);
+  Statement auxiliar;
+
   StatementsBuilder partial(auxiliar);
 
   if (partial.parseHeritage(itMatched, end) == false)
@@ -294,8 +306,8 @@ StatementOfStruct::isValidWithName(Tokens::TokenSequence::const_iterator it,
     return false;
   }
 
-  Token aux("", 0, 0, "");
-  Statement auxiliar(aux);
+
+  Statement auxiliar;
   StatementsBuilder partial(auxiliar);
 
   if (partial.parseHeritage(itMatched, end) == false)
@@ -315,6 +327,18 @@ StatementOfStruct::isValidWithName(Tokens::TokenSequence::const_iterator it,
   }
 
   return false;
+}
+
+const std::string&
+StatementOfStruct::getName()
+{
+  return name_;
+}
+
+std::size_t
+StatementOfStruct::getId()
+{
+  return id_;
 }
 
 bool
@@ -362,6 +386,8 @@ StatementOfStruct::create(Statement& statement,
     builder.parseHeritage(it, end);
     builder.parseScope(it, end);
     builder.parseVariablesFromScopeToSemicolon(it, end);
+
+    statement.doc_->addStruct(builder.getName(), builder.getId());
 
     successful = true;
   }

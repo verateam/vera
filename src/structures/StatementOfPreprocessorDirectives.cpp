@@ -67,7 +67,9 @@ void
 StatementOfPreprocessorDirectives::initialize(Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  Tokens::TokenSequence::const_iterator endMatched = std::find_if(it, end, IsTokenWithName(NEWLINE_TOKEN_NAME));
+  Tokens::TokenSequence::const_iterator endMatched = std::find_if(it,
+      end,
+      IsTokenWithName(NEWLINE_TOKEN_NAME));
   push(*it);
   ++it;
   parse(it, endMatched);

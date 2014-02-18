@@ -104,7 +104,7 @@ bool
 StatementOfTemplateParameters::isValid(Tokens::TokenSequence::const_iterator it,
   Tokens::TokenSequence::const_iterator end)
 {
-  static std::vector<std::string> invalidTokens;
+  std::vector<std::string> invalidTokens;
 
   invalidTokens.push_back(OROR_TOKEN_NAME);
   invalidTokens.push_back(ANDAND_TOKEN_NAME);
@@ -163,7 +163,6 @@ StatementOfTemplateParameters::create(Statement& statement,
   }
 
   Statement& current = statement.add();
-  current.parent_ = lastItem;
   current.parentId_ = lastItem->id_;
 
   StatementOfTemplateParameters builder(current, it, end);

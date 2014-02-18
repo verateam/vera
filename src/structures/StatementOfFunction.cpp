@@ -9,6 +9,7 @@
 #include "StatementOfFunction.h"
 #include "StatementOfOperator.h"
 #include "IsTokenWithName.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
@@ -188,7 +189,7 @@ StatementOfFunction::isValid(Tokens::TokenSequence::const_iterator it,
       StatementOfOperator::isValid(operatorMatched, leftbrace)== true)
   {
     it = operatorMatched;
-    Statement aux(Token("", 0, 0, ""));
+    Statement aux;
     StatementOfOperator::create(aux, it, leftbrace);
   }
 
@@ -249,7 +250,11 @@ StatementOfFunction::create(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 {
+  statement.doc_->enableFunction();
+
   StatementOfFunction branch(statement.add(), it, end);
+
+  statement.doc_->disableFunction();
 
   return true;
 }

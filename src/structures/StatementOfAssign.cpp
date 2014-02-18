@@ -90,7 +90,7 @@ StatementOfAssign::create(Statement& statement,
   }
 
   Statement& current = statement.add();
-  current.parent_ = lastItem;
+
   current.parentId_ = lastItem->id_;
   StatementOfAssign builder(current, it, end);
 

@@ -54,6 +54,10 @@ class StatementOfUnion
     bool parseName(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
+    const std::string& getName();
+
+    std::size_t getId();
+
     bool parseScope(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
 
@@ -67,6 +71,7 @@ class StatementOfUnion
   private:
 
     std::string name_;
+    std::size_t id_;
 };
 
 } // namespace Structures
