@@ -51,7 +51,7 @@ class StandardMessage : public virtual IMessage{
     virtual void
     show(const std::string& content)
     {
-      std::cerr<<content;
+      std::cerr<<content<<std::flush;
     }
 
     static std::string name_;

@@ -358,8 +358,9 @@ isTokenEof(TokenCollection::const_iterator& it)
   return token.id_ == boost::wave::T_EOF;
 }
 
+#ifdef THREAD_SUPPORT
 boost::mutex io_mutex;
-
+#endif
 
 Vera::Structures::Token getToken(std::string fileName,
   underlyImpl::TokenCollection::const_iterator& it)
@@ -569,8 +570,9 @@ using namespace underlyImpl;
 
 Tokens::TokenSequence Tokens::getEachTokenFromFile(const std::string & fileName)
 {
+#ifdef THREAD_SUPPORT
   boost::mutex::scoped_lock lock(io_mutex);
-
+#endif
   TokenCollection::const_iterator it = getBeginOfTokenCollection(fileName);
   TokenCollection::const_iterator end = getEndOfTokenCollection(fileName);
   Tokens::TokenSequence response;

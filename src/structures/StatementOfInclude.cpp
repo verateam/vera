@@ -62,9 +62,9 @@ StatementOfInclude::initialize(Tokens::TokenSequence::const_iterator& it,
 
   push(*it);
 
-  std::string content = it->value_;
+  std::string content = getPath(*it);
 
-  current.doc_->parseHeader(getPath(*it));
+  current.doc_->parseHeader(content);
 
   ++it;
 }
@@ -99,8 +99,11 @@ StatementOfInclude::getPath (const Token& item)
 
   std::size_t begin = content.find_last_of(beginChar);
 
-  if (begin != std::string::npos && end != std::string::npos) {
+  if (begin != std::string::npos && end != std::string::npos)
+  {
     std::string filePath(content.substr(begin+1, end-begin-1).c_str());
+
+    return filePath;
   }
 
  return "";

@@ -19,7 +19,9 @@
 #include <string>
 #include <vector>
 #include <boost/bind.hpp>
+#ifdef THREAD_SUPPORT
 #include <boost/thread.hpp>
+#endif
 #include <boost/function.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <unistd.h>
@@ -80,47 +82,33 @@ StatementOfUnionSequence unions_;
 void
 Documents::initialize()
 {
-  boost::asio::io_service ioService;
-  boost::asio::io_service::work work(ioService);
-
   const SourceFiles::FileNameSet& files = SourceFiles::getAllFileNames();
 
+#ifdef THREAD_SUPPORT
   boost::thread_group threadPool;
-
+#endif
   //TODO: Pending improvement to handle the pool thread.
-
-  threadPool.create_thread(
-      boost::bind(&boost::asio::io_service::run, &ioService)
-  );
-
-  threadPool.create_thread(
-      boost::bind(&boost::asio::io_service::run, &ioService)
-  );
-
-  threadPool.create_thread(
-      boost::bind(&boost::asio::io_service::run, &ioService)
-  );
-
-  threadPool.create_thread(
-      boost::bind(&boost::asio::io_service::run, &ioService)
-  );
-
-  threadPool.create_thread(
-      boost::bind(&boost::asio::io_service::run, &ioService)
-  );
-
+  std::size_t amount = 0;
   for (SourceFiles::FileNameSet::const_iterator it = files.begin();
       it != files.end(); ++it)
   {
     std::string fileName = *it;
     Tokens::TokenSequence tokens = Tokens::getEachTokenFromFile(fileName);
-
-    ioService.post(boost::bind(&Documents::parse, this, fileName));
+#ifdef THREAD_SUPPORT
+    threadPool.create_thread(boost::bind(&Documents::parse, this, fileName));
+    if (++amount > 10)
+    {
+      amount = 0;
+      threadPool.join_all();
+    }
+#else
+    parse(fileName);
+#endif
   }
 
-  ioService.stop();
-
+#ifdef THREAD_SUPPORT
   threadPool.join_all();
+#endif
 }
 
 void
@@ -132,9 +120,9 @@ Documents::parse(std::string fileName)
 }
 
 Document::Document(const std::string& name)
-    : fileName_(name)
-        , root_(Token("root", 0, 0, "unknown"))
-        , wasInitialized_(false)
+: fileName_(name)
+, root_(Token("root", 0, 0, "unknown"))
+, wasInitialized_(false)
 , isFunction_(false)
 , isUnion_(false)
 {
@@ -158,12 +146,21 @@ Document::Document(const std::string& name)
 void
 Document::initialize()
 {
+#ifdef THREAD_SUPPORT
   boost::mutex::scoped_lock lock(mutex_);
-
+#endif
   if (wasInitialized_)
   {
     return;
   }
+
+  wasInitialized_ = true;
+
+  std::stringstream out;
+
+  out << "initialize: " << fileName_ << std::endl;
+
+  Plugins::Message::get_mutable_instance().show(out.str());
 
   std::for_each(includes_.begin(),
       includes_.end(),
@@ -183,18 +180,13 @@ Document::initialize()
   std::copy(tokens.begin(), tokens.end(), std::back_inserter(collection_));
 
   parse();
-  wasInitialized_ = true;
+
 }
 
 bool
 Document::addIncludePath(const std::string& path)
 {
-  std::stringstream out;
   bool response = paths_.add_include_path(path.c_str(), false);
-
-  out << "add include path: " <<path<< " "<< response <<std::endl;
-
-  Plugins::Message::get_mutable_instance().show(out.str());
 
   return response;
 }
@@ -202,12 +194,7 @@ Document::addIncludePath(const std::string& path)
 bool
 Document::addSysIncludePath(const std::string& path)
 {
-  std::stringstream out;
   bool response = paths_.add_include_path(path.c_str(), true);
-
-  out << "add sysInclude path: " <<path<< " "<< response <<std::endl;
-
-  Plugins::Message::get_mutable_instance().show(out.str());
 
   return response;
 }
@@ -375,14 +362,16 @@ Document::getRoot()
 {
   return root_;
 }
-
+#ifdef THREAD_SUPPORT
 boost::mutex _mutex_;
+#endif
 
 boost::shared_ptr<Document>
 Document::create(std::string fileName)
 {
+#ifdef THREAD_SUPPORT
   boost::mutex::scoped_lock lock(_mutex_);
-
+#endif
   DocumentSequence::const_iterator it = documents_.find(fileName);
 
   if (it != documents_.end())
@@ -405,36 +394,36 @@ Document::create(std::string fileName)
 }
 
 void
-Document::addDefine(std::string name, std::size_t id)
+Document::addDefine(const std::string& name, std::size_t id)
 {
   defineMap_[id] = name;
 }
 void
-Document::addStruct(std::string name, std::size_t id)
+Document::addStruct(const std::string& name, std::size_t id)
 {
   structMap_[id] = name;
 }
 
 void
-Document::addEnum(std::string name, std::size_t id)
+Document::addEnum(const std::string& name, std::size_t id)
 {
   enumMap_[id] = name;
 }
 
 void
-Document::addClass(std::string name, std::size_t id)
+Document::addClass(const std::string& name, std::size_t id)
 {
   classMap_[id] = name;
 }
 
 void
-Document::addUnion(std::string name, std::size_t id)
+Document::addUnion(const std::string& name, std::size_t id)
 {
   unionMap_[id] = name;
 }
 
 void
-Document::addTypedef(std::string name, std::size_t id)
+Document::addTypedef(const std::string& name, std::size_t id)
 {
   typedefMap_[id] = name;
 }
@@ -473,24 +462,28 @@ void
 Document::parseHeader(const std::string& content)
 {
   std::string file = content;
-  boost::filesystem::path path = paths_.get_current_directory();
   std::string dir = "";
 
   bool response = paths_.find_include_file(file, dir, false, NULL);
 
   if (response == true)
   {
-    std::stringstream out;
-
-    out << "header file: " << file << "  "<<content << content<< std::endl;
-
-    Plugins::Message::get_mutable_instance().show(out.str());
-
     boost::shared_ptr<Document> doc = Document::create(file);
 
     if (doc)
     {
-      doc->initialize();
+      addHeader(file);
+
+      if (doc->wasInitialized_ == false)
+        doc->initialize();
+
+      RegisterItems::iterator it = doc->defineMap_.begin();
+      RegisterItems::iterator end = doc->defineMap_.end();
+
+      for (;it != end ;++it)
+      {
+        defineMap_[it->first] = it->second;
+      }
     }
   }
 }
@@ -530,6 +523,28 @@ Document::isUnion()
 {
   return isUnion_;
 }
+
+void
+Document::addHeader(const std::string& name)
+{
+  if (std::find(headers_.begin(), headers_.end(), name) == headers_.end())
+  {
+    headers_.push_back(name);
+  }
+}
+
+Document::Headers
+Document::getHeaders()
+{
+  return headers_;
+}
+
+bool
+Document::isInitialize()
+{
+  return wasInitialized_;
+}
+
 
 } // Vera namespace
 } // Structures namespace

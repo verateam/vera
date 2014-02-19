@@ -41,8 +41,9 @@
 #include "IsTokenWithName.h"
 #include "../plugins/Messages.h"
 #include "Document.h"
-
+#ifdef THREAD_SUPPORT
 #include <boost/thread/mutex.hpp>
+#endif
 #include <functional>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <vector>
@@ -733,9 +734,15 @@ Statement::operator==(const Statement& statement) const
   return isEqual && id_ == statement.id_;
 }
 
+#ifdef THREAD_SUPPORT
+boost::mutex io_mutex;
+#endif
 Statement&
 Statement::add()
 {
+#ifdef THREAD_SUPPORT
+  boost::mutex::scoped_lock lock(io_mutex);
+#endif
   Statement branch(Token("branch", 0, 0, "unknown"));
 
   branch.parentId_ = id_;
@@ -751,6 +758,9 @@ Statement::add()
 void
 Statement::push(const Token& token)
 {
+#ifdef THREAD_SUPPORT
+  boost::mutex::scoped_lock lock(io_mutex);
+#endif
   Statement item(token);
 
   item.parentId_ = id_;

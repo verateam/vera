@@ -28,6 +28,7 @@
 #include <vector>
 #include <sstream>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #endif
 
 
@@ -351,8 +352,11 @@ BOOST_PYTHON_MODULE(vera)
     .add_property("column", &Structures::Token::column_)
     .add_property("type", &Structures::Token::name_);
 
+  py::class_<Structures::Document::RegisterItems >("RegisterItems")
+    .def(py::map_indexing_suite<Structures::Document::RegisterItems >());
+
   py::class_<Structures::Statement>("Statement", py::no_init)
-    .def(py::init<const Structures::Token&>())
+    .def(py::init<const Structures::Statement&>())
     .def("getParent", &Structures::Statement::getParent,
         py::return_internal_reference<>())
     .add_property("id", &Structures::Statement::id_)
@@ -365,8 +369,15 @@ BOOST_PYTHON_MODULE(vera)
   py::class_<Structures::Document, boost::noncopyable>("Document", py::no_init)
     .def("__init__", py::make_constructor(Vera::Structures::Document::create))
     .def("parse", &Structures::Document::parse)
+    .def("getRegisterDefine", &Structures::Document::getRegisterDefine)
+    .def("getRegisterEnum", &Structures::Document::getRegisterEnum)
+    .def("getRegisterStruct", &Structures::Document::getRegisterStruct)
+    .def("getRegisterClass", &Structures::Document::getRegisterClass)
+    .def("getRegisterTypedef", &Structures::Document::getRegisterTypedef)
+    .def("getHeaders", &Structures::Document::getHeaders)
     .def("getRoot", &Structures::Document::getRoot,
         py::return_value_policy<py::reference_existing_object>());
+
 
   py::enum_<Structures::Statement::TypeItem>("TypeItem")
     .value("TYPE_ITEM_TOKEN", Structures::Statement::TYPE_ITEM_TOKEN)
@@ -380,6 +391,8 @@ BOOST_PYTHON_MODULE(vera)
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_WHILELOOP)
     .value("TYPE_ITEM_STATEMENT_OF_TRYCATCHES",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_TRYCATCHES)
+    .value("TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_SIGNATURE_DECLARATION)
     .value("TYPE_ITEM_STATEMENT_OF_CATCH",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_CATCH)
     .value("TYPE_ITEM_STATEMENT_OF_DOWHILELOOP",
@@ -467,9 +480,6 @@ BOOST_PYTHON_MODULE(vera)
 
   py::class_<Structures::SourceLines::LineCollection>("StringVector")
           .def(py::vector_indexing_suite<Structures::SourceLines::LineCollection>());
-
-  py::def("getNodeToCollection", &Structures::StatementsBuilder::getNodeToCollection,
-      py::return_internal_reference<>());
 
   py::def("getStatement", &Structures::StatementsBuilder::create);
 

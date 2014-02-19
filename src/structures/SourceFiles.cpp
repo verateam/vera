@@ -6,6 +6,7 @@
 //
 
 #include "SourceFiles.h"
+#include <boost/wave/util/filesystem_compatibility.hpp>
 
 
 namespace // unnamed
@@ -27,7 +28,13 @@ int SourceFiles::count()
 
 void SourceFiles::addFileName(const FileName & name)
 {
-    files_.insert(name);
+  boost::filesystem::path current_dir(boost::wave::util::initial_path());
+
+  boost::filesystem::path filepath (boost::wave::util::create_path(name.c_str()));
+  boost::filesystem::path filename = boost::wave::util::complete_path(filepath, current_dir);
+  std::string item = boost::wave::util::normalize(filename).c_str();
+
+  files_.insert(item);
 }
 
 bool SourceFiles::empty()

@@ -13,7 +13,9 @@
 #include "StatementOfStruct.h"
 #include "StatementOfUnion.h"
 #include "StatementOfEnum.h"
+#ifdef THREAD_SUPPORT
 #include <boost/thread/mutex.hpp>
+#endif
 #include <boost/wave/util/cpp_include_paths.hpp>
 
 #include <string>
@@ -48,6 +50,7 @@ class Document
   public:
 
     typedef std::map<std::size_t, std::string> RegisterItems;
+    typedef std::vector<std::string> Headers;
 
   public:
 
@@ -88,13 +91,13 @@ class Document
      */
     static boost::shared_ptr<Document> create(std::string fileName);
 
-    void addDefine(std::string name, std::size_t id);
-    void addStruct(std::string name, std::size_t id);
-    void addEnum(std::string name, std::size_t id);
-    void addClass(std::string name, std::size_t id);
-    void addUnion(std::string name, std::size_t id);
-    void addTypedef(std::string name, std::size_t id);
-
+    void addDefine(const std::string& name, std::size_t id);
+    void addStruct(const std::string& name, std::size_t id);
+    void addEnum(const std::string& name, std::size_t id);
+    void addClass(const std::string& name, std::size_t id);
+    void addUnion(const std::string& name, std::size_t id);
+    void addTypedef(const std::string& name, std::size_t id);
+    void addHeader(const std::string& name);
 
     bool addIncludePath(const std::string& path);
     bool addSysIncludePath(const std::string& path);
@@ -104,6 +107,7 @@ class Document
     RegisterItems getRegisterEnum();
     RegisterItems getRegisterClass();
     RegisterItems getRegisterTypedef();
+    Headers getHeaders();
 
     void parseHeader(const std::string& content);
 
@@ -117,10 +121,11 @@ class Document
 
     void disableFunction();
 
-
     bool isFunction();
 
     bool isUnion();
+
+    bool isInitialize();
 
   private:
 
@@ -133,13 +138,15 @@ class Document
     RegisterItems unionMap_;
     RegisterItems typedefMap_;
     boost::wave::util::include_paths paths_;
-
+    Headers headers_;
 
     Tokens::TokenSequence collection_;
     bool wasInitialized_;
     bool isFunction_;
     bool isUnion_;
+#ifdef THREAD_SUPPORT
     boost::mutex mutex_;
+#endif
 };
 
 
