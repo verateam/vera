@@ -2,9 +2,10 @@
 # Calls to min/max should be protected against accidental macro substitution
 
 foreach file [getSourceFileNames] {
-    foreach identifier [getTokens $file 1 0 -1 -1 {identifier}] {
+    set prev "none"
+    foreach identifier [getTokens $file 1 0 -1 -1 {}] {
         set value [lindex $identifier 0]
-        if {$value == "min" || $value == "max"} {
+        if {($value == "min" || $value == "max") && $prev != "::"} {
             set lineNumber [lindex $identifier 1]
             set columnNumber [expr [lindex $identifier 2] + [string length $value]]
             set restOfLine [string range [getLine $file $lineNumber] $columnNumber end]
@@ -13,5 +14,6 @@ foreach file [getSourceFileNames] {
                 report $file $lineNumber "min/max potential macro substitution problem"
             }
         }
+        set prev $value
     }
 }
