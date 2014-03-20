@@ -86,8 +86,8 @@ void SourceLines::loadFile(std::istream & file, const SourceFiles::FileName & na
         // built-in rule
         if (file.eof())
         {
-            Plugins::Reports::add(name, static_cast<int>(lines.size()),
-                "no newline at end of file");
+            // Plugins::Reports::internal(name, static_cast<int>(lines.size()),
+            //     "no newline at end of file");
         }
         else
         {
