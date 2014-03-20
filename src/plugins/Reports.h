@@ -33,6 +33,8 @@ public:
     static int count();
 
     static void add(const FileName & name, int lineNumber, const Message & msg);
+    static void internal(const FileName & name, int lineNumber,
+      const Message & msg);
 
     static void dumpAll(std::ostream & os, bool omitDuplicates);
 

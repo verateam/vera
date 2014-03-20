@@ -70,6 +70,13 @@ void Reports::add(const FileName & name, int lineNumber, const Message & msg)
     messages_[name].insert(make_pair(lineNumber, make_pair(currentRule, msg)));
 }
 
+void Reports::internal(const FileName & name, int lineNumber, const Message & msg)
+{
+    const Rules::RuleName currentRule = "vera++ internal";
+
+    messages_[name].insert(make_pair(lineNumber, make_pair(currentRule, msg)));
+}
+
 void Reports::dumpAll(std::ostream & os, bool omitDuplicates)
 {
     if (xmlReport_)
