@@ -7,6 +7,7 @@
 
 #include "Tokens.h"
 #include "SourceLines.h"
+#include "../plugins/Reports.h"
 #include <boost/wave.hpp>
 #include <boost/wave/cpplexer/cpp_lex_token.hpp>
 #include <boost/wave/cpplexer/cpp_lex_iterator.hpp>
@@ -421,9 +422,9 @@ void Tokens::parse(const SourceFiles::FileName & name, const FileContent & src)
         catch (const boost::wave::cpplexer::cpplexer_exception & e)
         {
             std::ostringstream ss;
-            ss << name << ':' << e.line_no() << ": illegal token in column " << e.column_no()
+            ss << "illegal token in column " << e.column_no()
                 << ", giving up (hint: fix the file or remove it from the working set)";
-            throw TokensError(ss.str());
+            Plugins::Reports::internal(name, e.line_no(), ss.str());
         }
     }
 }

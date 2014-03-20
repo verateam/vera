@@ -4,4 +4,3 @@ int i = 0;
 int j = 1; 
 // many trailing white spaces
 int j = 1;       
-int k = 2; //comment and no new line

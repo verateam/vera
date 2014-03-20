@@ -610,6 +610,15 @@ vera_add_test(ErrorReport
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 )
 
+vera_add_test(InvalidToken
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/invalidToken.cpp:2: L001: trailing whitespace
+${CMAKE_CURRENT_SOURCE_DIR}/invalidToken.cpp:3: vera++ internal: illegal token in column 12, giving up (hint: fix the file or remove it from the working set)\n"
+  "" 0
+  --rule L001 --show-rule
+  --root "${CMAKE_SOURCE_DIR}"
+  ${CMAKE_CURRENT_SOURCE_DIR}/invalidToken.cpp
+)
+
 if(VERA_PYTHON)
   add_subdirectory(python)
 endif()
