@@ -619,6 +619,17 @@ ${CMAKE_CURRENT_SOURCE_DIR}/invalidToken.cpp:3: vera++ internal: illegal token i
   ${CMAKE_CURRENT_SOURCE_DIR}/invalidToken.cpp
 )
 
+vera_add_test(InvalidCastReport
+  "" "" "vera++: Can't cast '' to int
+    while executing
+\"report $fileName $lineNumber $msg\"
+    (file \"${CMAKE_CURRENT_SOURCE_DIR}/errorReport/scripts/rules/cast.tcl\" line 8)\n"
+  1
+  --rule cast
+  --root "${CMAKE_CURRENT_SOURCE_DIR}/errorReport"
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+
 if(VERA_PYTHON)
   add_subdirectory(python)
 endif()

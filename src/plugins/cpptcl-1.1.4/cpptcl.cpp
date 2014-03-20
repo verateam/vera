@@ -1039,7 +1039,9 @@ int tcl_cast<int>::from(Tcl_Interp *interp, Tcl_Obj *obj)
      int cc = Tcl_GetIntFromObj(interp, obj, &res);
      if (cc != TCL_OK)
      {
-          throw tcl_error(interp);
+          std::ostringstream ss;
+          ss << "Can't cast '" << Tcl_GetString(obj) << "' to int";
+          throw tcl_error(ss.str());
      }
      
      return res;
@@ -1051,7 +1053,9 @@ long tcl_cast<long>::from(Tcl_Interp *interp, Tcl_Obj *obj)
      int cc = Tcl_GetLongFromObj(interp, obj, &res);
      if (cc != TCL_OK)
      {
-          throw tcl_error(interp);
+       std::ostringstream ss;
+       ss << "Can't cast '" << Tcl_GetString(obj) << "' to long";
+       throw tcl_error(ss.str());
      }
      
      return res;
@@ -1063,7 +1067,9 @@ bool tcl_cast<bool>::from(Tcl_Interp *interp, Tcl_Obj *obj)
      int cc = Tcl_GetBooleanFromObj(interp, obj, &res);
      if (cc != TCL_OK)
      {
-          throw tcl_error(interp);
+       std::ostringstream ss;
+       ss << "Can't cast '" << Tcl_GetString(obj) << "' to bool";
+       throw tcl_error(ss.str());
      }
      
      return res != 0;
@@ -1075,7 +1081,9 @@ double tcl_cast<double>::from(Tcl_Interp *interp, Tcl_Obj *obj)
      int cc = Tcl_GetDoubleFromObj(interp, obj, &res);
      if (cc != TCL_OK)
      {
-          throw tcl_error(interp);
+       std::ostringstream ss;
+       ss << "Can't cast '" << Tcl_GetString(obj) << "' to double";
+       throw tcl_error(ss.str());
      }
      
      return res;
