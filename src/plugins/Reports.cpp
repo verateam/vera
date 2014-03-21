@@ -7,6 +7,7 @@
 
 #include "Reports.h"
 #include "Rules.h"
+#include <sstream>
 #include <map>
 #include <utility>
 #include <boost/algorithm/string/replace.hpp>
@@ -65,6 +66,12 @@ int Reports::count()
 
 void Reports::add(const FileName & name, int lineNumber, const Message & msg)
 {
+    if (lineNumber <= 0)
+    {
+      std::ostringstream ss;
+      ss << "Line number out of range: " << lineNumber;
+      throw std::out_of_range(ss.str());
+    }
     const Rules::RuleName currentRule = Rules::getCurrentRule();
 
     messages_[name].insert(make_pair(lineNumber, make_pair(currentRule, msg)));

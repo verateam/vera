@@ -630,6 +630,17 @@ vera_add_test(InvalidCastReport
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 )
 
+vera_add_test(NegativeLineNumberReport
+  "" "" "vera++: Line number out of range: -4
+    while executing
+\"report \"fileName\" -4 \"foo\"\"
+    (file \"${CMAKE_CURRENT_SOURCE_DIR}/errorReport/scripts/rules/negativeLine.tcl\" line 3)\n"
+  1
+  --rule negativeLine
+  --root "${CMAKE_CURRENT_SOURCE_DIR}/errorReport"
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+)
+
 if(VERA_PYTHON)
   add_subdirectory(python)
 endif()
