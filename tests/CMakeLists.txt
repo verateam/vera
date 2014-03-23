@@ -13,15 +13,10 @@ include(${CMAKE_SOURCE_DIR}/cmake/use_vera++.cmake)
 
 ####### command line iterface tests #######
 
-# this test is supposed to not found the vera root dir and fail because of that,
-# but it will found one if vera has already been installed, so we don't run
-# it in that case.
-if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/lib/vera++/")
-  vera_add_test(NoRoot
-    "" "" "vera++: Cannot open profile description for profile 'default': No such file or directory\n" 1
-    "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp"
-  )
-endif()
+vera_add_test(NoRoot
+  "" "" "vera++: Cannot open profile description for profile 'default': No such file or directory\n" 1
+  "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp"
+)
 
 vera_add_test(VeraRootEnvironment
   ""

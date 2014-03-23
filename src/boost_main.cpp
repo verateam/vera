@@ -24,6 +24,7 @@
 #include <cerrno>
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
+#include "get_vera_root_default.h"
 
 #define foreach BOOST_FOREACH
 
@@ -77,7 +78,7 @@ int boost_main(int argc, char * argv[])
     // - current directory (if scripts and profile are present)
     // - /usr/lib/vera++/ default debian directory
 
-    Vera::Plugins::RootDirectory::DirectoryName veraRoot(VERA_INSTALL_DIR "/lib/vera++/");
+    Vera::Plugins::RootDirectory::DirectoryName veraRoot(get_vera_root_default(argv[0]));
 
     struct stat St;
     bool isInCurrent = ( stat( "./scripts", &St ) == 0

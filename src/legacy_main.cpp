@@ -20,6 +20,7 @@
 #include <vector>
 #include <cstdlib>
 #include <sys/stat.h>
+#include "get_vera_root_default.h"
 
 namespace // unnamed
 {
@@ -64,7 +65,7 @@ int legacy_main(int argc, char * argv[], bool silent = false)
         // - current directory (if scripts and profile are present)
         // - /usr/lib/vera++/ default debian directory
 
-        Vera::Plugins::RootDirectory::DirectoryName veraRoot(VERA_INSTALL_DIR "/lib/vera++/");
+        Vera::Plugins::RootDirectory::DirectoryName veraRoot(get_vera_root_default(argv[0]));
 
         struct stat St;
         bool isInCurrent = ( stat( "./scripts", &St ) == 0
