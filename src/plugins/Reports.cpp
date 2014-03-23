@@ -10,6 +10,7 @@
 #include <sstream>
 #include <map>
 #include <utility>
+#include <stdexcept>
 #include <boost/algorithm/string/replace.hpp>
 
 
