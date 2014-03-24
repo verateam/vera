@@ -190,8 +190,8 @@ void Interpreter::execute(const DirectoryName & root,
     throw ScriptError(ss.str());
 }
 
-void Interpreter::executeTcl(const DirectoryName & root,
-    ScriptType type, const std::string & fileName)
+void Interpreter::executeTcl(const DirectoryName & /* root */,
+  ScriptType /* type */, const std::string & fileName)
 {
     std::ifstream scriptFile(fileName.c_str());
     if (scriptFile.is_open() == false)
