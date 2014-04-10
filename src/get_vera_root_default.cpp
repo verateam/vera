@@ -29,6 +29,5 @@ std::string get_vera_root_default(const char *argv0)
     boost::filesystem::path veraRoot(get_vera_install_dir(argv0));
     veraRoot /= "lib";
     veraRoot /= "vera++";
-    veraRoot = veraRoot.make_preferred();
     return veraRoot.string();
 }
