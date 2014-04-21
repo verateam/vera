@@ -166,6 +166,17 @@ boost::shared_ptr<struct Startup> modules;
 Interpreter::~Interpreter()
 {
 #ifdef VERA_PYTHON
+  if (modules)
+  {
+    finalize();
+  }
+#endif
+}
+
+void
+Interpreter::finalize()
+{
+#ifdef VERA_PYTHON
   modules.reset(static_cast<struct Startup*>(NULL));
   Py_Finalize();
 #endif
@@ -369,12 +380,17 @@ BOOST_PYTHON_MODULE(vera)
   py::class_<Structures::Document, boost::noncopyable>("Document", py::no_init)
     .def("__init__", py::make_constructor(Vera::Structures::Document::create))
     .def("parse", &Structures::Document::parse)
-    .def("getRegisterDefine", &Structures::Document::getRegisterDefine)
-    .def("getRegisterEnum", &Structures::Document::getRegisterEnum)
-    .def("getRegisterStruct", &Structures::Document::getRegisterStruct)
-    .def("getRegisterClass", &Structures::Document::getRegisterClass)
-    .def("getRegisterTypedef", &Structures::Document::getRegisterTypedef)
-    .def("getHeaders", &Structures::Document::getHeaders)
+    .def("getDefineStack", &Structures::Document::getDefineStack)
+    .def("getEnumStack", &Structures::Document::getEnumStack)
+    .def("getStructStack", &Structures::Document::getStructStack)
+    .def("getClassStack", &Structures::Document::getClassStack)
+    .def("getTypedefStack", &Structures::Document::getTypedefStack)
+    .def("getNamespaceStack", &Structures::Document::getNamespaceStack)
+    .def("getUnionStack", &Structures::Document::getUnionStack)
+    .def("getExternStack", &Structures::Document::getExternStack)
+    .def("getHeaderStack", &Structures::Document::getHeaderStack)
+    .def("getNode", &Structures::Document::getNode)
+    .def("getFileName", &Structures::Document::getFileName)
     .def("getRoot", &Structures::Document::getRoot,
         py::return_value_policy<py::reference_existing_object>());
 
@@ -433,6 +449,12 @@ BOOST_PYTHON_MODULE(vera)
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_ENUM)
     .value("TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME)
+    .value("TYPE_ITEM_STATEMENT_OF_USING_NAMESPACE",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_USING_NAMESPACE)
+    .value("TYPE_ITEM_STATEMENT_OF_USING",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_USING)
+    .value("TYPE_ITEM_STATEMENT_OF_FRIEND",
+        Structures::Statement::TYPE_ITEM_STATEMENT_OF_FRIEND)
     .value("TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS",
         Structures::Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS)
     .value("TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS",

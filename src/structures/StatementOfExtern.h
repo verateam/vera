@@ -43,6 +43,10 @@ class StatementOfExtern
 
     void initialize(Tokens::TokenSequence::const_iterator& it,
         Tokens::TokenSequence::const_iterator& end);
+
+  private:
+
+    std::size_t id_;
 };
 
 } // namespace Structures

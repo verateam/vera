@@ -69,6 +69,9 @@ struct Statement
       TYPE_ITEM_STATEMENT_OF_TEMPLATEPARAMETERS,
       TYPE_ITEM_STATEMENT_OF_ENUM,
       TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME,
+      TYPE_ITEM_STATEMENT_OF_USING_NAMESPACE,
+      TYPE_ITEM_STATEMENT_OF_USING,
+      TYPE_ITEM_STATEMENT_OF_FRIEND,
       TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS,
       TYPE_ITEM_STATEMENT_OF_BRACKETSARGUMENTS,
       TYPE_ITEM_STATEMENT_OF_BRACESARGUMENTS,
@@ -180,7 +183,10 @@ class StatementsBuilder : public boost::noncopyable_::noncopyable
   friend class StatementOfOperator;
   friend class StatementOfPreprocessorDirectives;
   friend class StatementOfAssign;
+  friend class StatementOfUsing;
   friend class Document;
+  friend class StatementOfFriend;
+  friend class StatementOfIdentifier;
 
   public:
 

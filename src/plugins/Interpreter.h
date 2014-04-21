@@ -42,6 +42,8 @@ public:
     void executeTcl(const DirectoryName & root,
         ScriptType type, const ScriptName & name);
 
+    void finalize();
+
 protected:
     Interpreter();
 #ifdef VERA_PYTHON

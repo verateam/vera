@@ -20,15 +20,14 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include "Statements.h"
-#include <boost/wave.hpp>
-#include <boost/wave/cpplexer/cpp_lex_token.hpp>    // token class
-#include <boost/wave/cpplexer/cpp_lex_iterator.hpp> // lexer class
+
 #include <boost/smart_ptr.hpp>
 
-typedef boost::wave::cpplexer::lex_token<> token_type;
-typedef boost::wave::cpplexer::lex_iterator<token_type> lex_iterator_type;
-typedef boost::wave::context<std::string::iterator, lex_iterator_type> PrecompilerContext;
+#ifdef VERA_PYTHON
+#include <boost/python.hpp>
+#endif
 
 namespace Vera
 {
@@ -51,6 +50,13 @@ class Document
 
     typedef std::map<std::size_t, std::string> RegisterItems;
     typedef std::vector<std::string> Headers;
+    typedef std::vector<std::size_t> Externs;
+
+#ifdef VERA_PYTHON
+    typedef boost::python::dict  Dictionary;
+#else
+    typedef Document::RegisterItems Dictionary;
+#endif
 
   public:
 
@@ -97,17 +103,24 @@ class Document
     void addClass(const std::string& name, std::size_t id);
     void addUnion(const std::string& name, std::size_t id);
     void addTypedef(const std::string& name, std::size_t id);
+    void addExtern(std::size_t id);
+    void addNamespace(const std::string& name, std::size_t id);
     void addHeader(const std::string& name);
 
     bool addIncludePath(const std::string& path);
     bool addSysIncludePath(const std::string& path);
 
-    RegisterItems getRegisterDefine();
-    RegisterItems getRegisterStruct();
-    RegisterItems getRegisterEnum();
-    RegisterItems getRegisterClass();
-    RegisterItems getRegisterTypedef();
-    Headers getHeaders();
+    Dictionary getDefineStack();
+    Dictionary getStructStack();
+    Dictionary getEnumStack();
+    Dictionary getUnionStack();
+    Dictionary getClassStack();
+    Dictionary getTypedefStack();
+    Dictionary getNamespaceStack();
+    Externs getExternStack();
+    Headers getHeaderStack();
+
+    Statement getNode(std::size_t id);
 
     void parseHeader(const std::string& content);
 
@@ -127,6 +140,8 @@ class Document
 
     bool isInitialize();
 
+    std::string getFileName();
+
   private:
 
     std::string fileName_;
@@ -137,6 +152,8 @@ class Document
     RegisterItems classMap_;
     RegisterItems unionMap_;
     RegisterItems typedefMap_;
+    RegisterItems namespaceMap_;
+    Externs externMap_;
     boost::wave::util::include_paths paths_;
     Headers headers_;
 

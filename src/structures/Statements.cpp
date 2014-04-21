@@ -37,6 +37,9 @@
 #include "StatementOfOperator.h"
 #include "StatementOfPreprocessorDirectives.h"
 #include "StatementOfAssign.h"
+#include "StatementOfUsing.h"
+#include "StatementOfFriend.h"
+#include "StatementOfIdentifier.h"
 
 #include "IsTokenWithName.h"
 #include "../plugins/Messages.h"
@@ -212,6 +215,8 @@ class StrategySelector
       factories_ [boost::wave::T_PP_ENDIF] =  &StatementOfPreprocessorDirectives::create;
       factories_ [boost::wave::T_PP_ELIF] = &StatementOfPreprocessorDirectives::create;
       factories_ [boost::wave::T_ASSIGN] = &StatementOfAssign::create;
+      factories_ [boost::wave::T_USING] = &StatementOfUsing::create;
+      factories_[boost::wave::T_FRIEND] = &StatementOfFriend ::create;
     }
 
     /**
@@ -317,6 +322,8 @@ class SelectorOfVerifiers
       verifiers_[boost::wave::T_PP_ELIF] = &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_PP_ELSE] = &StatementOfPreprocessorDirectives::isValid;
       verifiers_[boost::wave::T_ASSIGN] = &StatementOfAssign::isValid;
+      verifiers_[boost::wave::T_USING] = &StatementOfUsing::isValid;
+      verifiers_[boost::wave::T_FRIEND] = &StatementOfFriend::isValid;
     }
 
     /**
@@ -698,6 +705,9 @@ Statement::Statement(const Token& token)
 , parent_(NULL)
 {
   static std::size_t id = 0;
+
+  if (token_.value_.compare("__attribute__") == 0)
+    token_.name_ = "attribute";
 
   id_ = ++id;
 }
@@ -1101,6 +1111,15 @@ StatementsBuilder::parse(TokenSequenceConstIterator& it,
       break;
     }
 
+    if (StatementOfIdentifier::isValid(it, end) == true)
+    {
+      StatementOfIdentifier::create(statement_, it, end);
+
+      IS_EQUAL_BREAK(it, end);
+
+     continue;
+    }
+
     if (id == boost::wave::T_RIGHTPAREN)
     {
       push(*it);
@@ -1203,6 +1222,13 @@ StatementsBuilder::isSignature(const Statement& root)
 
     for (;it != end; ++it)
     {
+      const Token& token = it->token_;
+
+      if (token.name_.compare("attribute") == 0)
+      {
+        return false;
+      }
+
       if (it->type_  == Statement::TYPE_ITEM_STATEMENT_OF_PARENSARGUMENTS)
       {
         hasArguments = true;

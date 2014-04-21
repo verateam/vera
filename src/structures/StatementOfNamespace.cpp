@@ -7,11 +7,13 @@
 
 #include "StatementOfNamespace.h"
 #include "IsTokenWithName.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
 #include <algorithm>
 #include <sstream>
+
 
 #define IS_NOT_TOKEN "the first element of the collection is not a token of 'namespace' type."
 #define WITHOUT_STATEMENT_SCOPE "The statement not contain a scope associated."
@@ -53,6 +55,7 @@ StatementOfNamespace::StatementOfNamespace(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
+, id_(statement.id_)
 {
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_NAMESPACE_UNNAME;
 }
@@ -193,11 +196,13 @@ StatementOfNamespace::create(Statement& statement,
 {
   bool successful = false;
 
-
   StatementOfNamespace builder(statement.add(), it, end);
 
+  successful = builder.initialize(it, end);
 
-  return builder.initialize(it, end);
+  statement.doc_->addNamespace(builder.name_, builder.id_);
+
+  return successful;
 }
 
 } // Vera namespace

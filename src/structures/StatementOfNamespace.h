@@ -50,6 +50,7 @@ class StatementOfNamespace
   private:
 
     std::string name_;
+    std::size_t id_;
 };
 
 } // namespace Structures

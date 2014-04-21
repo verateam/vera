@@ -16,6 +16,7 @@
 #include "plugins/Reports.h"
 #include "plugins/RootDirectory.h"
 #include "structures/Document.h"
+#include "plugins/Interpreter.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -354,15 +355,25 @@ int boost_main(int argc, char * argv[])
             std::cerr << Vera::Plugins::Reports::count() << " reports in "
                 << Vera::Structures::SourceFiles::count() << " files." << std::endl;
         }
+
+        const Vera::Plugins::RootDirectory::DirectoryName veraRoot =
+                Vera::Plugins::RootDirectory::getRootDirectory();
+
+        Vera::Plugins::Interpreter& interpreter = Vera::Plugins::Interpreter::get_mutable_instance();
+        interpreter.finalize();
     }
     catch (const std::exception & e)
     {
+      Vera::Plugins::Interpreter& interpreter = Vera::Plugins::Interpreter::get_mutable_instance();
+       interpreter.finalize();
         std::cerr << "vera++: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
 
     if (vm.count("error") && Vera::Plugins::Reports::count() !=0)
     {
+      Vera::Plugins::Interpreter& interpreter = Vera::Plugins::Interpreter::get_mutable_instance();
+       interpreter.finalize();
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

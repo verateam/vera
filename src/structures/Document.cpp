@@ -17,15 +17,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
 #include <boost/bind.hpp>
 #ifdef THREAD_SUPPORT
 #include <boost/thread.hpp>
 #endif
 #include <boost/function.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
 #include <unistd.h>
-#include <boost/asio/io_service.hpp>
 
 #define SYSTEM_INCLUDE_LABEL "sysInclude"
 #define INCLUDE_LABEL "include"
@@ -180,7 +177,6 @@ Document::initialize()
   std::copy(tokens.begin(), tokens.end(), std::back_inserter(collection_));
 
   parse();
-
 }
 
 bool
@@ -202,12 +198,6 @@ Document::addSysIncludePath(const std::string& path)
 static std::string toString(const std::string& path)
 {
   return path.c_str();
-}
-
-static void
-addDefine(PrecompilerContext& context, const std::string& macro)
-{
-  context.add_macro_definition(macro);
 }
 
 std::string
@@ -428,34 +418,79 @@ Document::addTypedef(const std::string& name, std::size_t id)
   typedefMap_[id] = name;
 }
 
-Document::RegisterItems
-Document::getRegisterDefine()
+void
+Document::addExtern(std::size_t id)
 {
-  return defineMap_;
+  externMap_.push_back(id);
 }
 
-Document::RegisterItems
-Document::getRegisterStruct()
+void
+Document::addNamespace(const std::string& name, std::size_t id)
 {
-  return structMap_;
+  namespaceMap_[id] = name;
 }
 
-Document::RegisterItems
-Document::getRegisterEnum()
+template <class K, class V>
+static Document::Dictionary
+toPythonDict(const std::map<K, V>& map)
 {
-  return enumMap_;
+  typename std::map<K, V>::const_iterator iter;
+  Document::Dictionary dictionary;
+
+  for (iter = map.begin(); iter != map.end(); ++iter)
+  {
+    dictionary[iter->first] = iter->second;
+  }
+
+  return dictionary;
 }
 
-Document::RegisterItems
-Document::getRegisterClass()
+Document::Dictionary
+Document::getDefineStack()
 {
-  return classMap_;
+  return toPythonDict<std::size_t, std::string>(defineMap_);
 }
 
-Document::RegisterItems
-Document::getRegisterTypedef()
+Document::Dictionary
+Document::getStructStack()
 {
-  return typedefMap_;
+  return toPythonDict<std::size_t, std::string>(structMap_);
+}
+
+Document::Dictionary
+Document::getEnumStack()
+{
+  return toPythonDict<std::size_t, std::string>(enumMap_);
+}
+
+Document::Dictionary
+Document::getUnionStack()
+{
+  return toPythonDict<std::size_t, std::string>(unionMap_);
+}
+
+Document::Dictionary
+Document::getClassStack()
+{
+  return toPythonDict<std::size_t, std::string>(classMap_);
+}
+
+Document::Dictionary
+Document::getTypedefStack()
+{
+  return toPythonDict<std::size_t, std::string>(typedefMap_);
+}
+
+Document::Dictionary
+Document::getNamespaceStack()
+{
+  return toPythonDict<std::size_t, std::string>(namespaceMap_);
+}
+
+Document::Externs
+Document::getExternStack()
+{
+  return externMap_;
 }
 
 void
@@ -476,14 +511,6 @@ Document::parseHeader(const std::string& content)
 
       if (doc->wasInitialized_ == false)
         doc->initialize();
-
-      RegisterItems::iterator it = doc->defineMap_.begin();
-      RegisterItems::iterator end = doc->defineMap_.end();
-
-      for (;it != end ;++it)
-      {
-        defineMap_[it->first] = it->second;
-      }
     }
   }
 }
@@ -534,7 +561,7 @@ Document::addHeader(const std::string& name)
 }
 
 Document::Headers
-Document::getHeaders()
+Document::getHeaderStack()
 {
   return headers_;
 }
@@ -545,6 +572,59 @@ Document::isInitialize()
   return wasInitialized_;
 }
 
+std::string
+Document::getFileName()
+{
+  return fileName_;
+}
+
+
+static const Statement&
+findNode(const Statement& branch, std::size_t id)
+{
+
+  if (branch.id_ == id)
+  {
+    return branch;
+  }
+
+  if (branch.statementSequence_.size() > 0 && branch.id_ < id)
+  {
+    Statement::StatementSequence::const_iterator it = branch.statementSequence_.begin();
+    Statement::StatementSequence::const_iterator end = branch.statementSequence_.end();
+
+    for (;it != end; ++it)
+    {
+      Statement::StatementSequence::const_iterator next = it+1;
+
+      if (next != end)
+      {
+        if (next->id_ <= id)
+        {
+          continue;
+        }
+      }
+
+      if (it->id_ == id)
+      {
+        return *it;
+      }
+
+      if (it->statementSequence_.size() > 0)
+      {
+         return findNode(*it, id);
+      }
+    }
+  }
+
+  throw DocumentError("Not found...");
+}
+
+Statement
+Document::getNode(std::size_t id)
+{
+  return findNode(root_, id);
+}
 
 } // Vera namespace
 } // Structures namespace

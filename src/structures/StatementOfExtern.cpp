@@ -7,6 +7,7 @@
 
 #include "StatementOfExtern.h"
 #include "IsTokenWithName.h"
+#include "Document.h"
 
 #include <vector>
 #include <map>
@@ -52,6 +53,7 @@ StatementOfExtern::StatementOfExtern(Statement& statement,
   Tokens::TokenSequence::const_iterator& it,
   Tokens::TokenSequence::const_iterator& end)
 : StatementsBuilder(statement)
+, id_(statement.id_)
 {
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_EXTERN;
   initialize(it, end);
@@ -117,8 +119,9 @@ StatementOfExtern::create(Statement& statement,
     Tokens::TokenSequence::const_iterator& it,
     Tokens::TokenSequence::const_iterator& end)
 {
-  StatementOfExtern builder(StatementsBuilder(statement).add(), it, end);
+  StatementOfExtern builder(statement.add(), it, end);
 
+  statement.doc_->addExtern(builder.id_);
   return true;
 }
 
