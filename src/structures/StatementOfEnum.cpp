@@ -57,8 +57,6 @@ StatementOfEnum::StatementOfEnum(Statement& statement,
 {
   statement.type_ = Statement::TYPE_ITEM_STATEMENT_OF_ENUM_UNNAME;
 
-  std::stringstream out;
-
   name_ = getDefaultName();
 
   initialize(it, end);

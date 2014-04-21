@@ -23,6 +23,7 @@
 #endif
 #include <boost/function.hpp>
 #include <unistd.h>
+#include <sstream>
 
 #define SYSTEM_INCLUDE_LABEL "sysInclude"
 #define INCLUDE_LABEL "include"
