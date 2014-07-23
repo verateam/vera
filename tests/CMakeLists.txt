@@ -367,7 +367,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T014: no reference to the Boost Software
 ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters\n" "" 0
   --root "${CMAKE_SOURCE_DIR}"
   --show-rule
-  --profile full
+  --profile test
   --parameter max-directory-depth=20
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
@@ -379,7 +379,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T014: no reference to the Boost Software
 ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters\n" "" 0
   --root "${CMAKE_SOURCE_DIR}"
   --show-rule
-  -p full
+  -p test
   --parameter max-directory-depth=20
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
@@ -390,7 +390,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T013: no copyright notice found
 ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters\n" "" 0
   --root "${CMAKE_SOURCE_DIR}"
   --show-rule
-  --profile full
+  --profile test
   --parameter max-directory-depth=20
   --exclusions ${CMAKE_CURRENT_SOURCE_DIR}/exclusions
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
