@@ -491,10 +491,10 @@ vera_add_rule_test(T007 "6: semicolon is isolated from other tokens
 7: semicolon is isolated from other tokens
 9: semicolon is isolated from other tokens")
 
-vera_add_rule_test(T008 "22: keyword 'catch' not followed by a single space
-24: keyword 'for' not followed by a single space
-26: keyword 'if' not followed by a single space
-28: keyword 'while' not followed by a single space")
+vera_add_rule_test(T008 "23: keyword 'catch' not followed by a single space
+25: keyword 'for' not followed by a single space
+27: keyword 'if' not followed by a single space
+29: keyword 'while' not followed by a single space")
 
 vera_add_rule_test(T009 "10: comma should not be preceded by whitespace
 12: comma should not be preceded by whitespace
