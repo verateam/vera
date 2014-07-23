@@ -68,7 +68,8 @@ int legacy_main(int argc, char * argv[], bool silent = false)
         Vera::Plugins::RootDirectory::DirectoryName veraRoot(get_vera_root_default(argv[0]));
 
         struct stat St;
-        bool isInCurrent = ( stat( "./scripts", &St ) == 0
+        bool isInCurrent = ( (stat( "./scripts", &St ) == 0 || stat( "./rules", &St ) == 0
+                                 || stat( "./transforms", &St ) == 0)
                              && stat( "./profiles", &St ) == 0 );
 
         // scripts and profiles folders are inside current directory
