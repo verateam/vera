@@ -150,38 +150,51 @@ namespace Plugins
 void Interpreter::execute(const DirectoryName & root,
     ScriptType type, const ScriptName & name)
 {
-    std::string fileName = root + "/scripts/";
+    std::string scriptDir = root + "/scripts/";
+    std::string scriptDir2 = root + "/";
     switch (type)
     {
     case rule:
-        fileName += "rules/";
+        scriptDir += "rules/";
+        scriptDir2 += "rules/";
         break;
     case transformation:
-        fileName += "transformations/";
+        scriptDir += "transformations/";
+        scriptDir2 += "transformations/";
         break;
     }
 
     // first look at tcl rules
-    std::string tclFileName = fileName + name;
-    if (boost::algorithm::ends_with(tclFileName, ".tcl") == false)
+    std::string tclName = name;
+    if (boost::algorithm::ends_with(tclName, ".tcl") == false)
     {
-      tclFileName += ".tcl";
+      tclName += ".tcl";
     }
-    if (boost::filesystem::exists(tclFileName))
+    if (boost::filesystem::exists(scriptDir + tclName))
     {
-        executeTcl(root, type, tclFileName);
+        executeTcl(root, type, scriptDir + tclName);
+        return;
+    }
+    else if (boost::filesystem::exists(scriptDir2 + tclName))
+    {
+        executeTcl(root, type, scriptDir2 + tclName);
         return;
     }
 #ifdef VERA_PYTHON
     // then python
-    std::string pyFileName = fileName + name;
-    if (boost::algorithm::ends_with(pyFileName, ".py") == false)
+    std::string pyName = name;
+    if (boost::algorithm::ends_with(pyName, ".py") == false)
     {
-      pyFileName += ".py";
+      pyName += ".py";
     }
-    if (boost::filesystem::exists(pyFileName))
+    if (boost::filesystem::exists(scriptDir + pyName))
     {
-        executePython(root, type, pyFileName);
+        executePython(root, type, scriptDir + pyName);
+        return;
+    }
+    else if (boost::filesystem::exists(scriptDir2 + pyName))
+    {
+        executePython(root, type, scriptDir2 + pyName);
         return;
     }
 #endif
