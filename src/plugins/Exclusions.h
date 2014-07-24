@@ -10,6 +10,7 @@
 
 #include <string>
 #include "../structures/SourceFiles.h"
+#include "Rules.h"
 #include <stdexcept>
 
 
@@ -30,8 +31,12 @@ public:
     typedef std::string ExclusionFileName;
 
     static void setExclusions(const ExclusionFileName & name);
+    static void setExclusionsTcl(const ExclusionFileName & name);
+    static void setExclusionsRegex(const ExclusionFileName & name);
 
     static bool isExcluded(const Structures::SourceFiles::FileName & name);
+    static bool isExcluded(const Structures::SourceFiles::FileName & name,
+        int lineNumber, const Rules::RuleName & currentRule, const std::string & msg);
 };
 
 } // namespace Plugins

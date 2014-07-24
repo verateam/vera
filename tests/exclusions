@@ -1,3 +1,7 @@
-set ruleExclusions(T014) {
-   L004.cpp
-}
+# exclude a few keywords
+/T003.cpp:\d+: T003: keyword '(class|delete|enum|extern|goto|new)' not followed by a single space
+
+# an empty line, just to make sure this is possible
+
+# drop all the lines with a line number with two digits
+/T003.cpp:\d\d: T003: .*

@@ -13,6 +13,11 @@
 #include <sstream>
 #include <cstring>
 #include <cerrno>
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
+
+#define foreach BOOST_FOREACH
 
 
 namespace // unnamed
@@ -22,6 +27,9 @@ typedef std::set<Vera::Structures::SourceFiles::FileName> FileNameSet;
 typedef std::map<Vera::Plugins::Rules::RuleName, FileNameSet> ExclusionMap;
 ExclusionMap exclusions;
 
+typedef std::vector<boost::regex> RegexList;
+RegexList exclusionRegexs;
+
 } // unnamed namespace
 
 namespace Vera
@@ -30,6 +38,48 @@ namespace Plugins
 {
 
 void Exclusions::setExclusions(const ExclusionFileName & fileName)
+{
+  // check if this is a Tcl or regex content
+  std::ifstream exclusionsFile(fileName.c_str());
+  std::stringstream buffer;
+  buffer << exclusionsFile.rdbuf();
+  if (buffer.str().find("set ruleExclusions") != std::string::npos)
+  {
+    setExclusionsTcl(fileName);
+  }
+  else
+  {
+    setExclusionsRegex(fileName);
+  }
+}
+
+void Exclusions::setExclusionsRegex(const ExclusionFileName & fileName)
+{
+    std::ifstream exclusionsFile(fileName.c_str());
+    if (exclusionsFile.is_open() == false)
+    {
+        std::ostringstream ss;
+        ss << "Cannot open exclusions file " << fileName << ": "
+           << strerror(errno);
+        throw ExclusionError(ss.str());
+    }
+    std::string re;
+    while (std::getline(exclusionsFile, re))
+    {
+        // don't process empty lines and lines begining with a #
+        if (re.empty() == false && re.substr(0, 1) != "#")
+        {
+          exclusionRegexs.push_back(boost::regex(re));
+        }
+    }
+    if (exclusionsFile.bad())
+    {
+        throw std::ios::failure(
+            "Cannot read from " + fileName + ": " + strerror(errno));
+    }
+}
+
+void Exclusions::setExclusionsTcl(const ExclusionFileName & fileName)
 {
     std::ifstream exclusionsFile(fileName.c_str());
     if (exclusionsFile.is_open() == false)
@@ -66,6 +116,21 @@ void Exclusions::setExclusions(const ExclusionFileName & fileName)
 
         exclusions[ruleName] = files;
     }
+}
+
+bool Exclusions::isExcluded(const Structures::SourceFiles::FileName & name,
+  int lineNumber, const Rules::RuleName & currentRule, const std::string & msg)
+{
+    std::string fmsg = name + ":" + boost::lexical_cast<std::string>(lineNumber)
+        + ": " + currentRule + ": " + msg;
+    foreach(boost::regex const& re, exclusionRegexs)
+    {
+        if (boost::regex_search(fmsg, re))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Exclusions::isExcluded(const Structures::SourceFiles::FileName & name)

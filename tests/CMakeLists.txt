@@ -385,6 +385,17 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters
 )
 
 vera_add_test(Exclusions
+  "" "${CMAKE_CURRENT_SOURCE_DIR}/T003.cpp:1: keyword 'case' not followed by a single space
+${CMAKE_CURRENT_SOURCE_DIR}/T003.cpp:5: keyword 'explicit' not followed by a single space
+${CMAKE_CURRENT_SOURCE_DIR}/T003.cpp:9: keyword 'struct' not followed by a single space\n" "" 0
+  --root "${CMAKE_SOURCE_DIR}"
+  --rule T003
+  --parameter max-directory-depth=20
+  --exclusions ${CMAKE_CURRENT_SOURCE_DIR}/exclusions
+  ${CMAKE_CURRENT_SOURCE_DIR}/T003.cpp
+)
+
+vera_add_test(ExclusionsLegacy
   "" "${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: L004: line is longer than 100 characters
 ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:1: T013: no copyright notice found
 ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters\n" "" 0
@@ -392,7 +403,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp:2: L004: line is longer than 100 characters
   --show-rule
   --profile test
   --parameter max-directory-depth=20
-  --exclusions ${CMAKE_CURRENT_SOURCE_DIR}/exclusions
+  --exclusions ${CMAKE_CURRENT_SOURCE_DIR}/exclusions_legacy
   ${CMAKE_CURRENT_SOURCE_DIR}/L004.cpp
 )
 

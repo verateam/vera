@@ -7,6 +7,7 @@
 
 #include "Reports.h"
 #include "Rules.h"
+#include "Exclusions.h"
 #include <sstream>
 #include <map>
 #include <utility>
@@ -74,8 +75,10 @@ void Reports::add(const FileName & name, int lineNumber, const Message & msg)
       throw std::out_of_range(ss.str());
     }
     const Rules::RuleName currentRule = Rules::getCurrentRule();
-
-    messages_[name].insert(make_pair(lineNumber, make_pair(currentRule, msg)));
+    if (Exclusions::isExcluded(name, lineNumber, currentRule, msg) == false)
+    {
+        messages_[name].insert(make_pair(lineNumber, make_pair(currentRule, msg)));
+    }
 }
 
 void Reports::internal(const FileName & name, int lineNumber, const Message & msg)

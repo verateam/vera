@@ -30,6 +30,7 @@ find_package(Boost COMPONENTS
   program_options
   system
   wave
+  regex
   ${boost_python}
   REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
