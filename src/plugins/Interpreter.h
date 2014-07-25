@@ -40,6 +40,10 @@ public:
     static void executePython(const DirectoryName & root,
         ScriptType type, const ScriptName & name);
 #endif
+#ifdef VERA_LUA
+    static void executeLua(const DirectoryName & root,
+        ScriptType type, const ScriptName & name);
+#endif
 };
 
 } // namespace Plugins

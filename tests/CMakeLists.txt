@@ -650,3 +650,7 @@ vera_add_test(NegativeLineNumberReport
 if(VERA_PYTHON)
   add_subdirectory(python)
 endif()
+
+if(VERA_LUA)
+  add_subdirectory(lua)
+endif()

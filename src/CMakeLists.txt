@@ -44,6 +44,15 @@ if(MSVC)
   add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 endif(MSVC)
 
+option(VERA_LUA "Build Lua rules support" OFF)
+if(VERA_LUA)
+  set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+  find_package(Lua REQUIRED)
+  find_package(Luabind REQUIRED)
+  include_directories(${LUABIND_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
+  add_definitions(-DVERA_LUA)
+endif()
+
 configure_file(config.h.in config.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -56,6 +65,10 @@ target_link_libraries(vera
 if(VERA_PYTHON)
   target_link_libraries(vera ${PYTHON_LIBRARIES})
 endif()
+if(VERA_LUA)
+  target_link_libraries(vera ${LUA_LIBRARIES} ${LUABIND_LIBRARY})
+endif()
+
 
 if(WIN32)
   # install the tcl lib, if we can find it
