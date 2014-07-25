@@ -8,7 +8,7 @@
 #include "Exclusions.h"
 #include "Rules.h"
 #include "../structures/SourceFiles.h"
-#include "cpptcl-1.1.4/cpptcl.h"
+#include "tcl/cpptcl-1.1.4/cpptcl.h"
 #include <fstream>
 #include <sstream>
 #include <cstring>

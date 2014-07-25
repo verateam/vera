@@ -5,10 +5,11 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef INTERPRETER_H_INCLUDED
-#define INTERPRETER_H_INCLUDED
+#ifndef TCL_INTERPRETER_H_INCLUDED
+#define TCL_INTERPRETER_H_INCLUDED
 
 #include <stdexcept>
+#include "../Interpreter.h"
 
 
 namespace Vera
@@ -16,19 +17,10 @@ namespace Vera
 namespace Plugins
 {
 
-
-class ScriptError : public std::runtime_error
+class TclInterpreter
 {
 public:
-    ScriptError(const std::string & msg) : std::runtime_error(msg) {}
-};
-
-
-class Interpreter
-{
-public:
-    enum ScriptType { rule, transformation };
-
+    typedef Interpreter::ScriptType ScriptType;
     typedef std::string DirectoryName;
     typedef std::string ScriptName;
 
@@ -40,4 +32,4 @@ public:
 
 } // namespace Vera
 
-#endif // INTERPRETER_H_INCLUDED
+#endif // TCL_INTERPRETER_H_INCLUDED

@@ -8,7 +8,7 @@
 #include "Profiles.h"
 #include "Rules.h"
 #include "RootDirectory.h"
-#include "cpptcl-1.1.4/cpptcl.h"
+#include "tcl/cpptcl-1.1.4/cpptcl.h"
 #include <vector>
 #include <set>
 #include <map>
