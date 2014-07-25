@@ -137,6 +137,9 @@ void PythonInterpreter::execute(const DirectoryName & root,
         PyImport_AppendInittab("vera", initvera);
         Py_Initialize();
 
+        PyRun_SimpleString("import cStringIO, sys");
+        PyRun_SimpleString("sys.stderr = cStringIO.StringIO()");
+
         py::object main_module = py::import("__main__");
         py::object main_namespace = main_module.attr("__dict__");
         main_namespace["vera"] = py::import("vera");
@@ -146,6 +149,9 @@ void PythonInterpreter::execute(const DirectoryName & root,
     catch (py::error_already_set const&)
     {
         PyErr_Print();
+        py::object sys(py::handle<>(PyImport_ImportModule("sys")));
+        py::object err = sys.attr("stderr");
+        throw std::runtime_error(py::extract<std::string>(err.attr("getvalue")()));
     }
     Py_Finalize();
 }
