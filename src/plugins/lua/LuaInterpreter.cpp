@@ -139,10 +139,14 @@ void LuaInterpreter::execute(const DirectoryName & root,
 
   ];
 
-  if (luaL_dofile(L, fileName.c_str()))
+  lua_getglobal(L, "debug");
+  lua_getfield(L, -1, "traceback");
+  lua_replace(L, -2);
+  if (luaL_loadfile(L, fileName.c_str()) || lua_pcall(L, 0, LUA_MULTRET, -2))
   {
       throw std::runtime_error(lua_tostring(L, lua_gettop(L)));
   }
+  lua_pop(L, 1); /* remove debug.traceback from the stack */
   lua_close(L); // TODO: fix leak!
 }
 
