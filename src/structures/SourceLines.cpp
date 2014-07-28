@@ -66,7 +66,7 @@ void SourceLines::loadFile(const SourceFiles::FileName & name)
         SourceLines::loadFile(file, name);
         if (file.bad())
         {
-            throw std::ios::failure(
+            throw std::runtime_error(
                 "Cannot read from " + name + ": " + strerror(errno));
         }
     }

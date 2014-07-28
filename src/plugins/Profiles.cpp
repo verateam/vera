@@ -49,7 +49,7 @@ RuleNameCollection getListOfScriptNames(const Vera::Plugins::Profiles::ProfileNa
     interp.eval(profileFile);
     if (profileFile.bad())
     {
-        throw std::ios::failure(
+        throw std::runtime_error(
             "Cannot read from " + fileName + ": " + strerror(errno));
     }
 

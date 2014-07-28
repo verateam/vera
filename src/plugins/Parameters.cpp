@@ -90,7 +90,7 @@ void Parameters::readFromFile(const FileName & name)
     }
     if (file.bad())
     {
-        throw std::ios::failure(
+        throw std::runtime_error(
             "Cannot read from " + name + ": " + strerror(errno));
     }
     file.close();

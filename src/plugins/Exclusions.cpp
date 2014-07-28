@@ -74,7 +74,7 @@ void Exclusions::setExclusionsRegex(const ExclusionFileName & fileName)
     }
     if (exclusionsFile.bad())
     {
-        throw std::ios::failure(
+        throw std::runtime_error(
             "Cannot read from " + fileName + ": " + strerror(errno));
     }
 }
@@ -94,7 +94,7 @@ void Exclusions::setExclusionsTcl(const ExclusionFileName & fileName)
     interp.eval(exclusionsFile);
     if (exclusionsFile.bad())
     {
-        throw std::ios::failure(
+        throw std::runtime_error(
             "Cannot read from " + fileName + ": " + strerror(errno));
     }
 

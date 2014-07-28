@@ -54,13 +54,13 @@ void doReports(Files & reports, Options & vm, Reporter * reporter)
             std::ofstream file(fn.c_str());
             if (file.is_open() == false)
             {
-                throw std::ios::failure(
+                throw std::runtime_error(
                     "Cannot open " + fn + ": " + strerror(errno));
             }
             (*reporter)(file, vm.count("no-duplicate"));
             if (file.bad())
             {
-                throw std::ios::failure(
+                throw std::runtime_error(
                     "Cannot write to " + fn + ": " + strerror(errno));
             }
             file.close();
@@ -262,7 +262,7 @@ int boost_main(int argc, char * argv[])
                 std::ifstream file(f.c_str());
                 if (file.is_open() == false)
                 {
-                    throw std::ios::failure(
+                    throw std::runtime_error(
                         "Cannot open " + f + ": " + strerror(errno));
                 }
                 std::string name;
@@ -272,7 +272,7 @@ int boost_main(int argc, char * argv[])
                 }
                 if (file.bad())
                 {
-                    throw std::ios::failure(
+                    throw std::runtime_error(
                         "Cannot read from " + f + ": " + strerror(errno));
                 }
                 file.close();
