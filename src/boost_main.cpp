@@ -188,6 +188,46 @@ int boost_main(int argc, char * argv[])
         }
         po::notify(vm); // throws on error, so do after help in case
                         // there are any problems
+
+        // don't do the profile stuff when we only want the version
+        if (vm.count("version"))
+        {
+            std::cout << VERA_VERSION << '\n';
+            return EXIT_SUCCESS;
+        }
+
+        // we need the root to be able to find the profiles
+        Vera::Plugins::RootDirectory::setRootDirectory(veraRoot);
+
+        if (vm.count("profile") != 0 || (vm.count("rule") == 0 && vm.count("transform") == 0))
+        {
+            try
+            {
+                // backward compatibility stuff
+                Vera::Plugins::Profiles::RuleNameCollection res =
+                    Vera::Plugins::Profiles::getListOfScriptNamesTcl(profile);
+                rules.insert(rules.end(), res.begin(), res.end());
+            }
+            catch (...)
+            {
+                std::string profileFile = veraRoot + "/profiles/" + profile;
+                std::ifstream file(profileFile.c_str());
+                if (file.is_open() == false)
+                {
+                    throw std::runtime_error(
+                        "Cannot open profile description for profile '" + profile + "': "
+                        + strerror(errno));
+                }
+                po::store(po::parse_config_file(file, visibleOptions), vm);
+                if (file.bad())
+                {
+                    throw std::runtime_error(
+                        "Cannot read from profile description '" + profile + "': "
+                        + strerror(errno));
+                }
+                po::notify(vm);
+            }
+        }
     }
     catch (po::error& e)
     {
@@ -195,16 +235,14 @@ int boost_main(int argc, char * argv[])
         std::cerr << visibleOptions << std::endl;
         return EXIT_FAILURE;
     }
-
-    if (vm.count("version"))
+    catch (std::exception& e)
     {
-        std::cout << VERA_VERSION << '\n';
-        return EXIT_SUCCESS;
+        std::cerr << "vera++: " << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
 
     try
     {
-        Vera::Plugins::RootDirectory::setRootDirectory(veraRoot);
         Vera::Plugins::Reports::setShowRules(vm.count("show-rule"));
         if (vm.count("warning"))
         {
@@ -289,13 +327,6 @@ int boost_main(int argc, char * argv[])
 
         if (rules.empty() == false)
         {
-            if (vm.count("profile"))
-            {
-                std::cerr << "vera++: --profile and --rule can't be used at the same time."
-                    << std::endl;
-                std::cerr << visibleOptions << std::endl;
-                return EXIT_FAILURE;
-            }
             if (vm.count("transform"))
             {
                 std::cerr << "vera++: --transform and --rule can't be used at the same time."
@@ -310,18 +341,7 @@ int boost_main(int argc, char * argv[])
         }
         else if (vm.count("transform"))
         {
-            if (vm.count("profile"))
-            {
-                std::cerr << "vera++: --profile and --transform can't be used at the same time."
-                    << std::endl;
-                std::cerr << visibleOptions << std::endl;
-                return EXIT_FAILURE;
-            }
             Vera::Plugins::Transformations::executeTransformation(transform);
-        }
-        else
-        {
-            Vera::Plugins::Profiles::executeProfile(profile);
         }
 
         doReports(stdreports, vm, Vera::Plugins::Reports::writeStd);

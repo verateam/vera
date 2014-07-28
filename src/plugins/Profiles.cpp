@@ -6,10 +6,8 @@
 //
 
 #include "Profiles.h"
-#include "Rules.h"
 #include "RootDirectory.h"
 #include "tcl/cpptcl-1.1.4/cpptcl.h"
-#include <vector>
 #include <set>
 #include <map>
 #include <fstream>
@@ -19,12 +17,14 @@
 #include <cerrno>
 
 
-namespace // unnamed
+namespace Vera
+{
+namespace Plugins
 {
 
-typedef std::vector<Vera::Plugins::Rules::RuleName> RuleNameCollection;
 
-RuleNameCollection getListOfScriptNames(const Vera::Plugins::Profiles::ProfileName & profile)
+Profiles::RuleNameCollection Profiles::getListOfScriptNamesTcl(
+  const Vera::Plugins::Profiles::ProfileName & profile)
 {
     RuleNameCollection allRules;
 
@@ -65,13 +65,69 @@ RuleNameCollection getListOfScriptNames(const Vera::Plugins::Profiles::ProfileNa
     return allRules;
 }
 
-} // unnamed namespace
-
-
-namespace Vera
+Profiles::RuleNameCollection Profiles::getListOfScriptNamesKeys(
+  const Vera::Plugins::Profiles::ProfileName & profile)
 {
-namespace Plugins
+  RuleNameCollection allRules;
+
+  // name of the profile is also the name of the profile file
+
+  const Vera::Plugins::RootDirectory::DirectoryName veraRoot =
+          Vera::Plugins::RootDirectory::getRootDirectory();
+
+  std::string fileName(veraRoot + "/profiles/");
+  fileName += profile;
+
+  std::ifstream profileFile(fileName.c_str());
+  if (profileFile.is_open() == false)
+  {
+      std::ostringstream ss;
+      ss << "Cannot open profile description for profile '" << profile
+          << "': "<< strerror(errno);
+      throw Vera::Plugins::ProfileError(ss.str());
+  }
+
+  std::string line;
+  while (getline(profileFile, line))
+  {
+      if (line.empty() == false && line[0] != '#')
+      {
+        std::string::size_type pos = line.find("=");
+        if (pos != std::string::npos)
+        {
+            std::string name = line.substr(0, pos);
+            std::string value = line.substr(pos + 1);
+
+            if (name == "rule")
+            {
+              allRules.push_back(value);
+            }
+        }
+      }
+  }
+
+  if (profileFile.bad())
+  {
+      throw std::runtime_error(
+          "Cannot read from " + fileName + ": " + strerror(errno));
+  }
+  profileFile.close();
+
+  return allRules;
+}
+
+Profiles::RuleNameCollection Profiles::getListOfScriptNames(
+  const Vera::Plugins::Profiles::ProfileName & profile)
 {
+  try
+  {
+    return getListOfScriptNamesTcl(profile);
+  }
+  catch (...)
+  {
+    return getListOfScriptNamesKeys(profile);
+  }
+}
 
 void Profiles::executeProfile(const ProfileName & profile)
 {

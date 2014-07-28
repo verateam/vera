@@ -10,6 +10,8 @@
 
 #include <string>
 #include <stdexcept>
+#include <vector>
+#include "Rules.h"
 
 
 namespace Vera
@@ -28,8 +30,15 @@ class Profiles
 {
 public:
     typedef std::string ProfileName;
+    typedef std::vector<Vera::Plugins::Rules::RuleName> RuleNameCollection;
 
     static void executeProfile(const ProfileName & name);
+    static RuleNameCollection getListOfScriptNamesTcl(
+      const Vera::Plugins::Profiles::ProfileName & profile);
+    static RuleNameCollection getListOfScriptNamesKeys(
+      const Vera::Plugins::Profiles::ProfileName & profile);
+    static RuleNameCollection getListOfScriptNames(
+      const Vera::Plugins::Profiles::ProfileName & profile);
 };
 
 } // namespace Plugins
