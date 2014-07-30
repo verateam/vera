@@ -52,6 +52,8 @@ if (x)
 for (int i = 0; i = 10; ++i);  // oops!
     cout << "Hello\n";
 
+#pragma omp parallel for \
+    private(k)
 for (int i = 0; i = 10; ++i)   // OK
 {
     cout << "Hello\n";

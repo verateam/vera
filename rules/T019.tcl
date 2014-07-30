@@ -5,8 +5,10 @@ foreach fileName [getSourceFileNames] {
 
     set state "start"
     set prev ""
-    foreach token [getTokens $fileName 1 0 -1 -1 {for if while do else leftparen rightparen leftbrace rightbrace semicolon}] {
+    set pp_pragma_line -1
+    foreach token [getTokens $fileName 1 0 -1 -1 {for if while do else leftparen rightparen leftbrace rightbrace semicolon pp_pragma}] {
         set type [lindex $token 3]
+        set line [lindex $token 1]
 
         if {$state == "control"} {
             if {$type == "leftparen"} {
@@ -19,23 +21,27 @@ foreach fileName [getSourceFileNames] {
             }
 
         } elseif {$state == "expectedblock"} {
-			if {$prev == "else" && $type == "if" } {
-				# skip
-			} elseif {$type != "leftbrace"} {
+            if {$prev == "else" && $type == "if" } {
+              # skip
+            } elseif {$type != "leftbrace"} {
                 set line [lindex $token 1]
                 report $fileName $line "full block {} expected in the control structure"
             }
             set state "block"
         }
 
-        if {$type == "for" || $type == "if"} {
-            set parenCount 0
-            set state "control"
-        } elseif {$type == "do" || $type == "else"} {
-            set state "expectedblock"
-        } elseif {$type == "while" && $prev != "rightbrace"} {
-            set parenCount 0
-            set state "control"
+        if {$type == "pp_pragma"} {
+          set pp_pragma_line $line
+        } elseif {$pp_pragma_line != $line} {
+            if {$type == "for" || $type == "if"} {
+                set parenCount 0
+                set state "control"
+            } elseif {$type == "do" || $type == "else"} {
+                set state "expectedblock"
+            } elseif {$type == "while" && $prev != "rightbrace"} {
+                set parenCount 0
+                set state "control"
+            }
         }
         set prev $type
     }
