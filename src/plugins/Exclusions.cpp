@@ -39,18 +39,14 @@ namespace Plugins
 
 void Exclusions::setExclusions(const ExclusionFileName & fileName)
 {
-  // check if this is a Tcl or regex content
-  std::ifstream exclusionsFile(fileName.c_str());
-  std::stringstream buffer;
-  buffer << exclusionsFile.rdbuf();
-  if (buffer.str().find("set ruleExclusions") != std::string::npos)
-  {
-    setExclusionsTcl(fileName);
-  }
-  else
-  {
-    setExclusionsRegex(fileName);
-  }
+    try
+    {
+        setExclusionsTcl(fileName);
+    }
+    catch (...)
+    {
+        setExclusionsRegex(fileName);
+    }
 }
 
 void Exclusions::setExclusionsRegex(const ExclusionFileName & fileName)
