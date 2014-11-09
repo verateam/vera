@@ -1,8 +1,5 @@
-include(WriteBasicConfigVersionFile)
-write_basic_config_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/vera++-config-version.cmake
-  VERSION ${VERA_VERSION}
-  COMPATIBILITY AnyNewerVersion)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vera++-config-version.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vera++-config-version.cmake)
 
 if(WIN)
   set(destdir cmake/)
