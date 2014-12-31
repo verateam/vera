@@ -32,7 +32,7 @@ else()
   include(ExternalProject)
 
   string(REPLACE boostLibsComma ";" "," ${boostLibs})
-  set(opts -j4 threading=multi link=static "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 -w" cflags=-w)
+  set(opts -j4 threading=multi link=static "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 -w" cflags=-w -s NO_BZIP2=1)
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
     URL_MD5 1be49befbdd9a5ce9def2983ba3e7b76
