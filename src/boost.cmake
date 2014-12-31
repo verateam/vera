@@ -1,17 +1,34 @@
 
 if(WIN32)
-  option(VERA_BOOST "Build boost" OFF)
+  option(VERA_USE_SYSTEM_BOOST "Use system boost" ON)
 else()
-  option(VERA_BOOST "Build boost" ON)
+  option(VERA_USE_SYSTEM_BOOST "Build boost" OFF)
 endif()
-mark_as_advanced(VERA_BOOST)
+mark_as_advanced(VERA_USE_SYSTEM_BOOST)
 
 set(boostLibs filesystem system program_options regex wave)
 if(VERA_PYTHON)
   list(APPEND boostLibs python)
 endif()
 
-if(VERA_BOOST)
+if(VERA_USE_SYSTEM_BOOST)
+  if(WIN32)
+    # use boost static libs to avoid LNK2019 errors
+    # feel free to contribute a better fix!
+    set(Boost_USE_STATIC_LIBS ON)
+  else()
+    # expose the Boost_USE_STATIC_LIBS option to ease the manual creation of
+    # packages with cpack
+    option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
+  endif()
+  find_package(Boost COMPONENTS ${boostLibs} REQUIRED)
+  include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+  link_directories(${Boost_LIBRARY_DIRS})
+  # hide Boost_DIR option that doesn't seem to be set by FindBoost
+  mark_as_advanced(Boost_DIR)
+  # no target
+  set(Boost_TARGET)
+else()
   include(ExternalProject)
 
   string(REPLACE boostLibsComma ";" "," ${boostLibs})
@@ -30,21 +47,4 @@ if(VERA_BOOST)
   include_directories(SYSTEM ${INSTALL_DIR}/include)
   link_directories(${INSTALL_DIR}/lib)
   set(Boost_TARGET boost)
-else()
-  if(WIN32)
-    # use boost static libs to avoid LNK2019 errors
-    # feel free to contribute a better fix!
-    set(Boost_USE_STATIC_LIBS ON)
-  else()
-    # expose the Boost_USE_STATIC_LIBS option to ease the manual creation of
-    # packages with cpack
-    option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
-  endif()
-  find_package(Boost COMPONENTS ${boostLibs} REQUIRED)
-  include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-  link_directories(${Boost_LIBRARY_DIRS})
-  # hide Boost_DIR option that doesn't seem to be set by FindBoost
-  mark_as_advanced(Boost_DIR)
-  # no target
-  set(Boost_TARGET)
 endif()
