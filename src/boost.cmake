@@ -32,13 +32,14 @@ else()
   include(ExternalProject)
 
   string(REPLACE boostLibsComma ";" "," ${boostLibs})
+  set(opts -j4 threading=multi link=static "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 -w" cflags=-w)
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
     URL_MD5 1be49befbdd9a5ce9def2983ba3e7b76
     CONFIGURE_COMMAND ./bootstrap.sh --with-libraries=${boostLibsComma} --prefix=<INSTALL_DIR>
-    BUILD_COMMAND ./b2 -j4 threading=multi link=static cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1
+    BUILD_COMMAND ./b2 ${opts}
     BUILD_IN_SOURCE ON
-    INSTALL_COMMAND ./b2 -j4 install)
+    INSTALL_COMMAND ./b2 ${opts} install)
   ExternalProject_Get_Property(boost INSTALL_DIR)
   set(Boost_LIBRARIES)
   foreach(l ${boostLibs})
