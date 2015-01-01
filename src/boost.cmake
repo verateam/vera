@@ -45,8 +45,8 @@ else()
       threading=multi
       link=static
       variant=${variant}
-      "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 -w"
-      cflags=-w
+      "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS} -w"
+      "cflags=${CMAKE_C_FLAGS} -w"
       -s NO_BZIP2=1
       --without-mpi
     BUILD_IN_SOURCE ON)
