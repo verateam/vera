@@ -31,6 +31,11 @@ if(VERA_USE_SYSTEM_BOOST)
 else()
   include(ExternalProject)
 
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(variant debug)
+  else()
+    set(variant release)
+  endif()
   string(REPLACE boostLibsComma ";" "," ${boostLibs})
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
@@ -39,6 +44,7 @@ else()
     BUILD_COMMAND ./b2 -j4
       threading=multi
       link=static
+      variant=${variant}
       "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 -w"
       cflags=-w
       -s NO_BZIP2=1
