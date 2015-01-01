@@ -25,10 +25,7 @@ endif(MSVC)
 
 option(VERA_LUA "Build Lua rules support" OFF)
 if(VERA_LUA)
-  set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-  find_package(Lua REQUIRED)
-  find_package(Luabind REQUIRED)
-  include_directories(${LUABIND_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
+  include(lua.cmake)
   add_definitions(-DVERA_LUA)
 endif()
 
@@ -37,7 +34,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB_RECURSE srcs *.cpp)
 add_executable(vera ${srcs})
-add_dependencies(vera vera ${Boost_TARGET})
+add_dependencies(vera vera ${Boost_TARGET} ${Lua_TARGET} ${Luabind_TARGET})
 set_target_properties(vera PROPERTIES OUTPUT_NAME vera++)
 target_link_libraries(vera
   ${TCL_LIBRARY}
