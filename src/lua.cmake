@@ -1,9 +1,5 @@
 
-if(WIN32)
-  option(VERA_USE_SYSTEM_LUA "Use system lua and luabind" ON)
-else()
-  option(VERA_USE_SYSTEM_LUA "Build lua and luabind" OFF)
-endif()
+option(VERA_USE_SYSTEM_LUA "Build lua and luabind" ON)
 mark_as_advanced(VERA_USE_SYSTEM_LUA)
 
 if(VERA_USE_SYSTEM_LUA)
