@@ -6,7 +6,7 @@ if(VERA_USE_SYSTEM_LUA)
   set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
   find_package(Lua51 REQUIRED)
   find_package(Luabind REQUIRED)
-  include_directories(${LUABIND_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
+  include_directories(BEFORE SYSTEM ${LUABIND_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
   link_directories(${LUABIND_LIBRARY_DIR} ${LUA_LIBRARY_DIR})
   # no target
   set(Lua_TARGET)
