@@ -22,6 +22,7 @@ else()
     URL https://github.com/LuaDist/lua/archive/5.1.5.tar.gz
     URL_MD5 5bb22e7b5368aea321080f659df0bf5a
     CMAKE_ARGS
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_C_FLAGS:STRING=-w
       -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
     )
@@ -46,6 +47,7 @@ else()
     URL https://github.com/glehmann/luabind/archive/luabind-for-vera.zip
     URL_MD5 8d1fd26a66da098283969eaf6253ebe3
     CMAKE_ARGS
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DBUILD_TESTING:BOOL=OFF
       -DCMAKE_CXX_FLAGS:STRING=-w
       -DLUA_INCLUDE_DIR:PATH=${lua_include_dir}
