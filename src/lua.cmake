@@ -35,8 +35,13 @@ else()
 
   # luabind seems unmaintained by its main developer. This version supports
   # lua 5.2
-  ExternalProject_Get_Property(boost SOURCE_DIR)
-  set(boostSourceDir ${SOURCE_DIR})
+  if(TARGET boost)
+    ExternalProject_Get_Property(boost SOURCE_DIR)
+    set(boostDir ${SOURCE_DIR})
+  else()
+    # guess the boost dir based on the include dir
+    set(boostDir ${Boost_INCLUDE_DIR}/..)
+  endif()
   ExternalProject_Add(luabind
     URL https://github.com/glehmann/luabind/archive/luabind-for-vera.zip
     URL_MD5 8d1fd26a66da098283969eaf6253ebe3
@@ -46,7 +51,7 @@ else()
       -DLUA_INCLUDE_DIR:PATH=${lua_include_dir}
       -DLUA_LIBRARIES:PATH=${LUA_LIBRARIES}
       -DLUA_LIBRARY:PATH=${LUA_LIBRARIES}
-      -DBOOST_ROOT=${boostSourceDir}
+      -DBOOST_ROOT=${boostDir}
     INSTALL_COMMAND "")
   ExternalProject_Get_Property(luabind SOURCE_DIR)
   ExternalProject_Get_Property(luabind BINARY_DIR)
