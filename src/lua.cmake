@@ -55,6 +55,10 @@ else()
       -DLUA_LIBRARY:PATH=${LUA_LIBRARIES}
       -DBOOST_ROOT=${boostDir}
     INSTALL_COMMAND "")
+  add_dependencies(luabind lua)
+  if(TARGET boost)
+    add_dependencies(luabind boost)
+  endif()
   ExternalProject_Get_Property(luabind SOURCE_DIR)
   ExternalProject_Get_Property(luabind BINARY_DIR)
   set(LUABIND_LIBRARY ${BINARY_DIR}/src/libluabind.a)
