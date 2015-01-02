@@ -49,6 +49,7 @@ else()
       "cflags=${CMAKE_C_FLAGS} -w"
       -s NO_BZIP2=1
       --without-mpi
+    INSTALL_COMMAND ""
     BUILD_IN_SOURCE ON)
   ExternalProject_Get_Property(boost SOURCE_DIR)
   set(Boost_LIBRARIES)
