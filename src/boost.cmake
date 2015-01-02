@@ -41,7 +41,7 @@ else()
     URL http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
     URL_MD5 1be49befbdd9a5ce9def2983ba3e7b76
     CONFIGURE_COMMAND ./bootstrap.sh --with-libraries=${boostLibsComma}
-    BUILD_COMMAND ./b2 -j4
+    BUILD_COMMAND ./b2
       threading=multi
       link=static
       variant=${variant}
