@@ -31,16 +31,23 @@ if(VERA_USE_SYSTEM_BOOST)
 else()
   include(ExternalProject)
 
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(variant debug)
-  else()
-    set(variant release)
-  endif()
   string(REPLACE boostLibsComma ";" "," ${boostLibs})
+  if(WIN32)
+    set(variant "debug,release")
+    set(bootstrap bootstrap.bat)
+	string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" msvcver ${CMAKE_GENERATOR})
+  else()
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+      set(variant debug)
+    else()
+      set(variant release)
+    endif()
+    set(bootstrap bootstrap.sh)
+  endif()
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
     URL_MD5 1be49befbdd9a5ce9def2983ba3e7b76
-    CONFIGURE_COMMAND ./bootstrap.sh --with-libraries=${boostLibsComma}
+    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma}
     BUILD_COMMAND ./b2
       threading=multi
       link=static
@@ -54,7 +61,12 @@ else()
   ExternalProject_Get_Property(boost SOURCE_DIR)
   set(Boost_LIBRARIES)
   foreach(l ${boostLibs})
-    list(APPEND Boost_LIBRARIES ${SOURCE_DIR}/stage/lib/libboost_${l}.a)
+    if(WIN32)
+      list(APPEND Boost_LIBRARIES debug ${SOURCE_DIR}/stage/lib/libboost_${l}-vc${msvcver}0-mt-gd-1_57.lib)
+      list(APPEND Boost_LIBRARIES optimized ${SOURCE_DIR}/stage/lib/libboost_${l}-vc${msvcver}0-mt-1_57.lib)
+    else()
+      list(APPEND Boost_LIBRARIES ${SOURCE_DIR}/stage/lib/libboost_${l}.a)
+    endif()
   endforeach()
   include_directories(SYSTEM ${SOURCE_DIR})
   link_directories(${SOURCE_DIR}/stage/lib)
