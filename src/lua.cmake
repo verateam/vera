@@ -15,8 +15,8 @@ else()
 
   # a cmakeified version of lua
   ExternalProject_Add(lua
-    URL https://github.com/LuaDist/lua/archive/5.1.5.tar.gz
-    URL_MD5 5bb22e7b5368aea321080f659df0bf5a
+    URL https://github.com/LuaDist/lua/archive/5.2.3.tar.gz
+    URL_MD5 710bba91186bb672b829cd05d78b614d
     CMAKE_ARGS -Wno-dev
     CMAKE_CACHE_ARGS
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
@@ -33,7 +33,7 @@ else()
     set(LUA_LIBRARIES debug ${BINARY_DIR}/Debug/liblua_static.lib
 	  optimized ${BINARY_DIR}/Release/liblua_static.lib)
   else()
-    set(LUA_LIBRARIES ${BINARY_DIR}/libliblua_static.a)
+    set(LUA_LIBRARIES ${BINARY_DIR}/liblua.a)
   endif()
   set(lua_include_dir ${INSTALL_DIR}/include)
   include_directories(SYSTEM ${lua_include_dir})
@@ -50,8 +50,8 @@ else()
     set(boostDir ${Boost_INCLUDE_DIR}/..)
   endif()
   ExternalProject_Add(luabind
-    URL https://github.com/glehmann/luabind/archive/luabind-for-vera.zip
-    URL_MD5 8d1fd26a66da098283969eaf6253ebe3
+    URL https://github.com/glehmann/luabind/archive/fix-boost-157.zip
+    URL_MD5 caeeede2a48770459380834dd29c9f2b
     CMAKE_CACHE_ARGS
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
       -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
