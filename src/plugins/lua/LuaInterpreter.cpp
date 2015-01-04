@@ -20,6 +20,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
+#include <boost/foreach.hpp>
+
+#define foreach BOOST_FOREACH
+
 #include <luabind/luabind.hpp>
 #include <luabind/adopt_policy.hpp>
 #include <luabind/iterator_policy.hpp>
@@ -104,6 +108,36 @@ std::vector<std::string> const& luaGetSourceFileNames()
     return sourceFileNames;
 }
 
+// Structures::Tokens::getTokens does not return a reference, so we must cache
+// the result to be able to use it with return_stl_iterator
+std::map<std::string, Structures::Tokens::TokenSequence> tokens;
+Structures::Tokens::TokenSequence const& getTokens(
+    const Structures::SourceFiles::FileName & fileName,
+    int fromLine, int fromColumn, int toLine, int toColumn,
+    const Structures::Tokens::FilterSequence & filter)
+{
+  // create a key unique for all these parameters
+  std::ostringstream keyStream;
+  keyStream << fileName;
+  keyStream << "$" << fromLine;
+  keyStream << "$" << fromColumn;
+  keyStream << "$" << toLine;
+  keyStream << "$" << toColumn;
+  foreach(std::string const& s, filter)
+  {
+    keyStream << "$" << s;
+  }
+  std::string key = keyStream.str();
+  std::map<std::string, Structures::Tokens::TokenSequence>::iterator it = tokens.find(key);
+  if (it != tokens.end())
+  {
+    return it->second;
+  }
+  tokens[key] = Structures::Tokens::getTokens(fileName, fromLine, fromColumn,
+    toLine, toColumn, filter);
+  return tokens[key];
+}
+
 void LuaInterpreter::execute(const DirectoryName & root,
     ScriptType type, const std::string & fileName)
 {
@@ -122,7 +156,7 @@ void LuaInterpreter::execute(const DirectoryName & root,
           .def_readonly("type", &Structures::Token::name_),
 
 
-      luabind::def("getTokens", &Structures::Tokens::getTokens, luabind::return_stl_iterator),
+      luabind::def("getTokens", &getTokens, luabind::return_stl_iterator),
 
       luabind::def("report", &Plugins::Reports::add),
 
