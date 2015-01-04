@@ -31,8 +31,8 @@ else()
   ExternalProject_Get_Property(lua INSTALL_DIR)
   ExternalProject_Get_Property(lua BINARY_DIR)
   if(WIN32)
-    set(LUA_LIBRARIES debug ${BINARY_DIR}/Debug/liblua_static.lib
-	  optimized ${BINARY_DIR}/Release/liblua_static.lib)
+    set(LUA_LIBRARIES debug ${BINARY_DIR}/Debug/lua.lib
+	  optimized ${BINARY_DIR}/Release/lua.lib)
   else()
     set(LUA_LIBRARIES ${BINARY_DIR}/liblua.a)
   endif()
@@ -73,7 +73,7 @@ else()
   ExternalProject_Get_Property(luabind SOURCE_DIR)
   ExternalProject_Get_Property(luabind BINARY_DIR)
   if(WIN32)
-    set(LUA_LIBRARIES debug ${BINARY_DIR}/src/Debug/luabind.lib
+    set(LUABIND_LIBRARY debug ${BINARY_DIR}/src/Debug/luabind.lib
 	  optimized ${BINARY_DIR}/src/Release/luabind.lib)
   else()
     set(LUABIND_LIBRARY ${BINARY_DIR}/src/libluabind.a)
