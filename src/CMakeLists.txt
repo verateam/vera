@@ -23,7 +23,7 @@ if(MSVC)
   add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 endif(MSVC)
 
-option(VERA_LUA "Build Lua rules support" OFF)
+option(VERA_LUA "Build Lua rules support" ON)
 if(VERA_LUA)
   include(lua.cmake)
   add_definitions(-DVERA_LUA)
