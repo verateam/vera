@@ -9,9 +9,7 @@ link_directories(${TCL_LIBRARY_DIRS})
 
 option(VERA_PYTHON "Build Python rules support" OFF)
 if(VERA_PYTHON)
-  # use a version number to force cmake to find a python 2 version
-  find_package(PythonLibs 2.0 REQUIRED)
-  include_directories(${PYTHON_INCLUDE_DIRS})
+  include(python.cmake)
   add_definitions(-DVERA_PYTHON)
 endif()
 
@@ -34,7 +32,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB_RECURSE srcs *.cpp)
 add_executable(vera ${srcs})
-add_dependencies(vera vera ${Boost_TARGET} ${Lua_TARGET} ${Luabind_TARGET})
+add_dependencies(vera vera ${Boost_TARGET} ${Lua_TARGET} ${Luabind_TARGET} ${Python_TARGET})
 set_target_properties(vera PROPERTIES OUTPUT_NAME vera++)
 target_link_libraries(vera
   ${TCL_LIBRARY}
