@@ -54,7 +54,7 @@ else()
       variant=${variant}
       warnings=off
       "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS}"
-      "cflags=${CMAKE_C_FLAGS}"
+      "cflags=-DMAKE_SURE_CFLAGS_IS_NOT_EMPTY ${CMAKE_C_FLAGS}"
       -s NO_BZIP2=1
       --without-mpi
     INSTALL_COMMAND ""
