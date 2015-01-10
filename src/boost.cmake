@@ -35,7 +35,9 @@ else()
   if(WIN32)
     set(variant "debug,release")
     set(bootstrap bootstrap.bat)
-	string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" msvcver ${CMAKE_GENERATOR})
+    string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" msvcver ${CMAKE_GENERATOR})
+    set(cExtraFlags)
+    set(cxxExtraFlags)
   else()
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       set(variant debug)
@@ -43,6 +45,8 @@ else()
       set(variant release)
     endif()
     set(bootstrap bootstrap.sh)
+    set(cExtraFlags -w)
+    set(cxxExtraFlags -w)
   endif()
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
@@ -52,8 +56,8 @@ else()
       threading=multi
       link=static
       variant=${variant}
-      "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS} -w"
-      "cflags=${CMAKE_C_FLAGS} -w"
+      "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS} ${cxxExtraFlags}"
+      "cflags=${CMAKE_C_FLAGS} ${cExtraFlags}"
       -s NO_BZIP2=1
       --without-mpi
     INSTALL_COMMAND ""
