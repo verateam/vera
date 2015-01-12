@@ -21,7 +21,7 @@ if(MSVC)
   add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 endif(MSVC)
 
-option(VERA_LUA "Build Lua rules support" OFF)
+option(VERA_LUA "Build Lua rules support" ON)
 if(VERA_LUA)
   include(lua.cmake)
   add_definitions(-DVERA_LUA)
@@ -42,6 +42,10 @@ if(VERA_PYTHON)
 endif()
 if(VERA_LUA)
   target_link_libraries(vera ${LUA_LIBRARIES} ${LUABIND_LIBRARY})
+endif()
+if(UNIX)
+   # keep it at the end to be able to build on ubuntu
+  target_link_libraries(vera dl)
 endif()
 
 

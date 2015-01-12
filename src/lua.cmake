@@ -4,14 +4,28 @@ mark_as_advanced(VERA_USE_SYSTEM_LUA)
 
 if(VERA_USE_SYSTEM_LUA)
   set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-  find_package(Lua51 REQUIRED)
-  find_package(Luabind REQUIRED)
+  find_package(Lua51)
+  find_package(Luabind)
+  if(NOT LUA51_FOUND)
+    message(FATAL_ERROR "Could NOT find Lua. Turn VERA_USE_SYSTEM_LUA to OFF to build it with vera++.")
+  endif()
+  if(NOT LUABIND_FOUND)
+    message(FATAL_ERROR "Could NOT find Luabind. Turn VERA_USE_SYSTEM_LUA to OFF to build it with vera++.")
+  endif()
   include_directories(BEFORE SYSTEM ${LUABIND_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
   link_directories(${LUABIND_LIBRARY_DIR} ${LUA_LIBRARY_DIR})
   # no target
   set(Lua_TARGET)
 else()
   include(ExternalProject)
+
+  if(WIN32)
+    set(cExtraFlags)
+    set(cxxExtraFlags)
+  else()
+    set(cExtraFlags -w)
+    set(cxxExtraFlags -w)
+  endif()
 
   # a cmakeified version of lua
   ExternalProject_Add(lua
@@ -21,11 +35,10 @@ else()
     CMAKE_CACHE_ARGS
       -DBUILD_SHARED_LIBS:BOOL=OFF
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
-      -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+      "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS} ${cxxExtraFlags}"
       -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-      -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+      "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS} ${cExtraFlags}"
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_C_FLAGS:STRING=-w
       -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
     )
   ExternalProject_Get_Property(lua INSTALL_DIR)
@@ -55,12 +68,11 @@ else()
     URL_MD5 caeeede2a48770459380834dd29c9f2b
     CMAKE_CACHE_ARGS
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
-      -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+      "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS} ${cxxExtraFlags}"
       -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-      -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+      "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS} ${cExtraFlags}"
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DBUILD_TESTING:BOOL=OFF
-      -DCMAKE_CXX_FLAGS:STRING=-w
       -DLUA_INCLUDE_DIR:PATH=${lua_include_dir}
       -DLUA_LIBRARIES:PATH=${LUA_LIBRARIES}
       -DLUA_LIBRARY:PATH=${LUA_LIBRARIES}

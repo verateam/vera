@@ -35,7 +35,7 @@ else()
   if(WIN32)
     set(variant "debug,release")
     set(bootstrap bootstrap.bat)
-	string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" msvcver ${CMAKE_GENERATOR})
+    string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" msvcver ${CMAKE_GENERATOR})
   else()
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       set(variant debug)
@@ -52,8 +52,9 @@ else()
       threading=multi
       link=static
       variant=${variant}
-      "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS} -w"
-      "cflags=${CMAKE_C_FLAGS} -w"
+      warnings=off
+      "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS}"
+      "cflags=-DMAKE_SURE_CFLAGS_IS_NOT_EMPTY ${CMAKE_C_FLAGS}"
       -s NO_BZIP2=1
       --without-mpi
     INSTALL_COMMAND ""
