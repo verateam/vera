@@ -9,6 +9,9 @@ mark_as_advanced(VERA_USE_SYSTEM_BOOST)
 set(boostLibs filesystem system program_options regex wave)
 if(VERA_PYTHON)
   list(APPEND boostLibs python)
+  set(b2ExtraFlags)
+else()
+  set(b2ExtraFlags --without-python)
 endif()
 
 if(VERA_USE_SYSTEM_BOOST)
@@ -57,6 +60,7 @@ else()
       "cflags=-DMAKE_SURE_CFLAGS_IS_NOT_EMPTY ${CMAKE_C_FLAGS}"
       -s NO_BZIP2=1
       --without-mpi
+      ${b2ExtraFlags}
     INSTALL_COMMAND ""
     BUILD_IN_SOURCE ON)
   ExternalProject_Get_Property(boost SOURCE_DIR)
