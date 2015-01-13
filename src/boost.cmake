@@ -45,8 +45,8 @@ else()
     set(bootstrap bootstrap.sh)
   endif()
   ExternalProject_Add(boost
-    URL http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
-    URL_MD5 1be49befbdd9a5ce9def2983ba3e7b76
+    URL http://downloads.sourceforge.net/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
+    URL_MD5 a744cf167b05d72335f27c88115f211d
     CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma}
     BUILD_COMMAND ./b2
       threading=multi
