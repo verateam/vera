@@ -51,6 +51,10 @@ else()
     set(cExtraFlags -w)
     set(cxxExtraFlags -w)
   endif()
+  if(TARGET python)
+    set(cExtraFlags "${cExtraFlags} -I${PYTHON_INCLUDE_DIR}")
+    set(cxxExtraFlags "${cxxExtraFlags} -I${PYTHON_INCLUDE_DIR}")
+  endif()
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
     URL_MD5 a744cf167b05d72335f27c88115f211d
