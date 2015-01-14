@@ -4,7 +4,8 @@ mark_as_advanced(VERA_USE_SYSTEM_PYTHON)
 
 if(VERA_USE_SYSTEM_PYTHON)
   set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-  find_package(PythonLibs REQUIRED)
+  find_package(PythonInterp 2.0)
+  find_package(PythonLibs 2.0 REQUIRED)
   include_directories(BEFORE SYSTEM ${PYTHON_INCLUDE_DIR})
   link_directories(${PYTHON_LIBRARY_DIR})
   # no target

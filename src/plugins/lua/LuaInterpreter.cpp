@@ -138,8 +138,7 @@ Structures::Tokens::TokenSequence const& getTokens(
   return tokens[key];
 }
 
-void LuaInterpreter::execute(const DirectoryName & root,
-    ScriptType type, const std::string & fileName)
+void LuaInterpreter::execute(const std::string & fileName)
 {
   lua_State* L = luaL_newstate();
   luaL_openlibs(L);

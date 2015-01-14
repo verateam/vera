@@ -9,6 +9,9 @@ mark_as_advanced(VERA_USE_SYSTEM_BOOST)
 set(boostLibs filesystem system program_options regex wave)
 if(VERA_PYTHON)
   list(APPEND boostLibs python)
+  set(booststrapExtraFlags --with-python=${PYTHON_EXECUTABLE})
+else()
+  set(b2ExtraFlags --without-python)
 endif()
 
 if(VERA_USE_SYSTEM_BOOST)
@@ -31,11 +34,13 @@ if(VERA_USE_SYSTEM_BOOST)
 else()
   include(ExternalProject)
 
-  string(REPLACE boostLibsComma ";" "," ${boostLibs})
+  string(REPLACE ";" "," boostLibsComma "${boostLibs}")
   if(WIN32)
     set(variant "debug,release")
     set(bootstrap bootstrap.bat)
     string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" msvcver ${CMAKE_GENERATOR})
+    set(cExtraFlags)
+    set(cxxExtraFlags)
   else()
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       set(variant debug)
@@ -43,20 +48,23 @@ else()
       set(variant release)
     endif()
     set(bootstrap bootstrap.sh)
+    set(cExtraFlags -w)
+    set(cxxExtraFlags -w)
   endif()
   ExternalProject_Add(boost
-    URL http://downloads.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
-    URL_MD5 1be49befbdd9a5ce9def2983ba3e7b76
-    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma}
+    URL http://downloads.sourceforge.net/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
+    URL_MD5 a744cf167b05d72335f27c88115f211d
+    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma} ${booststrapExtraFlags}
     BUILD_COMMAND ./b2
       threading=multi
       link=static
       variant=${variant}
       warnings=off
-      "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS}"
-      "cflags=-DMAKE_SURE_CFLAGS_IS_NOT_EMPTY ${CMAKE_C_FLAGS}"
+      "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS} ${cxxExtraFlags}"
+      "cflags=-DMAKE_SURE_CFLAGS_IS_NOT_EMPTY ${CMAKE_C_FLAGS} ${cExtraFlags}"
       -s NO_BZIP2=1
       --without-mpi
+      ${b2ExtraFlags}
     INSTALL_COMMAND ""
     BUILD_IN_SOURCE ON)
   ExternalProject_Get_Property(boost SOURCE_DIR)

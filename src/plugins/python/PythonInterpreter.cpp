@@ -129,8 +129,7 @@ BOOST_PYTHON_MODULE(vera)
       py::return_value_policy<py::reference_existing_object>());
 };
 
-void PythonInterpreter::execute(const DirectoryName & root,
-    ScriptType type, const std::string & fileName)
+void PythonInterpreter::execute(const std::string & fileName)
 {
     try
     {
