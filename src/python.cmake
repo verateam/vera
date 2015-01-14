@@ -105,7 +105,7 @@ else()
   endif()
   ExternalProject_Add(python
     URL https://github.com/glehmann/python-cmake-buildsystem/archive/official-python-src.zip
-    URL_MD5 b3e045924c2506287ba568aed28ca719
+    URL_MD5 5a10f2e4f7244b9996b0d343c42dae29
     CMAKE_ARGS -Wno-dev
     CMAKE_CACHE_ARGS
       -DBUILD_SHARED:BOOL=ON
