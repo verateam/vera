@@ -9,7 +9,7 @@ mark_as_advanced(VERA_USE_SYSTEM_BOOST)
 set(boostLibs filesystem system program_options regex wave)
 if(VERA_PYTHON)
   list(APPEND boostLibs python)
-  set(b2ExtraFlags)
+  set(booststrapExtraFlags --with-python=${PYTHON_EXECUTABLE})
 else()
   set(b2ExtraFlags --without-python)
 endif()
@@ -50,7 +50,7 @@ else()
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
     URL_MD5 a744cf167b05d72335f27c88115f211d
-    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma}
+    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma} ${booststrapExtraFlags}
     BUILD_COMMAND ./b2
       threading=multi
       link=static
