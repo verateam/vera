@@ -139,8 +139,7 @@ namespace Vera
 namespace Plugins
 {
 
-void TclInterpreter::execute(const DirectoryName & /* root */,
-  ScriptType /* type */, const std::string & fileName)
+void TclInterpreter::execute(const std::string & fileName)
 {
     std::ifstream scriptFile(fileName.c_str());
     if (scriptFile.is_open() == false)

@@ -56,12 +56,12 @@ void Interpreter::execute(const DirectoryName & root,
     }
     if (boost::filesystem::exists(scriptDir + tclName))
     {
-        TclInterpreter::execute(root, type, scriptDir + tclName);
+        TclInterpreter::execute(scriptDir + tclName);
         return;
     }
     else if (boost::filesystem::exists(scriptDir2 + tclName))
     {
-        TclInterpreter::execute(root, type, scriptDir2 + tclName);
+        TclInterpreter::execute(scriptDir2 + tclName);
         return;
     }
 #ifdef VERA_PYTHON
@@ -73,12 +73,12 @@ void Interpreter::execute(const DirectoryName & root,
     }
     if (boost::filesystem::exists(scriptDir + pyName))
     {
-        PythonInterpreter::execute(root, type, scriptDir + pyName);
+        PythonInterpreter::execute(scriptDir + pyName);
         return;
     }
     else if (boost::filesystem::exists(scriptDir2 + pyName))
     {
-        PythonInterpreter::execute(root, type, scriptDir2 + pyName);
+        PythonInterpreter::execute(scriptDir2 + pyName);
         return;
     }
 #endif
@@ -91,12 +91,12 @@ void Interpreter::execute(const DirectoryName & root,
     }
     if (boost::filesystem::exists(scriptDir + luaName))
     {
-        LuaInterpreter::execute(root, type, scriptDir + luaName);
+        LuaInterpreter::execute(scriptDir + luaName);
         return;
     }
     else if (boost::filesystem::exists(scriptDir2 + luaName))
     {
-        LuaInterpreter::execute(root, type, scriptDir2 + luaName);
+        LuaInterpreter::execute(scriptDir2 + luaName);
         return;
     }
 #endif
