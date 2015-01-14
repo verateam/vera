@@ -96,19 +96,26 @@ else()
   #   list(APPEND opts -DENABLE_${m}:BOOL=OFF)
   #   list(APPEND opts -DBUILTIN_${m}:BOOL=OFF)
   # endforeach()
+  if(WIN32)
+    set(cExtraFlags)
+    set(cxxExtraFlags)
+  else()
+    set(cExtraFlags -w)
+    set(cxxExtraFlags -w)
+  endif()
   ExternalProject_Add(python
     URL https://github.com/glehmann/python-cmake-buildsystem/archive/official-python-src.zip
     URL_MD5 b3e045924c2506287ba568aed28ca719
     CMAKE_ARGS -Wno-dev
     CMAKE_CACHE_ARGS
-      -DBUILD_SHARED_LIBS:BOOL=OFF
+      -DBUILD_SHARED:BOOL=ON
+      -DBUILD_STATIC:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
-      -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+      "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS} ${cxxExtraFlags}"
       -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-      -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+      "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS} ${cExtraFlags}"
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_C_FLAGS:STRING=-w
       -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
       -DUSE_SYSTEM_LIBRARIES:BOOL=ON
       ${opts}
