@@ -34,7 +34,7 @@ if(VERA_USE_SYSTEM_BOOST)
 else()
   include(ExternalProject)
 
-  string(REPLACE boostLibsComma ";" "," ${boostLibs})
+  string(REPLACE ";" "," boostLibsComma "${boostLibs}")
   if(WIN32)
     set(variant "debug,release")
     set(bootstrap bootstrap.bat)
