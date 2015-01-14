@@ -97,8 +97,8 @@ else()
     list(APPEND opts -DBUILTIN_${m}:BOOL=OFF)
   endforeach()
   ExternalProject_Add(python
-    URL https://github.com/glehmann/python-cmake-buildsystem/archive/auto-download.zip
-    URL_MD5 88a8874e11865f7b7fc366a507f592b1
+    URL https://github.com/glehmann/python-cmake-buildsystem/archive/official-python-src.zip
+    URL_MD5 b3e045924c2506287ba568aed28ca719
     CMAKE_ARGS -Wno-dev
     CMAKE_CACHE_ARGS
       -DBUILD_SHARED_LIBS:BOOL=OFF
