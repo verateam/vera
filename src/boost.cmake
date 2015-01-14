@@ -67,6 +67,9 @@ else()
       ${b2ExtraFlags}
     INSTALL_COMMAND ""
     BUILD_IN_SOURCE ON)
+  if(TARGET python)
+    add_dependencies(boost python)
+  endif()
   ExternalProject_Get_Property(boost SOURCE_DIR)
   set(Boost_LIBRARIES)
   foreach(l ${boostLibs})
