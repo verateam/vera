@@ -9,9 +9,6 @@ mark_as_advanced(VERA_USE_SYSTEM_BOOST)
 set(boostLibs filesystem system program_options regex wave)
 if(VERA_PYTHON)
   list(APPEND boostLibs python)
-  set(booststrapExtraFlags --with-python=${PYTHON_EXECUTABLE})
-else()
-  set(b2ExtraFlags --without-python)
 endif()
 
 if(VERA_USE_SYSTEM_BOOST)
@@ -35,13 +32,21 @@ else()
   include(ExternalProject)
 
   string(REPLACE ";" "," boostLibsComma "${boostLibs}")
+  string(REPLACE ";" " --with-" WITH_LIBS "${boostLibs}")
+  set(WITH_LIBS "--with-${WITH_LIBS}")
   if(WIN32)
     set(variant "debug,release")
     set(bootstrap bootstrap.bat)
     string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" msvcver ${CMAKE_GENERATOR})
-    set(cExtraFlags)
-    set(cxxExtraFlags)
+    set(TOOLSET msvc)
+    set(cExtraFlags -DHAVE_ROUND)
+    set(cxxExtraFlags -DHAVE_ROUND)
   else()
+    if(APPLE)
+      set(TOOLSET darwin)
+    else()
+      set(TOOLSET gcc)
+    endif()
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       set(variant debug)
     else()
@@ -51,15 +56,22 @@ else()
     set(cExtraFlags -w)
     set(cxxExtraFlags -w)
   endif()
-  if(TARGET python)
-    set(cExtraFlags "${cExtraFlags} -I${PYTHON_INCLUDE_DIR}")
-    set(cxxExtraFlags "${cxxExtraFlags} -I${PYTHON_INCLUDE_DIR}")
+  # generate the project-config.jam
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/project-config.jam.in ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam @ONLY)
+  if(VERA_PYTHON)
+    set(b2ExtraFlags include=${PYTHON_INCLUDE_DIR})
+    string(REPLACE ",python" "" boostLibsComma "${boostLibsComma}")
+  else()
+    set(b2ExtraFlags)
   endif()
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
     URL_MD5 a744cf167b05d72335f27c88115f211d
-    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma} ${booststrapExtraFlags}
-    BUILD_COMMAND ./b2
+    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma}
+    BUILD_COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam
+      <SOURCE_DIR>/project-config.jam
+    INSTALL_COMMAND ./b2
       threading=multi
       link=static
       variant=${variant}
@@ -67,9 +79,7 @@ else()
       "cxxflags=-DBOOST_WAVE_SUPPORT_MS_EXTENSIONS=1 ${CMAKE_CXX_FLAGS} ${cxxExtraFlags}"
       "cflags=-DMAKE_SURE_CFLAGS_IS_NOT_EMPTY ${CMAKE_C_FLAGS} ${cExtraFlags}"
       -s NO_BZIP2=1
-      --without-mpi
       ${b2ExtraFlags}
-    INSTALL_COMMAND ""
     BUILD_IN_SOURCE ON)
   if(TARGET python)
     add_dependencies(boost python)
@@ -78,8 +88,8 @@ else()
   set(Boost_LIBRARIES)
   foreach(l ${boostLibs})
     if(WIN32)
-      list(APPEND Boost_LIBRARIES debug ${SOURCE_DIR}/stage/lib/libboost_${l}-vc${msvcver}0-mt-gd-1_57.lib)
-      list(APPEND Boost_LIBRARIES optimized ${SOURCE_DIR}/stage/lib/libboost_${l}-vc${msvcver}0-mt-1_57.lib)
+      list(APPEND Boost_LIBRARIES debug ${SOURCE_DIR}/stage/lib/libboost_${l}-vc${msvcver}0-mt-gd-1_56.lib)
+      list(APPEND Boost_LIBRARIES optimized ${SOURCE_DIR}/stage/lib/libboost_${l}-vc${msvcver}0-mt-1_56.lib)
     else()
       list(APPEND Boost_LIBRARIES ${SOURCE_DIR}/stage/lib/libboost_${l}.a)
     endif()

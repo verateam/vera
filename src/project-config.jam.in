@@ -1,0 +1,13 @@
+import option ;
+import feature ;
+
+using @TOOLSET@ ;
+
+project : default-build <toolset>@TOOLSET@ ;
+
+# Python configuration
+using python : @PYTHON_VERSION@ : @PYTHON_EXECUTABLE@ : @PYTHON_INCLUDE_DIR@ ;
+
+libraries =  @WITH_LIBS@ ;
+
+option.set keep-going : false ;
