@@ -124,6 +124,17 @@ else()
   ExternalProject_Get_Property(python INSTALL_DIR)
   ExternalProject_Get_Property(python BINARY_DIR)
   if(WIN32)
+    # copy the runtime near vera++ executable so we can run the tests
+    ExternalProject_Add_Step(python install_dll
+      COMMAND ${CMAKE_COMMAND} -E copy
+        ${INSTALL_DIR}/bin/python27.dll
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/python27.dll
+      DEPENDEES install)
+    ExternalProject_Add_Step(python install_libs
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${INSTALL_DIR}/lib
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/lib
+      DEPENDEES install)
     set(PYTHON_EXECUTABLE ${INSTALL_DIR}/bin/python.exe)
     set(PYTHON_LIBRARIES debug ${BINARY_DIR}/Debug/python2.7.lib
 	  optimized ${BINARY_DIR}/Release/python2.7.lib)
