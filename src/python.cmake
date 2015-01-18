@@ -136,8 +136,8 @@ else()
         ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/lib
       DEPENDEES install)
     set(PYTHON_EXECUTABLE ${INSTALL_DIR}/bin/python.exe)
-    set(PYTHON_LIBRARIES debug ${BINARY_DIR}/Debug/python2.7.lib
-	  optimized ${BINARY_DIR}/Release/python2.7.lib)
+    set(PYTHON_LIBRARIES debug ${BINARY_DIR}/libs/Debug/python27.lib
+          optimized ${BINARY_DIR}/libs/Release/python27.lib)
     set(PYTHON_INCLUDE_DIR  ${INSTALL_DIR}/include)
   elseif(APPLE)
     set(PYTHON_EXECUTABLE ${INSTALL_DIR}/bin/python)
