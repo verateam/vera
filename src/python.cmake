@@ -160,3 +160,7 @@ else()
   link_directories(${BINARY_DIR})
   set(Python_TARGET python)
 endif()
+
+if(MSVC)
+  add_definitions(-DHAVE_ROUND)
+endif()
