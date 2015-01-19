@@ -7,7 +7,7 @@ endif()
 include_directories(SYSTEM ${TCL_INCLUDE_PATH})
 link_directories(${TCL_LIBRARY_DIRS})
 
-option(VERA_PYTHON "Build Python rules support" OFF)
+option(VERA_PYTHON "Build Python rules support" ON)
 if(VERA_PYTHON)
   include(python.cmake)
   add_definitions(-DVERA_PYTHON)
