@@ -55,7 +55,7 @@ if(WIN32)
   get_filename_component(tclname "${TCL_LIBRARY}" NAME_WE)
   set(tcldll "${tcldir}/../bin/${tclname}.dll")
   if(EXISTS "${tcldll}")
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS "${tcldll}")
+    list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS "${tcldll}")
   endif()
 endif()
 
