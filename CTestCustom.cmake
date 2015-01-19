@@ -12,4 +12,5 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Warning: swp.b. use is deprecated for this architecture"
   # non fixable boost configuration warning
   "warning: Graph library does not contain MPI-based parallel components."
+  ".*file: bin.v2/libs/.* has no symbols"
 )
