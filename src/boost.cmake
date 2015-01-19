@@ -16,6 +16,7 @@ if(VERA_USE_SYSTEM_BOOST)
     # use boost static libs to avoid LNK2019 errors
     # feel free to contribute a better fix!
     set(Boost_USE_STATIC_LIBS ON)
+    add_definitions(-DBOOST_PYTHON_STATIC_LIB)
   else()
     # expose the Boost_USE_STATIC_LIBS option to ease the manual creation of
     # packages with cpack
