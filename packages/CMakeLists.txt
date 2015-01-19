@@ -1,3 +1,8 @@
+if(APPLE)
+  option(CPACK_BINARY_PACKAGEMAKER "Enable to build PackageMaker packages" ON)
+  option(CPACK_BINARY_STGZ "Enable to build STGZ packages" OFF)
+  option(CPACK_BINARY_TGZ "Enable to build TGZ packages" OFF)
+endif()
 
 # binary package
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
