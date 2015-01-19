@@ -107,8 +107,8 @@ else()
     set(cxxExtraFlags -w)
   endif()
   ExternalProject_Add(python
-    URL https://github.com/glehmann/python-cmake-buildsystem/archive/official-python-src.zip
-    URL_MD5 5a10f2e4f7244b9996b0d343c42dae29
+    URL https://github.com/verateam/python-cmake-buildsystem/archive/vera-1.3.0.zip
+    URL_MD5 350b90184f266eda357d54677e5873b5
     CMAKE_ARGS -Wno-dev
     CMAKE_CACHE_ARGS
       -DBUILD_SHARED:BOOL=ON

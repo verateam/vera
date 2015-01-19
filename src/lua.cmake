@@ -64,8 +64,8 @@ else()
     set(boostDir ${Boost_INCLUDE_DIR}/..)
   endif()
   ExternalProject_Add(luabind
-    URL https://github.com/glehmann/luabind/archive/fix-boost-157.zip
-    URL_MD5 caeeede2a48770459380834dd29c9f2b
+    URL https://github.com/verateam/luabind/archive/vera-1.3.0.zip
+    URL_MD5 c5780d1ca562183d64be496159ded07f
     CMAKE_CACHE_ARGS
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
       "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS} ${cxxExtraFlags}"
