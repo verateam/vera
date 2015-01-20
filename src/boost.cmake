@@ -32,6 +32,9 @@ if(VERA_USE_SYSTEM_BOOST)
 else()
   include(ExternalProject)
 
+  set(SOURCEFORGE downloads.sourceforge.net CACHE STRING
+    "Sourceforge host used to download external projects. Use it to force a specific mirror.")
+  mark_as_advanced(SOURCEFORGE)
   string(REPLACE ";" "," boostLibsComma "${boostLibs}")
   string(REPLACE ";" " --with-" WITH_LIBS "${boostLibs}")
   set(WITH_LIBS "--with-${WITH_LIBS}")
@@ -68,7 +71,7 @@ else()
     set(b2ExtraFlags)
   endif()
   ExternalProject_Add(boost
-    URL http://downloads.sourceforge.net/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
+    URL http://${SOURCEFORGE}/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
     URL_MD5 a744cf167b05d72335f27c88115f211d
     CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma} --with-toolset=${TOOLSET}
     BUILD_COMMAND ${CMAKE_COMMAND} -E copy_if_different
