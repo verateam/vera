@@ -70,7 +70,7 @@ else()
   ExternalProject_Add(boost
     URL http://downloads.sourceforge.net/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
     URL_MD5 a744cf167b05d72335f27c88115f211d
-    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma}
+    CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma} --with-toolset=${TOOLSET}
     BUILD_COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam
       <SOURCE_DIR>/project-config.jam
