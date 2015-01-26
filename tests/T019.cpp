@@ -35,7 +35,7 @@ else if (x)
 if (x) {   // OK
     foo();
 } else if (x) { foo(); }        // OK
-	
+
 
 if (x)
     while (y)     // bad style
@@ -49,22 +49,22 @@ if (x)
     }
 }
 
-for (int i = 0; i = 10; ++i);  // oops!
+for (int i = 0; i < 10; ++i);  // oops!
     cout << "Hello\n";
 
 #pragma omp parallel for \
     private(k)
-for (int i = 0; i = 10; ++i)   // OK
+for (int i = 0; i < 10; ++i)   // OK
 {
     cout << "Hello\n";
 }
 
 do
     cout << "Hello\n";
-while (int i = 0; i = 10; ++i);   // not OK
+while (int i = 0; i < 10; ++i);   // not OK
 
 do
 {
     cout << "Hello\n";
 }
-while (int i = 0; i = 10; ++i);   // OK
+while (int i = 0; i < 10; ++i);   // OK
