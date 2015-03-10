@@ -43,10 +43,8 @@ endif()
 if(VERA_LUA)
   target_link_libraries(vera ${LUA_LIBRARIES} ${LUABIND_LIBRARY})
 endif()
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-   # keep it at the end to be able to build on ubuntu
-  target_link_libraries(vera dl)
-endif()
+# keep it at the end to be able to build on ubuntu
+target_link_libraries(vera ${CMAKE_DL_LIBS})
 
 
 if(WIN32)
