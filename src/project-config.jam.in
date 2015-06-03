@@ -1,7 +1,10 @@
 import option ;
 import feature ;
 
-using @TOOLSET@ ;
+if ! @TOOLSET@ in [ feature.values <toolset> ]
+{
+    using @TOOLSET@ ;
+}
 
 project : default-build <toolset>@TOOLSET@ ;
 
