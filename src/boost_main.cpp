@@ -71,12 +71,18 @@ void doReports(Files & reports, Options & vm, Reporter * reporter)
 
 int boost_main(int argc, char * argv[])
 {
-    // The directory containing the profile and rule definitions
-    // by default it is (in this order, first has highest precedence):
-    // - VERA_ROOT (if VERA_ROOT is defined)
-    // - HOME/.vera++ (if HOME is defined)
-    // - current directory (if scripts and profile are present)
-    // - /usr/lib/vera++/ default debian directory
+    // Vera++ needs to know where the rules and transformation scripts
+    // are located. The following rules are applied:
+    // - If the --root option is used, its argument is used as the name
+    //   of the directory where the scripts subdirectory with scripts
+    //   should be located, otherwise
+    // - If the VERA_ROOT environment variable is defined, it is used as
+    //   the name of the directory where the scripts subdirectory with
+    //   scripts should be located, otherwise
+    // - If the HOME environment variable is defined, then the ~/.vera++
+    //   directory is used (and it should contain the scripts
+    //   subdirectory with scripts), otherwise
+    // - The current directory should contain the scripts subdirectory.
 
     Vera::Plugins::RootDirectory::DirectoryName veraRoot(get_vera_root_default(argv[0]));
 
