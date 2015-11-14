@@ -5,14 +5,15 @@ version: 1.3.0.{build}
 
 environment:
   BOOST_ROOT: C:\Libraries\boost
-  BOOST_LIBRARYDIR: C:\Libraries\boost\lib32-msvc-12.0
   matrix:
   - VS_GEN: Visual Studio 12 2013
     CONFIG: Release
     B_NAME: Windows-x86
-#  - VS_GEN: Visual Studio 12 2013 Win64
-#    CONFIG: Release
-#    B_NAME: Windows-x86_64
+    BOOST_LIBRARYDIR: C:\Libraries\boost\lib32-msvc-12.0
+  - VS_GEN: Visual Studio 12 2013 Win64
+    CONFIG: Release
+    B_NAME: Windows-x86_64
+    BOOST_LIBRARYDIR: C:\Libraries\boost\lib64-msvc-12.0
 
 # scripts that are called at very beginning, before repo cloning
 init:
@@ -28,7 +29,18 @@ install:
   
 before_build:
   - cmake -Wno-dev -G"%VS_GEN%" -DCMAKE_BUILD_TYPE=%CONFIG% -DVERA_USE_SYSTEM_LUA=OFF
-  
+  - ctest -D ExperimentalStart -C %CONFIG%
+ 
+# to run your custom scripts instead of automatic MSBuild
+build_script:
+# Do not run Test=Update/Configure, only Start/Build/Test/Submit (TODO: Coverage)
+  - ctest -D ExperimentalBuild -j %NUMBER_OF_PROCESSORS% -C %CONFIG%
+
+# to run your custom scripts instead of automatic tests
+test_script:
+  - ctest -D ExperimentalTest -j %NUMBER_OF_PROCESSORS% -C %CONFIG% -Q || true
+  - ctest -D ExperimentalSubmit -C %CONFIG%
+
 # Uncomment below if you want to debug via RDP
-# on_finish:
-#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
