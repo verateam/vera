@@ -10,7 +10,7 @@ init:
   - cmake --version
   - python --version
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-  - PS: |
+  - ps: |
   {
     Add-Type -assembly "system.io.compression.filesystem"
     
