@@ -12,17 +12,17 @@ init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 
-- ps:Add-Type -assembly "system.io.compression.filesystem"
+Add-Type -assembly "system.io.compression.filesystem"
 
-- ps:Write-Host "Downloading boost.."
-- ps:(new-object net.webclient).DownloadFile("http://bit.ly/1JPHkL3&quot;, "C:\projects\vera\boost_1_59_0.zip")
-- ps:Write-Host "Extracting archive.."
-- ps:[io.compression.zipfile]::ExtractToDirectory("C:\projects\vera\boost_1_59_0.zip", "C:\projects\vera\")
-- ps:Set-Location "C:\projects\vera\boost_1_59_0"
-- ps:Write-Host "Building boost.."
-- ps:& ".\bootstrap.bat"
+Write-Host "Downloading boost.."
+(new-object net.webclient).DownloadFile("http://bit.ly/1JPHkL3&quot;, "C:\projects\vera\boost_1_59_0.zip")
+Write-Host "Extracting archive.."
+[io.compression.zipfile]::ExtractToDirectory("C:\projects\vera\boost_1_59_0.zip", "C:\projects\vera\")
+Set-Location "C:\projects\vera\boost_1_59_0"
+Write-Host "Building boost.."
+& ".\bootstrap.bat"
 
 # & .\b2 address-model=64 toolset=msvc-14.0 windows-api=desktop variant=debug link=static threading=multi runtime-link=shared --with-log
 
-- ps:& .\b2 address-model=64 architecture=x86 --build-type=complete
-- ps:& .\b2 install --prefix="c:\libraries\x64"
+& .\b2 address-model=64 architecture=x86 --build-type=complete
+& .\b2 install --prefix="c:\libraries\x64"
