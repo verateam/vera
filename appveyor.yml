@@ -6,10 +6,10 @@ version: 1.3.0.{build}
 Add-Type -assembly "system.io.compression.filesystem"
 
 Write-Host "Downloading boost.."
-(new-object net.webclient).DownloadFile("http://bit.ly/1JPHkL3&quot;, "C:\boost_1_59_0.zip")
+(new-object net.webclient).DownloadFile("http://bit.ly/1JPHkL3&quot;, "C:\projects\vera\boost_1_59_0.zip")
 Write-Host "Extracting archive.."
-[io.compression.zipfile]::ExtractToDirectory("C:\boost_1_59_0.zip", "C:\")
-Set-Location "C:\boost_1_59_0"
+[io.compression.zipfile]::ExtractToDirectory("C:\projects\vera\boost_1_59_0.zip", "C:\projects\vera\")
+Set-Location "C:\projects\vera\boost_1_59_0"
 Write-Host "Building boost.."
 & ".\bootstrap.bat"
 
