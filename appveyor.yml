@@ -3,6 +3,13 @@
 
 version: 1.3.0.{build}
 
+# scripts that are called at very beginning, before repo cloning
+init:
+  # Print environment info ( set / systeminfo)
+  - msbuild /version
+  - cmake --version
+  - python --version
+
 Add-Type -assembly "system.io.compression.filesystem"
 
 Write-Host "Downloading boost.."
