@@ -14,11 +14,15 @@ environment:
   - VS_GEN: Visual Studio 12 2013
     CONFIG: Release
     B_NAME: Windows-x86
+    platform: x86
+    configuration: Release
     BOOST_LIBRARYDIR: C:\Libraries\boost\lib32-msvc-12.0
   - VS_GEN: Visual Studio 12 2013 Win64
     CONFIG: Release
     B_NAME: Windows-x86_64
     BOOST_LIBRARYDIR: C:\Libraries\boost\lib64-msvc-12.0
+    platform: x64
+    configuration: Release
 
 # scripts that are called at very beginning, before repo cloning
 init:
