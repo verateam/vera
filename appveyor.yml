@@ -4,6 +4,7 @@
 version: 1.3.0.{build}
 
 environment:
+  BOOST_ROOT: C:\Libraries\boost
   matrix:
   - VS_GEN: Visual Studio 12 2013
     CONFIG: Release
@@ -24,7 +25,7 @@ install:
   - choco install activetcl
   
 before_build:
-  - cmake -Wno-dev -G"%VS_GEN%" -DCMAKE_BUILD_TYPE=%CONFIG%
+  - cmake -Wno-dev -G"%VS_GEN%" -DCMAKE_BUILD_TYPE=%CONFIG% -DVERA_USE_SYSTEM_LUA=OFF
   
 # Uncomment below if you want to debug via RDP
 # on_finish:
