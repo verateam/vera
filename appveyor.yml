@@ -6,11 +6,11 @@ version: 1.3.0.{build}
 environment:
   matrix:
   - VS_GEN: Visual Studio 12 2013
-  CONFIG: Release
-  B_NAME: Windows-x86
+    CONFIG: Release
+    B_NAME: Windows-x86
   - VS_GEN: Visual Studio 12 2013 Win64
-  CONFIG: Release
-  B_NAME: Windows-x86_64
+    CONFIG: Release
+    B_NAME: Windows-x86_64
 
 # scripts that are called at very beginning, before repo cloning
 init:
