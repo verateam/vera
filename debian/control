@@ -11,6 +11,7 @@ Vcs-Browser: https://bitbucket.org/verateam/vera/src
 Package: vera++
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: tclsh
 Description: Programmable verification and analysis tool for C++
  Vera++ is a programmable tool for verification, analysis and transformation of
  C++ source code.
