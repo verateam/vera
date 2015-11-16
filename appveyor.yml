@@ -37,18 +37,18 @@ install:
   - choco install pandoc
   
 before_build:
-  - cmake -Wno-dev -G"%VS_GEN%" -DCMAKE_BUILD_TYPE=%CONFIG% -DVERA_USE_SYSTEM_LUA=OFF
-  - ctest -D ExperimentalStart -C %CONFIG% -DCTEST_BUILD_NAME:STRING="%B_NAME%"
+  - cmake -Wno-dev -G"%VS_GEN%" -DCMAKE_BUILD_TYPE=%CONFIG% -DVERA_USE_SYSTEM_LUA=OFF -DBUILDNAME="%B_NAME%"
+  - ctest -D ExperimentalStart -C %CONFIG%
  
 # to run your custom scripts instead of automatic MSBuild
 build_script:
 # Do not run Test=Update/Configure, only Start/Build/Test/Submit (TODO: Coverage)
-  - ctest -D ExperimentalBuild -j %NUMBER_OF_PROCESSORS% -C %CONFIG% -DCTEST_BUILD_NAME:STRING="%B_NAME%"
+  - ctest -D ExperimentalBuild -j %NUMBER_OF_PROCESSORS% -C %CONFIG%
 
 # to run your custom scripts instead of automatic tests
 test_script:
-  - ctest -D ExperimentalTest -j %NUMBER_OF_PROCESSORS% -C %CONFIG% -DCTEST_BUILD_NAME:STRING="%B_NAME%" || true
-  - ctest -D ExperimentalSubmit -C %CONFIG% -DCTEST_BUILD_NAME:STRING="%B_NAME%"
+  - ctest -D ExperimentalTest -j %NUMBER_OF_PROCESSORS% -C %CONFIG% || true
+  - ctest -D ExperimentalSubmit -C %CONFIG%
 
 # Uncomment below if you want to debug via RDP
 # on_finish:
