@@ -1,4 +1,5 @@
-find_program(PANDOC pandoc)
+find_program(PANDOC pandoc
+  HINTS "%appdata%\local\pandoc")
 
 if(NOT PANDOC)
   message(WARNING "The documentation won't be built because pandoc was not found.")
