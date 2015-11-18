@@ -65,7 +65,7 @@ else()
   endif()
   ExternalProject_Add(luabind
     URL https://github.com/verateam/luabind/archive/vera-1.3.0.zip
-    URL_MD5 c5780d1ca562183d64be496159ded07f
+    URL_MD5 3a812ff2de5d5befdd43e80d8422f1bd
     CMAKE_CACHE_ARGS
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
       "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS} ${cxxExtraFlags}"
