@@ -17,3 +17,6 @@ LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
 
 %:
 	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DVERA_USE_SYSTEM_BOOST:BOOL=ON
