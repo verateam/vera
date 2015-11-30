@@ -9,7 +9,7 @@ version: 1.3.0.{build}
 #   - C:\ProgramData\chocolatey\lib -> appveyor.yml
     
 environment:
-  BOOST_ROOT: C:\Libraries\boost
+  BOOST_ROOT: C:\Libraries\boost_1_59_0
   matrix:
   - VS_GEN: Visual Studio 14 2015
     CONFIG: Release
