@@ -1,4 +1,3 @@
-#!/usr/bin/tclsh
 # This file defines the set of scripts (rules) that should be executed
 # by default (if no specific profile is named when vera++ is launched).
 

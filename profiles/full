@@ -1,4 +1,3 @@
-#!/usr/bin/tclsh
 # This profile includes all the rules provided by vera++
 
 set rules {
