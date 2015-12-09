@@ -1,9 +1,0 @@
-# The shipped tcl files of vera++ are not executable as such. They are
-# used by vera++ itself which parses them and execute them thanks to
-# libtcl. There is no need to add an executable flag over partly
-# complete tcl files.
-
-vera++ binary: script-not-executable
-
-# 
-vera++ binary: executable-not-elf-or-script

@@ -1,0 +1,81 @@
+Index: vera++-1.3.0/profiles/default
+===================================================================
+--- vera++-1.3.0.orig/profiles/default
++++ vera++-1.3.0/profiles/default
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # This file defines the set of scripts (rules) that should be executed
+ # by default (if no specific profile is named when vera++ is launched).
+ rule=F001
+Index: vera++-1.3.0/profiles/test
+===================================================================
+--- vera++-1.3.0.orig/profiles/test
++++ vera++-1.3.0/profiles/test
+@@ -1,3 +1,4 @@
++#!/usr/bin/tclsh
+ # This profile includes all the rules provided by vera++ excepted F002
+ # that makes some tests fail when building from the dist dir
+ rule=F001
+Index: vera++-1.3.0/transformations/move_includes.tcl
+===================================================================
+--- vera++-1.3.0.orig/transformations/move_includes.tcl
++++ vera++-1.3.0/transformations/move_includes.tcl
+@@ -1,4 +1,3 @@
+-#!/usr/bin/tclsh
+ # change prefix of #include paths
+ 
+ set oldPrefix "\"boost/"
+Index: vera++-1.3.0/transformations/move_macros.tcl
+===================================================================
+--- vera++-1.3.0.orig/transformations/move_macros.tcl
++++ vera++-1.3.0/transformations/move_macros.tcl
+@@ -1,4 +1,3 @@
+-#!/usr/bin/tclsh
+ # change the prefix in all macros
+ 
+ set oldPrefix "BOOST"
+Index: vera++-1.3.0/transformations/move_namespace.tcl
+===================================================================
+--- vera++-1.3.0.orig/transformations/move_namespace.tcl
++++ vera++-1.3.0/transformations/move_namespace.tcl
+@@ -1,4 +1,3 @@
+-#!/usr/bin/tclsh
+ # change the namespace of all source files
+ 
+ set oldNamespace "boost"
+Index: vera++-1.3.0/transformations/to_lower.tcl
+===================================================================
+--- vera++-1.3.0.orig/transformations/to_lower.tcl
++++ vera++-1.3.0/transformations/to_lower.tcl
+@@ -1,4 +1,3 @@
+-#!/usr/bin/tclsh
+ # transform identifier names from CamelCase to standard_lower_case
+ 
+ # this list contains exceptional mappings as pairs ?original new?
+Index: vera++-1.3.0/transformations/to_xml.tcl
+===================================================================
+--- vera++-1.3.0.orig/transformations/to_xml.tcl
++++ vera++-1.3.0/transformations/to_xml.tcl
+@@ -1,4 +1,3 @@
+-#!/usr/bin/tclsh
+ # transform the source file into XML file
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.3.0/transformations/to_xml2.tcl
+===================================================================
+--- vera++-1.3.0.orig/transformations/to_xml2.tcl
++++ vera++-1.3.0/transformations/to_xml2.tcl
+@@ -1,4 +1,3 @@
+-#!/usr/bin/tclsh
+ # transform the source file into XML file (another variant)
+ 
+ foreach f [getSourceFileNames] {
+Index: vera++-1.3.0/transformations/trim_right.tcl
+===================================================================
+--- vera++-1.3.0.orig/transformations/trim_right.tcl
++++ vera++-1.3.0/transformations/trim_right.tcl
+@@ -1,4 +1,3 @@
+-#!/usr/bin/tclsh
+ # trim each line by removing trailing whitespace
+ 
+ foreach fileName [getSourceFileNames] {
