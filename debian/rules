@@ -19,4 +19,4 @@ LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
 	dh $@ --buildsystem=cmake
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DVERA_USE_SYSTEM_BOOST:BOOL=ON -DVERA_LUA:BOOL=OFF -DVERA_PYTHON:BOOL=OFF
+	dh_auto_configure -- -DVERA_USE_SYSTEM_BOOST:BOOL=ON -DVERA_LUA:BOOL=ON -DVERA_PYTHON:BOOL=ON
