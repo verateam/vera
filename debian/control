@@ -2,7 +2,7 @@ Source: vera++
 Section: devel
 Priority: extra
 Maintainer: Vincent Hobeïka <vincent.hobeika@gmail.com>
-Build-Depends: debhelper (>= 9), libboost-dev (>= 1.55), tcl-dev (>= 8), libboost-wave-dev (>= 1.55), libboost-thread-dev (>= 1.55), libboost-system-dev (>= 1.55), libboost-program-options-dev (>= 1.55), cmake (>= 3), libpython2.7-dev, liblua5.1-dev, libluabind-dev, tcl8.6-dev
+Build-Depends: debhelper (>= 9), libboost-dev (>= 1.55), tcl-dev (>= 8), libboost-wave-dev (>= 1.55), libboost-thread-dev (>= 1.55), libboost-system-dev (>= 1.55), libboost-program-options-dev (>= 1.55), libboost-python-dev (>= 1.55), libboost-regex-dev (>= 1.55), cmake (>= 3), libpython2.7-dev, liblua5.1-dev, libluabind-dev, tcl8.6-dev
 Standards-Version: 3.9.6
 Homepage: https://bitbucket.org/verateam/vera/wiki/Home
 Vcs-Git: https://bitbucket.org/verateam/vera.git
