@@ -5,8 +5,8 @@ foreach fileName [getSourceFileNames] {
 
     set state "start"
     set prev ""
-    set pp_pragma_line -1
-    foreach token [getTokens $fileName 1 0 -1 -1 {for if while do else leftparen rightparen leftbrace rightbrace semicolon pp_pragma}] {
+    set pp_line -1
+    foreach token [getTokens $fileName 1 0 -1 -1 {for if while do else leftparen rightparen leftbrace rightbrace semicolon pp_pragma pp_error}] {
         set type [lindex $token 3]
         set line [lindex $token 1]
 
@@ -30,9 +30,9 @@ foreach fileName [getSourceFileNames] {
             set state "block"
         }
 
-        if {$type == "pp_pragma"} {
-          set pp_pragma_line $line
-        } elseif {$pp_pragma_line != $line} {
+        if {($type == "pp_pragma") || ($type == "pp_error")} {
+          set pp_line $line
+        } elseif {$pp_line != $line} {
             if {$type == "for" || $type == "if"} {
                 set parenCount 0
                 set state "control"
