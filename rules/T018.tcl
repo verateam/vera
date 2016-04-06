@@ -3,7 +3,7 @@
 
 foreach fileName [getSourceFileNames] {
     set extension [file extension $fileName]
-    if {[lsearch {.h .hh .hpp .hxx .ipp} $extension] != -1} {
+    if {[lsearch {.h .hh .hpp .hxx .ipp .tpp} $extension] != -1} {
 
         set state "start"
         foreach token [getTokens $fileName 1 0 -1 -1 {using namespace identifier}] {
