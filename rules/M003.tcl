@@ -7,24 +7,34 @@ proc getHeaderFile {fileName} {
 }
 proc getDefinedNamespaces {fileName} {
     set headerFile [getHeaderFile $fileName]
+    if {[expr ! [file exists $headerFile]]} {
+        return {}
+    }
     set  namespaceList {}
     set  currentNamespace {}
     set  depth 0
     set  depthHistory {}
     set  state "start"
-    foreach token [getTokens $headerFile 1 0 -1 -1 {namespace identifier leftbrace rightbrace}] {
+    foreach token [getTokens $headerFile 1 0 -1 -1 {namespace identifier leftbrace rightbrace assign semicolon}] {
         set tokenName [lindex $token 3]
         set tokenValue [lindex $token 0]
         if {$state == "start" && $tokenName == "namespace"} {
             set state "namespace"
         } elseif {$state == "namespace" && $tokenName == "identifier"} {
             set state "namespace-identifier"
-            lappend currentNamespace $tokenValue
+            set saveNamespaceName $tokenValue
+        } elseif {$state == "namespace-identifier" && $tokenName == "assign"} {
+            set state "namespace-assign"
+        } elseif {$state == "namespace-assign" && $tokenName != "semicolon"} {
+            # ignore
+        } elseif {$state == "namespace-assign" && $tokenName == "semicolon"} {
+            set state "start"
+        } elseif {$state == "namespace-identifier" && $tokenName == "leftbrace"} {
+            set state "start"
+            lappend currentNamespace $saveNamespaceName
             lappend depthHistory $depth
             set $depth 0
             lappend namespaceList $currentNamespace
-        } elseif {$state == "namespace-identifier" && $tokenName == "leftbrace"} {
-            set state "start"
         } elseif {$state == "start" && $tokenName == "leftbrace"} {
             set depth [expr $depth + 1]
         } elseif {$state == "start" && $tokenName == "rightbrace"} {
