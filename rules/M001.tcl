@@ -25,7 +25,7 @@
 #          |--------------------------------------------------------------
 #          |               |                      |                      |                           Not Greater(>)
 #          |          #if or #error            typedef               templatea     Less(<)              -------
-#          |               |                      |    -----             |    ----------------          |     |
+#          |          or #define                  |    -----             |    ----------------          |     |
 #          |              \/                     \/    |  Not ;         \/    |              \/        \/     |
 #          |        ##############         ##############  |      ##############             ##############   |
 #          |        # PreProc    #         # Typedef    #  |      # Template   # <|          # Template<  #   |
@@ -88,7 +88,7 @@ foreach f [getSourceFileNames] {
             set state "start"
         }
 
-        if {$tokenName == "pp_if" || $tokenName == "pp_error"} {
+        if {$tokenName == "pp_if" || $tokenName == "pp_error" || $tokenName == "pp_define"} {
             set pp_line $lineNumber
             #puts "$identifier: => PP Start"
         } elseif {$lineNumber == $pp_line} {
