@@ -2,7 +2,7 @@
 # Keywords return and throw should be immediately followed by a semicolon or a single space
 
 foreach f [getSourceFileNames] {
-    foreach t [getTokens $f 1 0 -1 -1 {return throw}] {
+    foreach t [getTokens $f 1 0 -1 -1 {return throw delete}] {
         set keyword [lindex $t 0]
         set line [lindex $t 1]
         set column [lindex $t 2]
