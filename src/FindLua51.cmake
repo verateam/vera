@@ -57,8 +57,13 @@ find_path(LUA_INCLUDE_DIR lua.h
   /opt
 )
 
+if(APPLE)
+  set(names lua51 lua5.1 lua-5.1 lua)
+else()
+  set(names lua lua51 lua5.1 lua-5.1)
+endif()
 find_library(LUA_LIBRARY
-  NAMES lua lua51 lua5.1 lua-5.1
+  NAMES ${names}
   HINTS
     ENV LUA_DIR
   PATH_SUFFIXES lib
