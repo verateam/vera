@@ -28,6 +28,12 @@ else()
   endif()
 
   # a cmakeified version of lua
+  if(WIN32)
+    set(LUA_LIBRARIES debug <BINARY_DIR>/Debug/lua.lib
+          optimized <BINARY_DIR>/Release/lua.lib)
+  else()
+    set(LUA_LIBRARIES <BINARY_DIR>/liblua.a)
+  endif()
   ExternalProject_Add(lua
     URL https://github.com/LuaDist/lua/archive/5.2.3.tar.gz
     URL_MD5 710bba91186bb672b829cd05d78b614d
@@ -40,15 +46,11 @@ else()
       "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS} ${cExtraFlags}"
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+    BUILD_BYPRODUCTS ${LUA_LIBRARIES}
     )
+  _ep_replace_location_tags(lua LUA_LIBRARIES)
   ExternalProject_Get_Property(lua INSTALL_DIR)
   ExternalProject_Get_Property(lua BINARY_DIR)
-  if(WIN32)
-    set(LUA_LIBRARIES debug ${BINARY_DIR}/Debug/lua.lib
-	  optimized ${BINARY_DIR}/Release/lua.lib)
-  else()
-    set(LUA_LIBRARIES ${BINARY_DIR}/liblua.a)
-  endif()
   set(lua_include_dir ${INSTALL_DIR}/include)
   include_directories(SYSTEM ${lua_include_dir})
   link_directories(${BINARY_DIR})
@@ -62,6 +64,12 @@ else()
   else()
     # guess the boost dir based on the include dir
     set(boostDir ${Boost_INCLUDE_DIR}/..)
+  endif()
+  if(WIN32)
+    set(LUABIND_LIBRARY debug <BINARY_DIR>/src/Debug/luabind.lib
+          optimized <BINARY_DIR>/src/Release/luabind.lib)
+  else()
+    set(LUABIND_LIBRARY <BINARY_DIR>/src/libluabind.a)
   endif()
   ExternalProject_Add(luabind
     URL https://github.com/verateam/luabind/archive/vera-1.3.0.zip
@@ -77,19 +85,15 @@ else()
       -DLUA_LIBRARIES:PATH=${LUA_LIBRARIES}
       -DLUA_LIBRARY:PATH=${LUA_LIBRARIES}
       -DBOOST_ROOT:PATH=${boostDir}
-    INSTALL_COMMAND "")
+    INSTALL_COMMAND ""
+    BUILD_BYPRODUCTS ${LUABIND_LIBRARY})
   add_dependencies(luabind lua)
   if(TARGET boost)
     add_dependencies(luabind boost)
   endif()
+  _ep_replace_location_tags(luabind LUABIND_LIBRARY)
   ExternalProject_Get_Property(luabind SOURCE_DIR)
   ExternalProject_Get_Property(luabind BINARY_DIR)
-  if(WIN32)
-    set(LUABIND_LIBRARY debug ${BINARY_DIR}/src/Debug/luabind.lib
-	  optimized ${BINARY_DIR}/src/Release/luabind.lib)
-  else()
-    set(LUABIND_LIBRARY ${BINARY_DIR}/src/libluabind.a)
-  endif()
   include_directories(SYSTEM ${SOURCE_DIR})
   link_directories(${BINARY_DIR}/src)
   set(Luabind_TARGET luabind)

@@ -70,6 +70,17 @@ else()
   else()
     set(b2ExtraFlags)
   endif()
+
+  set(Boost_LIBRARIES)
+  foreach(l ${boostLibs})
+    if(WIN32)
+      list(APPEND Boost_LIBRARIES debug <SOURCE_DIR>/stage/lib/libboost_${l}-vc${msvcver}0-mt-gd-1_56.lib)
+      list(APPEND Boost_LIBRARIES optimized <SOURCE_DIR>/stage/lib/libboost_${l}-vc${msvcver}0-mt-1_56.lib)
+    else()
+      list(APPEND Boost_LIBRARIES <SOURCE_DIR>/stage/lib/libboost_${l}.a)
+    endif()
+  endforeach()
+
   ExternalProject_Add(boost
     URL http://${SOURCEFORGE}/project/boost/boost/1.60.0/boost_1_60_0.tar.bz2
     URL_MD5 65a840e1a0b13a558ff19eeb2c4f0cbe
@@ -86,20 +97,13 @@ else()
       "cflags=-DMAKE_SURE_CFLAGS_IS_NOT_EMPTY ${CMAKE_C_FLAGS} ${cExtraFlags}"
       -s NO_BZIP2=1
       ${b2ExtraFlags}
-    BUILD_IN_SOURCE ON)
+    BUILD_IN_SOURCE ON
+    BUILD_BYPRODUCTS ${Boost_LIBRARIES})
   if(TARGET python)
     add_dependencies(boost python)
   endif()
+   _ep_replace_location_tags(boost Boost_LIBRARIES)
   ExternalProject_Get_Property(boost SOURCE_DIR)
-  set(Boost_LIBRARIES)
-  foreach(l ${boostLibs})
-    if(WIN32)
-      list(APPEND Boost_LIBRARIES debug ${SOURCE_DIR}/stage/lib/libboost_${l}-vc${msvcver}0-mt-gd-1_56.lib)
-      list(APPEND Boost_LIBRARIES optimized ${SOURCE_DIR}/stage/lib/libboost_${l}-vc${msvcver}0-mt-1_56.lib)
-    else()
-      list(APPEND Boost_LIBRARIES ${SOURCE_DIR}/stage/lib/libboost_${l}.a)
-    endif()
-  endforeach()
   include_directories(SYSTEM ${SOURCE_DIR})
   link_directories(${SOURCE_DIR}/stage/lib)
   add_definitions(-DBOOST_PYTHON_STATIC_LIB)
