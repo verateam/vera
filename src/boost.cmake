@@ -71,8 +71,8 @@ else()
     set(b2ExtraFlags)
   endif()
   ExternalProject_Add(boost
-    URL http://${SOURCEFORGE}/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
-    URL_MD5 a744cf167b05d72335f27c88115f211d
+    URL http://${SOURCEFORGE}/project/boost/boost/1.60.0/boost_1_60_0.tar.bz2
+    URL_MD5 65a840e1a0b13a558ff19eeb2c4f0cbe
     CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma} --with-toolset=${TOOLSET}
     BUILD_COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam
