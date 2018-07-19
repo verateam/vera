@@ -1,9 +1,7 @@
 
-if(WIN32)
-  option(VERA_USE_SYSTEM_BOOST "Use system boost" ON)
-else()
-  option(VERA_USE_SYSTEM_BOOST "Build boost" OFF)
-endif()
+# force usage of system boost
+option(VERA_USE_SYSTEM_BOOST "Use system boost" ON)
+
 mark_as_advanced(VERA_USE_SYSTEM_BOOST)
 
 set(boostLibs filesystem system program_options regex wave)
