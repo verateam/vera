@@ -1,22 +1,56 @@
 #!/usr/bin/tclsh
-# Source files should not use the '\r' (CR) character
+# File names should be well-formed
+
+set maxDirectoryDepth [getParameter "max-directory-depth" 8]
+set maxDirnameLength [getParameter "max-dirname-length" 31]
+set maxFilenameLength [getParameter "max-filename-length" 31]
+set maxPathLength [getParameter "max-path-length" 100]
 
 foreach fileName [getSourceFileNames] {
-    if { $fileName == "-" } {
-      # can't check the content from stdin
-      continue
+    if {[string length $fileName] > $maxPathLength} {
+        report $fileName 1 "path name too long"
     }
-    set file [open $fileName "r"]
-    fconfigure $file -translation lf
-    set line [gets $file]
-    set lineCounter 1
-    while {![eof $file]} {
-        set pos [string first "\r" $line]
-        if {$pos != -1 && $pos != [expr [string length $line] - 1]} {
-            report $fileName $lineCounter "\\r (CR) detected in isolation at position ${pos}"
+
+    set dirDepth 0
+    foreach dir [file split [file dirname $fileName]] {
+        if {$dir == "/" || $dir == "." || $dir == ".."} {
+            continue
         }
-        set line [gets $file]
-        incr lineCounter
+
+        incr dirDepth
+
+        if {[string length $dir] > $maxDirnameLength} {
+            report $fileName 1 "directory name component too long"
+            break
+        }
+
+        set first [string index $dir 0]
+        if {[string is alpha $first] == 0 && $first != "_"} {
+            report $fileName 1 "directory name should start with alphabetic character or underscore"
+            break
+        }
+
+        if {[string first "." $dir] != -1} {
+            report $fileName 1 "directory name should not contain a dot"
+            break
+        }
     }
-    close $file
+
+    if {$dirDepth >= $maxDirectoryDepth} {
+        report $fileName 1 "directory structure too deep"
+    }
+
+    set leafName [file tail $fileName]
+    if {[string length $leafName] > $maxFilenameLength} {
+        report $fileName 1 "file name too long"
+    }
+
+    set first [string index $leafName 0]
+    if {[string is alpha $first] == 0 && $first != "_"} {
+        report $fileName 1 "file name should start with alphabetic character or underscore"
+    }
+
+    if {[llength [split $leafName .]] > 2} {
+        report $fileName 1 "file name should not contain more than one dot"
+    }
 }

@@ -1,5 +1,5 @@
 
-option(VERA_USE_SYSTEM_LUA "Build lua and luabind" ON)
+option(VERA_USE_SYSTEM_LUA "Build lua and luabind" OFF)
 mark_as_advanced(VERA_USE_SYSTEM_LUA)
 
 if(VERA_USE_SYSTEM_LUA)
