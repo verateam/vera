@@ -136,7 +136,7 @@ void PythonInterpreter::execute(const std::string & fileName)
         // Note: Boost Python (as of ver 1.69) does not support Py_Finalize().
         // Thus, a previous call to this method may have already
         // initialized python.
-        // See Boost PYthon documentation for more information:
+        // See Boost Python documentation for more information:
         // https://www.boost.org/doc/libs/1_69_0/libs/python/doc/html/
         // tutorial/tutorial/embedding.html
         if (not Py_IsInitialized())
