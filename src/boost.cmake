@@ -32,9 +32,14 @@ if(VERA_USE_SYSTEM_BOOST)
 else()
   include(ExternalProject)
 
-  set(SOURCEFORGE downloads.sourceforge.net CACHE STRING
-    "Sourceforge host used to download external projects. Use it to force a specific mirror.")
-  mark_as_advanced(SOURCEFORGE)
+  set(BOOST_MIRROR dl.bintray.com CACHE STRING
+    "Host used to download boost. Use it to force a specific mirror.")
+  mark_as_advanced(BOOST_MIRROR)
+
+  set(Boost_VERSION 1.69.0)
+  set(Boost_URL "https://${BOOST_MIRROR}/boostorg/release/1.69.0/source/boost_1_69_0.tar.bz2")
+  set(Boost_URL_HASH "SHA256=8f32d4617390d1c2d16f26a27ab60d97807b35440d45891fa340fc2648b04406")
+
   string(REPLACE ";" "," boostLibsComma "${boostLibs}")
   string(REPLACE ";" " --with-" WITH_LIBS "${boostLibs}")
   set(WITH_LIBS "--with-${WITH_LIBS}")
@@ -73,6 +78,12 @@ else()
 
   set(Boost_LIBRARIES)
   foreach(l ${boostLibs})
+    # Starting with Boost 1.67, Boost Python's libary includes a version suffix.
+    if(NOT (Boost_VERSION VERSION_LESS 1.67))
+      if (${l} STREQUAL "python")
+        set(l "python27")
+      endif()
+    endif()
     if(WIN32)
       list(APPEND Boost_LIBRARIES debug <SOURCE_DIR>/stage/lib/libboost_${l}-vc${msvcver}0-mt-gd-1_56.lib)
       list(APPEND Boost_LIBRARIES optimized <SOURCE_DIR>/stage/lib/libboost_${l}-vc${msvcver}0-mt-1_56.lib)
@@ -82,8 +93,8 @@ else()
   endforeach()
 
   ExternalProject_Add(boost
-    URL http://${SOURCEFORGE}/project/boost/boost/1.60.0/boost_1_60_0.tar.bz2
-    URL_MD5 65a840e1a0b13a558ff19eeb2c4f0cbe
+    URL ${Boost_URL}
+    URL_HASH ${Boost_URL_HASH}
     CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma} --with-toolset=${TOOLSET}
     BUILD_COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam
