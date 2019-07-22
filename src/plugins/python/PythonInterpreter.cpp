@@ -133,8 +133,17 @@ void PythonInterpreter::execute(const std::string & fileName)
 {
     try
     {
-        PyImport_AppendInittab("vera", initvera);
-        Py_Initialize();
+        // Note: Boost Python (as of ver 1.69) does not support Py_Finalize().
+        // Thus, a previous call to this method may have already
+        // initialized python.
+        // See Boost Python documentation for more information:
+        // https://www.boost.org/doc/libs/1_69_0/libs/python/doc/html/
+        // tutorial/tutorial/embedding.html
+        if (not Py_IsInitialized())
+        {
+          PyImport_AppendInittab("vera", initvera);
+          Py_Initialize();
+        }
 
         py::object main_module = py::import("__main__");
         py::object main_namespace = main_module.attr("__dict__");
@@ -158,7 +167,6 @@ void PythonInterpreter::execute(const std::string & fileName)
         py::str formatted = py::str("").join(formatted_list).strip();
         throw std::runtime_error(py::extract<std::string>(formatted));
     }
-    Py_Finalize();
 }
 
 }
