@@ -35,7 +35,7 @@ init:
 install:
   # activetcl is not available in chocolatey since around 2016
   - ps: Start-FileDownload 'http://downloads.activestate.com/ActiveTcl/releases/8.6.9.0/ActiveTcl-8.6.9.8609.2-MSWin32-x64.exe'
-  - cinst ActiveTcl-8.6.9.8609.2-MSWin32-x64.exe
+  - ps: msiexec /i - cinst ActiveTcl-8.6.9.8609.2-MSWin32-x64.exe /quiet /qn /norestart /log install.log
   - choco install pandoc
   
 before_build:
