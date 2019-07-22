@@ -476,7 +476,6 @@ vera_add_rule_test(T002 "${output}")
 
 vera_add_rule_test(T003 "1: keyword 'case' not followed by a single space
 2: keyword 'class' not followed by a single space
-3: keyword 'delete' not followed by a single space
 4: keyword 'enum' not followed by a single space
 5: keyword 'explicit' not followed by a single space
 6: keyword 'extern' not followed by a single space
@@ -487,7 +486,6 @@ vera_add_rule_test(T003 "1: keyword 'case' not followed by a single space
 11: keyword 'using' not followed by a single space
 13: keyword 'case' not followed by a single space
 14: keyword 'class' not followed by a single space
-15: keyword 'delete' not followed by a single space
 16: keyword 'enum' not followed by a single space
 17: keyword 'explicit' not followed by a single space
 18: keyword 'extern' not followed by a single space
