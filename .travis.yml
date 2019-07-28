@@ -13,4 +13,4 @@ script:
   - mkdir -p build
   - cd build && cmake ..
   - make
-  - ctest -L Continuous
+  - ctest -D Continuous
