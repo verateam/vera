@@ -34,8 +34,10 @@ init:
 
 install:
   # activetcl is not available in chocolatey since around 2016
-  - ps: Start-FileDownload 'http://downloads.activestate.com/ActiveTcl/releases/8.6.9.0/ActiveTcl-8.6.9.8609.2-MSWin32-x64.exe'
-  - ps: msiexec /i ActiveTcl-8.6.9.8609.2-MSWin32-x64.exe
+  - ps: Find-Package -Name ActiveTcl
+#  - ps: Start-FileDownload 'http://downloads.activestate.com/ActiveTcl/releases/8.6.9.0/ActiveTcl-8.6.9.8609.2-MSWin32-x64.exe'
+  - ps: Start-FileDownload 'https://freefr.dl.sourceforge.net/project/magicsplat/magicsplat-tcl/tcl-8.6.9-installer-1.9.1-x64.msi'
+  - ps: msiexec /i tcl-8.6.9-installer-1.9.1-x64.msi
   - choco install pandoc
   
 before_build:
