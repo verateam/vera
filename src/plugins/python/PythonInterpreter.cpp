@@ -123,7 +123,7 @@ BOOST_PYTHON_MODULE(vera)
   py::def("getLineCount", &Structures::SourceLines::getLineCount);
 
   py::def("getLine", &Structures::SourceLines::getLine,
-      py::return_value_policy<py::reference_existing_object>());
+      py::return_value_policy<py::copy_const_reference>());
 
   py::def("getAllLines", &Structures::SourceLines::getAllLines,
       py::return_value_policy<py::reference_existing_object>());
