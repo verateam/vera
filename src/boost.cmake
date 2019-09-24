@@ -8,7 +8,16 @@ mark_as_advanced(VERA_USE_SYSTEM_BOOST)
 
 set(boostLibs filesystem system program_options regex wave)
 if(VERA_PYTHON)
-  list(APPEND boostLibs python)
+  # Note that Boost Python components require a Python version
+  # suffix (Boost 1.67 and later), e.g. python36 or python27 for
+  # the versions built against Python 3.6 and 2.7, respectively.
+  # This also applies to additional components using Python
+  # including mpi_python and numpy. Earlier Boost releases may use
+  # distribution-specific suffixes such as 2, 3 or 2.7. These may also
+  # be used as suffixes, but note that they are not portable.
+  #
+  # from https://cmake.org/cmake/help/latest/module/FindBoost.html
+  list(APPEND boostLibs python27)
 endif()
 
 if(VERA_USE_SYSTEM_BOOST)
