@@ -41,13 +41,7 @@ if(VERA_USE_SYSTEM_BOOST)
 else()
   include(ExternalProject)
 
-  set(BOOST_MIRROR dl.bintray.com CACHE STRING
-    "Host used to download boost. Use it to force a specific mirror.")
-  mark_as_advanced(BOOST_MIRROR)
-
   set(Boost_VERSION 1.69.0)
-  set(Boost_URL "https://${BOOST_MIRROR}/boostorg/release/1.69.0/source/boost_1_69_0.tar.bz2")
-  set(Boost_URL_HASH "SHA256=8f32d4617390d1c2d16f26a27ab60d97807b35440d45891fa340fc2648b04406")
 
   string(REPLACE "python27" "python" boostLibs "${boostLibs}")
   string(REPLACE ";" "," boostLibsComma "${boostLibs}")
@@ -103,8 +97,9 @@ else()
   endforeach()
 
   ExternalProject_Add(boost
-    URL ${Boost_URL}
-    URL_HASH ${Boost_URL_HASH}
+    GIT_REPOSITORY https://github.com/boostorg/boost.git
+    GIT_TAG boost-${Boost_VERSION}
+    GIT_PROGRESS TRUE
     CONFIGURE_COMMAND ./${bootstrap} --with-libraries=${boostLibsComma} --with-toolset=${TOOLSET}
     BUILD_COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam
