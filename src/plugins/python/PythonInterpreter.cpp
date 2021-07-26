@@ -136,7 +136,8 @@ void PythonInterpreter::execute(const std::string& fileName) {
 
     py::exec_file(fileName.c_str(), main_namespace, main_namespace);
   } catch (py::error_already_set const&) {
-    // exception handling based on https://thejosephturner.com/blog/post/embedding-python-in-c-applications-with-boostpython-part-2/ 
+    // exception handling based on
+    // https://thejosephturner.com/blog/post/embedding-python-in-c-applications-with-boostpython-part-2/
     PyObject* type_ptr = NULL;
     PyObject* value_ptr = NULL;
     PyObject* traceback_ptr = NULL;
@@ -147,19 +148,21 @@ void PythonInterpreter::execute(const std::string& fileName) {
       py::handle<> h_type(type_ptr);
       py::str type_pstr(h_type);
       py::extract<std::string> e_type_pstr(type_pstr);
-      if (e_type_pstr.check())
+      if (e_type_pstr.check()) {
         ret = e_type_pstr();
-      else
+      } else {
         ret = "Unknown exception type";
+      }
     }
     if (value_ptr != NULL) {
       py::handle<> h_val(value_ptr);
       py::str a(h_val);
       py::extract<std::string> returned(a);
-      if (returned.check())
+      if (returned.check()) {
         ret += ": " + returned();
-      else
+      } else {
         ret += std::string(": Unparseable Python error: ");
+      }
     }
     if (traceback_ptr != NULL) {
       py::handle<> h_tb(traceback_ptr);
@@ -168,10 +171,11 @@ void PythonInterpreter::execute(const std::string& fileName) {
       py::object tb_list(fmt_tb(h_tb));
       py::object tb_str(py::str("\n").join(tb_list));
       py::extract<std::string> returned(tb_str);
-      if (returned.check())
+      if (returned.check()) {
         ret += ": " + returned();
-      else
+      } else {
         ret += std::string(": Unparseable Python traceback");
+      }
     }
 
     throw std::runtime_error(ret);
