@@ -141,7 +141,7 @@ void PythonInterpreter::execute(const std::string & fileName)
         // tutorial/tutorial/embedding.html
         if (not Py_IsInitialized())
         {
-          PyImport_AppendInittab("vera", initvera);
+          PyImport_AppendInittab("vera", &PyInit_vera);
           Py_Initialize();
         }
 

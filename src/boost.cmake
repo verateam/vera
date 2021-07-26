@@ -17,7 +17,7 @@ if(VERA_PYTHON)
   # be used as suffixes, but note that they are not portable.
   #
   # from https://cmake.org/cmake/help/latest/module/FindBoost.html
-  list(APPEND boostLibs python27)
+  list(APPEND boostLibs python38)
 endif()
 
 if(VERA_USE_SYSTEM_BOOST)
@@ -41,15 +41,15 @@ if(VERA_USE_SYSTEM_BOOST)
 else()
   include(ExternalProject)
 
-  set(BOOST_MIRROR dl.bintray.com CACHE STRING
+  set(BOOST_MIRROR boostorg.jfrog.io CACHE STRING
     "Host used to download boost. Use it to force a specific mirror.")
   mark_as_advanced(BOOST_MIRROR)
 
   set(Boost_VERSION 1.69.0)
-  set(Boost_URL "https://${BOOST_MIRROR}/boostorg/release/1.69.0/source/boost_1_69_0.tar.bz2")
+  set(Boost_URL "https://${BOOST_MIRROR}/artifactory/main/release/1.69.0/source/boost_1_69_0.tar.bz2")
   set(Boost_URL_HASH "SHA256=8f32d4617390d1c2d16f26a27ab60d97807b35440d45891fa340fc2648b04406")
 
-  string(REPLACE "python27" "python" boostLibs "${boostLibs}")
+  string(REPLACE "python38" "python" boostLibs "${boostLibs}")
   string(REPLACE ";" "," boostLibsComma "${boostLibs}")
   string(REPLACE ";" " --with-" WITH_LIBS "${boostLibs}")
   set(WITH_LIBS "--with-${WITH_LIBS}")
@@ -91,7 +91,7 @@ else()
     # Starting with Boost 1.67, Boost Python's libary includes a version suffix.
     if(NOT (Boost_VERSION VERSION_LESS 1.67))
       if (${l} STREQUAL "python")
-        set(l "python27")
+        set(l "python38")
       endif()
     endif()
     if(WIN32)
