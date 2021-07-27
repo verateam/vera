@@ -10,6 +10,7 @@
 #include "PythonInterpreter.h"
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
 #include <iterator>
@@ -130,6 +131,11 @@ void PythonInterpreter::execute(const std::string& fileName) {
       PyImport_AppendInittab("vera", &PyInit_vera);
       Py_Initialize();
     }
+
+    PyRun_SimpleString("import sys");
+    boost::format fmt = boost::format("sys.path.append(\"%1%\")") %  boost::filesystem::path(fileName).parent_path().string();
+    PyRun_SimpleString(fmt.str().c_str());
+
     py::object main_module = py::import("__main__");
     py::object main_namespace = main_module.attr("__dict__");
     main_namespace["vera"] = py::import("vera");
