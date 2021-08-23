@@ -112,6 +112,8 @@ BOOST_PYTHON_MODULE(vera) {
 
   py::def("getLineCount", &Structures::SourceLines::getLineCount);
 
+  py::def("isBinary", &Structures::SourceLines::isBinary);
+
   py::def("getLine", &Structures::SourceLines::getLine,
           py::return_value_policy<py::copy_const_reference>());
 

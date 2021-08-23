@@ -64,6 +64,11 @@ int getLineCount(const std::string & sourceName)
     return Vera::Structures::SourceLines::getLineCount(sourceName);
 }
 
+bool isBinary(const std::string & sourceName)
+{
+    return Vera::Structures::SourceLines::isBinary(sourceName);
+}
+
 std::string getLine(const std::string & sourceName, int lineNumber)
 {
     return Vera::Structures::SourceLines::getLine(sourceName, lineNumber);

@@ -21,8 +21,10 @@ namespace // unnamed
 
 typedef std::map<Vera::Structures::SourceFiles::FileName,
     Vera::Structures::SourceLines::LineCollection> SourceFileCollection;
+typedef std::map<Vera::Structures::SourceFiles::FileName, bool> IsBinaryFileCollection;
 
 SourceFileCollection sources_;
+IsBinaryFileCollection areBinaries_;
 
 } // unnamed namespace
 
@@ -34,17 +36,8 @@ namespace Structures
 
 const SourceLines::LineCollection & SourceLines::getAllLines(const SourceFiles::FileName & name)
 {
-    const SourceFileCollection::const_iterator it = sources_.find(name);
-    if (it != sources_.end())
-    {
-        return it->second;
-    }
-    else
-    {
-        // lazy load of the source file
-        loadFile(name);
-        return sources_[name];
-    }
+    loadFile(name);
+    return sources_[name];
 }
 
 void SourceLines::loadFile(const SourceFiles::FileName & name)
@@ -74,12 +67,22 @@ void SourceLines::loadFile(const SourceFiles::FileName & name)
 
 void SourceLines::loadFile(std::istream & file, const SourceFiles::FileName & name)
 {
+    if (sources_.find(name) != sources_.end())
+    {
+        return;
+    }
     LineCollection & lines = sources_[name];
-
+    bool & isBinary = areBinaries_[name];
+    
     std::string line;
     Tokens::FileContent fullSource;
     while (getline(file, line))
     {
+        if (line.find('\0') != std::string::npos) {
+            isBinary = true;
+            lines.clear();
+            return;
+        }
         lines.push_back(line);
         fullSource += line;
 
@@ -101,6 +104,12 @@ void SourceLines::loadFile(std::istream & file, const SourceFiles::FileName & na
 int SourceLines::getLineCount(const SourceFiles::FileName & name)
 {
     return static_cast<int>(getAllLines(name).size());
+}
+
+bool SourceLines::isBinary(const SourceFiles::FileName & name)
+{
+    loadFile(name);
+    return areBinaries_[name];
 }
 
 const std::string & SourceLines::getLine(const SourceFiles::FileName & name, int lineNumber)

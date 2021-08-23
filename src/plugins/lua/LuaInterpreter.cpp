@@ -165,6 +165,8 @@ void LuaInterpreter::execute(const std::string & fileName)
 
       luabind::def("getLineCount", &Structures::SourceLines::getLineCount),
 
+      luabind::def("isBinary", &Structures::SourceLines::isBinary),
+
       luabind::def("getLine", &Structures::SourceLines::getLine),
 
       luabind::def("getAllLines", &Structures::SourceLines::getAllLines,

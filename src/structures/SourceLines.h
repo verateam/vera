@@ -25,6 +25,7 @@ public:
 
     static const LineCollection & getAllLines(const SourceFiles::FileName & name);
     static int getLineCount(const SourceFiles::FileName & name);
+    static bool isBinary(const SourceFiles::FileName & name);
     static const std::string & getLine(const SourceFiles::FileName & name, int lineNumber);
 
     static void loadFile(const SourceFiles::FileName & name);
