@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.6)
 set(VERA_MAJOR 1)
 set(VERA_MINOR 3)
 set(VERA_BUILD 0)
-set(VERA_VERSION "${VERA_MAJOR}.${VERA_MINOR}.${VERA_BUILD}")
+set(VERA_VERSION "${VERA_MAJOR}.${VERA_MINOR}.${VERA_BUILD}-banana")
 
 add_subdirectory(src)
 add_subdirectory(doc)
