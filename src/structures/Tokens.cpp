@@ -374,7 +374,7 @@ void Tokens::parse(const SourceFiles::FileName & name, const FileContent & src)
             const position_type pos(name.c_str());
             lexer_type it = lexer_type(src.begin(), src.end(), pos,
                 boost::wave::language_support(
-                    boost::wave::support_cpp | boost::wave::support_option_long_long));
+                    boost::wave::support_cpp | boost::wave::support_option_long_long | boost::wave::support_option_single_line));
             const lexer_type end = lexer_type();
 
             const int lineCount = SourceLines::getLineCount(name);
