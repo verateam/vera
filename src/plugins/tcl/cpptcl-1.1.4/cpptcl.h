@@ -17,7 +17,7 @@
 #include <map>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 
 namespace Tcl

@@ -59,13 +59,15 @@ public:
           if (cmem_)
           {
                dispatch<R>::template do_dispatch<T1>(
-                    interp, boost::bind(cf_, p, _1),
+                    interp, boost::bind(cf_, p,
+                         boost::placeholders::_1),
                     tcl_cast<T1>::from(interp, objv[2]));
           }
           else
           {
                dispatch<R>::template do_dispatch<T1>(
-                    interp, boost::bind(f_, p, _1),
+                    interp, boost::bind(f_, p,
+                         boost::placeholders::_1),
                     tcl_cast<T1>::from(interp, objv[2]));
           }
      }
@@ -95,14 +97,18 @@ public:
           if (cmem_)
           {
                dispatch<R>::template do_dispatch<T1, T2>(
-                    interp, boost::bind(cf_, p, _1, _2),
+                    interp, boost::bind(cf_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]));
           }
           else
           {
                dispatch<R>::template do_dispatch<T1, T2>(
-                    interp, boost::bind(f_, p, _1, _2),
+                    interp, boost::bind(f_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]));
           }
@@ -133,7 +139,10 @@ public:
           if (cmem_)
           {
                dispatch<R>::template do_dispatch<T1, T2, T3>(
-                    interp, boost::bind(cf_, p, _1, _2, _3),
+                    interp, boost::bind(cf_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]));
@@ -141,7 +150,10 @@ public:
           else
           {
                dispatch<R>::template do_dispatch<T1, T2, T3>(
-                    interp, boost::bind(f_, p, _1, _2, _3),
+                    interp, boost::bind(f_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]));
@@ -174,7 +186,11 @@ public:
           if (cmem_)
           {
                dispatch<R>::template do_dispatch<T1, T2, T3, T4>(
-                    interp, boost::bind(cf_, p, _1, _2, _3, _4),
+                    interp, boost::bind(cf_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -183,7 +199,11 @@ public:
           else
           {
                dispatch<R>::template do_dispatch<T1, T2, T3, T4>(
-                    interp, boost::bind(f_, p, _1, _2, _3, _4),
+                    interp, boost::bind(f_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -217,7 +237,12 @@ public:
           if (cmem_)
           {
                dispatch<R>::template do_dispatch<T1, T2, T3, T4, T5>(
-                    interp, boost::bind(cf_, p, _1, _2, _3, _4, _5),
+                    interp, boost::bind(cf_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -227,7 +252,12 @@ public:
           else
           {
                dispatch<R>::template do_dispatch<T1, T2, T3, T4, T5>(
-                    interp, boost::bind(f_, p, _1, _2, _3, _4, _5),
+                    interp, boost::bind(f_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -262,7 +292,13 @@ public:
           if (cmem_)
           {
                dispatch<R>::template do_dispatch<T1, T2, T3, T4, T5, T6>(
-                    interp, boost::bind(cf_, p, _1, _2, _3, _4, _5, _6),
+                    interp, boost::bind(cf_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5,
+                         boost::placeholders::_6),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -273,7 +309,13 @@ public:
           else
           {
                dispatch<R>::template do_dispatch<T1, T2, T3, T4, T5, T6>(
-                    interp, boost::bind(f_, p, _1, _2, _3, _4, _5, _6),
+                    interp, boost::bind(f_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5,
+                         boost::placeholders::_6),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -309,7 +351,14 @@ public:
           if (cmem_)
           {
                dispatch<R>::template do_dispatch<T1, T2, T3, T4, T5, T6, T7>(
-                    interp, boost::bind(cf_, p, _1, _2, _3, _4, _5, _6, _7),
+                    interp, boost::bind(cf_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5,
+                         boost::placeholders::_6,
+                         boost::placeholders::_7),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -321,7 +370,14 @@ public:
           else
           {
                dispatch<R>::template do_dispatch<T1, T2, T3, T4, T5, T6, T7>(
-                    interp, boost::bind(f_, p, _1, _2, _3, _4, _5, _6, _7),
+                    interp, boost::bind(f_, p,
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5,
+                         boost::placeholders::_6,
+                         boost::placeholders::_7),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -360,7 +416,15 @@ public:
                dispatch<R>::template do_dispatch<
                     T1, T2, T3, T4, T5, T6, T7, T8>(
                     interp, boost::bind(cf_, p,
-                         _1, _2, _3, _4, _5, _6, _7, _8),
+                    
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5,
+                         boost::placeholders::_6,
+                         boost::placeholders::_7,
+                         boost::placeholders::_8),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -375,7 +439,15 @@ public:
                dispatch<R>::template do_dispatch<
                     T1, T2, T3, T4, T5, T6, T7, T8>(
                     interp, boost::bind(f_, p,
-                         _1, _2, _3, _4, _5, _6, _7, _8),
+                    
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5,
+                         boost::placeholders::_6,
+                         boost::placeholders::_7,
+                         boost::placeholders::_8),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -416,7 +488,16 @@ public:
                dispatch<R>::template do_dispatch<
                     T1, T2, T3, T4, T5, T6, T7, T8, T9>(
                     interp, boost::bind(cf_, p,
-                         _1, _2, _3, _4, _5, _6, _7, _8, _9),
+                    
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5,
+                         boost::placeholders::_6,
+                         boost::placeholders::_7,
+                         boost::placeholders::_8,
+                         boost::placeholders::_9),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),
@@ -432,7 +513,16 @@ public:
                dispatch<R>::template do_dispatch<
                     T1, T2, T3, T4, T5, T6, T7, T8, T9>(
                     interp, boost::bind(f_, p,
-                         _1, _2, _3, _4, _5, _6, _7, _8, _9),
+                    
+                         boost::placeholders::_1,
+                         boost::placeholders::_2,
+                         boost::placeholders::_3,
+                         boost::placeholders::_4,
+                         boost::placeholders::_5,
+                         boost::placeholders::_6,
+                         boost::placeholders::_7,
+                         boost::placeholders::_8,
+                         boost::placeholders::_9),
                     tcl_cast<T1>::from(interp, objv[2]),
                     tcl_cast<T2>::from(interp, objv[3]),
                     tcl_cast<T3>::from(interp, objv[4]),

@@ -14,7 +14,7 @@
 #include <boost/wave/cpplexer/cpplexer_exceptions.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -303,7 +303,7 @@ CompiledFilterSequence prepareCompiledFilter(
 
         for ( ; it != end; ++it)
         {
-            ret.push_back(bind(matchTokenBaseId, _1, tokenIdFromTokenFilter(*it)));
+            ret.push_back(bind(matchTokenBaseId, boost::placeholders::_1, tokenIdFromTokenFilter(*it)));
         }
     }
 
