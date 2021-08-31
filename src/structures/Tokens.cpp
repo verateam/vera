@@ -363,7 +363,9 @@ namespace Structures
 void Tokens::parse(const SourceFiles::FileName & name, const FileContent & src)
 {
     TokenCollection & tokensInFile = fileTokens_[name];
-
+    // wave throws exceptions when given an empty file
+    if (src.empty() == false)
+    {
     try
     {
         typedef boost::wave::cpplexer::lex_token<> token_type;
@@ -426,6 +428,7 @@ void Tokens::parse(const SourceFiles::FileName & name, const FileContent & src)
         ss << "illegal token in column " << e.column_no()
             << ", giving up (hint: fix the file or remove it from the working set)";
         Plugins::Reports::internal(name, e.line_no(), ss.str());
+    }
     }
 
 }
