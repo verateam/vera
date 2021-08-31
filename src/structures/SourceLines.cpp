@@ -78,7 +78,8 @@ void SourceLines::loadFile(std::istream & file, const SourceFiles::FileName & na
     Tokens::FileContent fullSource;
     while (getline(file, line))
     {
-        if (line.find('\0') != std::string::npos) {
+        if (line.find('\0') != std::string::npos)
+        {
             isBinary = true;
             lines.clear();
             return;

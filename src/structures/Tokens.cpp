@@ -21,6 +21,7 @@
 #include <sstream>
 #include <cctype>
 
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace // unnamed
 {
@@ -65,7 +66,6 @@ struct TokenRef
         else
         {
             // token value has to be retrieved from the physical line collection
-
             return Vera::Structures::SourceLines::getLine(fileName, line_).substr(column_, length_);
         }
     }
@@ -303,7 +303,9 @@ CompiledFilterSequence prepareCompiledFilter(
 
         for ( ; it != end; ++it)
         {
-            ret.push_back(bind(matchTokenBaseId, boost::placeholders::_1, tokenIdFromTokenFilter(*it)));
+            ret.push_back(bind(matchTokenBaseId,
+                boost::placeholders::_1,
+                tokenIdFromTokenFilter(*it)));
         }
     }
 
@@ -362,71 +364,70 @@ void Tokens::parse(const SourceFiles::FileName & name, const FileContent & src)
 {
     TokenCollection & tokensInFile = fileTokens_[name];
 
-    // wave throws exceptions when given an empty file
-    if (src.empty() == false)
+    try
     {
-        try
+        typedef boost::wave::cpplexer::lex_token<> token_type;
+        typedef boost::wave::cpplexer::lex_iterator<token_type> lexer_type;
+        typedef token_type::position_type position_type;
+
+        const position_type pos(name.c_str());
+        lexer_type it = lexer_type(src.begin(), src.end(), pos,
+            boost::wave::language_support(
+                boost::wave::support_cpp |
+                boost::wave::support_option_long_long |
+                boost::wave::support_option_single_line));
+        const lexer_type end = lexer_type();
+
+        const int lineCount = SourceLines::getLineCount(name);
+
+        for ( ; it != end; ++it)
         {
-            typedef boost::wave::cpplexer::lex_token<> token_type;
-            typedef boost::wave::cpplexer::lex_iterator<token_type> lexer_type;
-            typedef token_type::position_type position_type;
+            const boost::wave::token_id id(*it);
 
-            const position_type pos(name.c_str());
-            lexer_type it = lexer_type(src.begin(), src.end(), pos,
-                boost::wave::language_support(
-                    boost::wave::support_cpp | boost::wave::support_option_long_long | boost::wave::support_option_single_line));
-            const lexer_type end = lexer_type();
+            const token_type::position_type pos = it->get_position();
+            const std::string value = it->get_value().c_str();
+            const int line = pos.get_line();
+            const int column = pos.get_column() - 1;
+            const int length = static_cast<int>(value.size());
 
-            const int lineCount = SourceLines::getLineCount(name);
-
-            for ( ; it != end; ++it)
+            bool useReference = true;
+            if (id == boost::wave::T_NEWLINE || id == boost::wave::T_EOF || line > lineCount)
             {
-                const boost::wave::token_id id(*it);
-
-                const token_type::position_type pos = it->get_position();
-                const std::string value = it->get_value().c_str();
-                const int line = pos.get_line();
-                const int column = pos.get_column() - 1;
-                const int length = static_cast<int>(value.size());
-
-                bool useReference = true;
-                if (id == boost::wave::T_NEWLINE || id == boost::wave::T_EOF || line > lineCount)
+                useReference = false;
+            }
+            else
+            {
+                const std::string & sourceLine = SourceLines::getLine(name, line);
+                if (column > static_cast<int>(sourceLine.size()) ||
+                    value != sourceLine.substr(column, length))
                 {
                     useReference = false;
                 }
-                else
-                {
-                    const std::string & sourceLine = SourceLines::getLine(name, line);
-                    if (column > static_cast<int>(sourceLine.size()) ||
-                        value != sourceLine.substr(column, length))
-                    {
-                        useReference = false;
-                    }
-                }
+            }
 
-                if (useReference)
-                {
-                    // the reference representation of the token is stored
+            if (useReference)
+            {
+                // the reference representation of the token is stored
 
-                    tokensInFile.push_back(TokenRef(id, line, column, length));
-                }
-                else
-                {
-                    // value of the token has no representation in the physical line
-                    // so the real token value is stored in physicalTokens
+                tokensInFile.push_back(TokenRef(id, line, column, length));
+            }
+            else
+            {
+                // value of the token has no representation in the physical line
+                // so the real token value is stored in physicalTokens
 
-                    tokensInFile.push_back(TokenRef(id, line, column, length, value));
-                }
+                tokensInFile.push_back(TokenRef(id, line, column, length, value));
             }
         }
-        catch (const boost::wave::cpplexer::cpplexer_exception & e)
-        {
-            std::ostringstream ss;
-            ss << "illegal token in column " << e.column_no()
-                << ", giving up (hint: fix the file or remove it from the working set)";
-            Plugins::Reports::internal(name, e.line_no(), ss.str());
-        }
     }
+    catch (const boost::wave::cpplexer::cpplexer_exception & e)
+    {
+        std::ostringstream ss;
+        ss << "illegal token in column " << e.column_no()
+            << ", giving up (hint: fix the file or remove it from the working set)";
+        Plugins::Reports::internal(name, e.line_no(), ss.str());
+    }
+
 }
 
 Tokens::TokenSequence Tokens::getTokens(const SourceFiles::FileName & fileName,
@@ -484,8 +485,13 @@ Tokens::TokenSequence Tokens::getTokens(const SourceFiles::FileName & fileName,
                 {
                     value = token.getTokenValue(fileName);
                 }
+                // remove last \n if needed (seem mandatory for CPPCOMMENT)
+                if (tokenName == "cppcomment" && boost::algorithm::ends_with(value, "\n"))
+                {
+                    value = value.substr(0, value.size()-1);
+                }
 
-                ret.push_back(Token(value, line, column, tokenName));
+                ret.push_back(Token(fileName, value, line, column, tokenName));
             }
         }
     }

@@ -148,6 +148,8 @@ void LuaInterpreter::execute(const std::string & fileName)
   [
 
       luabind::class_<Structures::Token>("token")
+          .def_readonly("file", &Structures::Token::file_)
+          .def_readonly("raw", &Structures::Token::raw_)
           .def_readonly("value", &Structures::Token::value_)
           .def_readonly("line", &Structures::Token::line_)
           .def_readonly("column", &Structures::Token::column_)

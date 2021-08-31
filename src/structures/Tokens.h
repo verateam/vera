@@ -9,6 +9,7 @@
 #define TOKENS_H_INCLUDED
 
 #include "SourceFiles.h"
+#include "SourceLines.h"
 #include <string>
 #include <vector>
 
@@ -26,47 +27,60 @@ public:
 
 struct Token
 {
-    Token(const std::string & v, int ln, int cl, const std::string & n)
-        : value_(v), line_(ln), column_(cl), name_(n) {}
+  Token(const std::string& f, const std::string& v, int ln, int cl, const std::string& nm)
+          : file_(f), raw_(v), value_(v), line_(ln), column_(cl), name_(nm)
+    {
+      if (name_ == "eof")
+      {
+        return;
+      }
+    }
 
-    Token()
-        : value_(""), line_(0), column_(0), name_("") {}
+  Token()
+        : file_(""), raw_(""), value_(""), line_(0), column_(0), name_("")
+  {}
 
     bool operator==(Token const& t) const
     {
-      return value_ == t.value_
-          && line_ == t.line_
-          && column_ == t.column_
-          && name_ == t.name_;
+      return file_ == t.file_
+            && raw_ == t.raw_
+            && value_ == t.value_
+            && line_ == t.line_
+            && column_ == t.column_
+            && name_ == t.name_;
     }
 
+    std::string file_;
+    std::string raw_;
     std::string value_;
     int line_;
     int column_;
     std::string name_;
 };
 
-
 class Tokens
 {
-public:
-    typedef std::string FileContent;
+ public:
+  typedef std::string FileContent;
 
-    typedef std::vector<Token> TokenSequence;
+  typedef std::vector<Token> TokenSequence;
 
-    typedef std::string TokenFilter;
+  typedef std::string TokenFilter;
 
-    typedef std::vector<TokenFilter> FilterSequence;
+  typedef std::vector<TokenFilter> FilterSequence;
 
-    static void parse(const SourceFiles::FileName & name, const FileContent & src);
+  static void parse(const SourceFiles::FileName& name, const FileContent& src);
 
-    static TokenSequence getTokens(const SourceFiles::FileName & name,
-        int fromLine, int fromColumn, int toLine, int toColumn,
-        const FilterSequence & filter);
+  static TokenSequence getTokens(const SourceFiles::FileName& name,
+                                 int fromLine,
+                                 int fromColumn,
+                                 int toLine,
+                                 int toColumn,
+                                 const FilterSequence& filter);
 };
 
-} // namespace Structures
+}  // namespace Structures
 
-} // namespace Vera
+}  // namespace Vera
 
-#endif // TOKENS_H_INCLUDED
+#endif  // TOKENS_H_INCLUDED

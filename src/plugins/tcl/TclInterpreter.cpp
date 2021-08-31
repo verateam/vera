@@ -116,6 +116,8 @@ Tcl::object getTokens(const std::string & sourceName, int fromLine, int fromColu
         singleToken.append(*pInter, Tcl::object(it->line_));
         singleToken.append(*pInter, Tcl::object(it->column_));
         singleToken.append(*pInter, Tcl::object(it->name_));
+        singleToken.append(*pInter, Tcl::object(it->file_));
+        singleToken.append(*pInter, Tcl::object(it->raw_));
 
         ret.append(*pInter, singleToken);
     }
