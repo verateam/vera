@@ -14,6 +14,7 @@
 #include <sstream>
 #include <cstring>
 #include <cerrno>
+#include <boost/algorithm/string.hpp>
 
 
 namespace // unnamed
@@ -76,29 +77,16 @@ void SourceLines::loadFile(std::istream & file, const SourceFiles::FileName & na
     
     std::string line;
     Tokens::FileContent fullSource;
-    while (getline(file, line))
+
+    fullSource.assign( (std::istreambuf_iterator<char>(file) ),
+                (std::istreambuf_iterator<char>()    ) );
+    if (fullSource.find('\0') != std::string::npos)
     {
-        if (line.find('\0') != std::string::npos)
-        {
-            isBinary = true;
-            lines.clear();
-            return;
-        }
-        lines.push_back(line);
-        fullSource += line;
-
-        // built-in rule
-        if (file.eof())
-        {
-            // Plugins::Reports::internal(name, static_cast<int>(lines.size()),
-            //     "no newline at end of file");
-        }
-        else
-        {
-            fullSource += '\n';
-        }
+        isBinary = true;
+        fullSource.clear();
+        return;
     }
-
+    boost::split(lines, fullSource, boost::is_any_of("\n"));
     Tokens::parse(name, fullSource);
 }
 
