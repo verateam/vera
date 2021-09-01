@@ -132,7 +132,7 @@ BOOST_PYTHON_MODULE(vera)
           py::return_value_policy<py::copy_const_reference>());
 
   py::def("getAllLines", &Structures::SourceLines::getAllLines,
-          py::return_value_policy<py::reference_existing_object>());
+          py::return_value_policy<py::copy_const_reference>());
 };
 
 void PythonInterpreter::execute(const std::string& fileName)
