@@ -4,13 +4,12 @@ mark_as_advanced(VERA_USE_SYSTEM_PYTHON)
 
 if(VERA_USE_SYSTEM_PYTHON)
   set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-  find_package(PythonInterp 3)
-  find_package(PythonLibs 3)
-  if(WIN32 AND NOT PYTHONLIBS_FOUND)
+  find_package(Python3 COMPONENTS Interpreter Development)
+  if(NOT Python3_FOUND)
     message(FATAL_ERROR "Could NOT find Python. Turn VERA_USE_SYSTEM_PYTHON to OFF to build it with vera++.")
   endif()
-  include_directories(BEFORE SYSTEM ${PYTHON_INCLUDE_DIR})
-  link_directories(${PYTHON_LIBRARY_DIR})
+  include_directories(BEFORE SYSTEM ${Python3_INCLUDE_DIRS})
+  link_directories(${Python3_LIBRARY_DIRS})
   # no target
   set(Python_TARGET)
 else()
@@ -130,8 +129,8 @@ else()
     # copy the runtime near vera++ executable so we can run the tests
     ExternalProject_Add_Step(python install_dll
       COMMAND ${CMAKE_COMMAND} -E copy
-        ${INSTALL_DIR}/bin/python39.dll
-        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/python39.dll
+        ${INSTALL_DIR}/bin/python310.dll
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/python310.dll
       DEPENDEES install)
     ExternalProject_Add_Step(python install_libs
       COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -139,23 +138,23 @@ else()
         ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/lib
       DEPENDEES install)
     set(PYTHON_EXECUTABLE ${INSTALL_DIR}/bin/python.exe)
-    set(PYTHON_LIBRARIES debug ${BINARY_DIR}/libs/Debug/python39.lib
-          optimized ${BINARY_DIR}/libs/Release/python39.lib)
+    set(PYTHON_LIBRARIES debug ${BINARY_DIR}/libs/Debug/python310.lib
+          optimized ${BINARY_DIR}/libs/Release/python310.lib)
     set(PYTHON_INCLUDE_DIR  ${INSTALL_DIR}/include)
-    list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS "${INSTALL_DIR}/bin/python39.dll")
+    list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS "${INSTALL_DIR}/bin/python310.dll")
     install(DIRECTORY ${INSTALL_DIR}/lib DESTINATION bin)
   elseif(APPLE)
     message(WARNING "Python won't be installed. Setting VERA_USE_SYSTEM_PYTHON to OFF should only be used for testing purpose on this system.")
     set(PYTHON_EXECUTABLE ${INSTALL_DIR}/bin/python)
-    set(PYTHON_LIBRARIES ${INSTALL_DIR}/lib/libpython3.9.dylib)
-    set(PYTHON_INCLUDE_DIR  ${INSTALL_DIR}/include/python3.9)
+    set(PYTHON_LIBRARIES ${INSTALL_DIR}/lib/libpython3.10.dylib)
+    set(PYTHON_INCLUDE_DIR  ${INSTALL_DIR}/include/python3.10)
   else()
     message(WARNING "Python won't be installed. Setting VERA_USE_SYSTEM_PYTHON to OFF should only be used for testing purpose on this system.")
     set(PYTHON_EXECUTABLE ${INSTALL_DIR}/bin/python)
-    set(PYTHON_LIBRARIES ${INSTALL_DIR}/lib/libpython3.9.so)
-    set(PYTHON_INCLUDE_DIR  ${INSTALL_DIR}/include/python3.9)
+    set(PYTHON_LIBRARIES ${INSTALL_DIR}/lib/libpython3.10.so)
+    set(PYTHON_INCLUDE_DIR  ${INSTALL_DIR}/include/python3.10)
   endif()
-  set(PYTHON_VERSION 3.9.7)
+  set(PYTHON_VERSION 3.10.4)
   include_directories(SYSTEM ${PYTHON_INCLUDE_DIR})
   link_directories(${BINARY_DIR})
   set(Python_TARGET python)
